@@ -15,14 +15,19 @@ fun youtubeEmbedHtml(appId: String): String {
         label, input { display: block; }
         input { box-sizing: border-box; width: 100%; padding: 12px; margin: 8px 0; font-size: 16px; }
         button { padding: 12px 16px; margin: 4px 4px 4px 0; font: inherit; }
-        #viewport { min-width: 200px; height: max(220px, 56vw); max-height: 405px; margin: 16px 0; }
+        #viewport { min-width: 200px; height: max(220px, 56vw); max-height: 405px; margin: 16px 0; position: sticky; top: 0; z-index: 1; background: #000; }
         #player, iframe { width: 100%; height: 100%; border: 0; }
         #status { min-height: 3em; }
+        section { overflow-wrap: anywhere; }
+        #lyrics-results button { display: block; width: 100%; text-align: left; }
+        .lyric-current { font-size: 1.4rem; font-weight: 700; min-height: 3em; white-space: pre-wrap; }
+        .lyric-context, .lyric-plain { white-space: pre-wrap; }
+        .lyric-context { color: #596d65; min-height: 1.5em; }
         </style>
         </head>
         <body><main>
         <h1>YouTube 재생</h1>
-        <p>영상 링크를 넣고 YouTube 플레이어에서 재생해 주세요. 가사 연결은 아직 지원하지 않아요.</p>
+        <p>YouTube 영상을 연 뒤, 아래에서 가사를 검색해 함께 연습해 보세요.</p>
         <form id="open">
         <label for="video-url">YouTube 영상 링크 또는 ID</label>
         <input id="video-url" type="text" inputmode="url" autocapitalize="none" autocomplete="off"
@@ -34,6 +39,7 @@ fun youtubeEmbedHtml(appId: String): String {
         <p id="position">0:00 / 0:00</p>
         <button id="back" disabled>5초 뒤로</button><button id="forward" disabled>5초 앞으로</button>
         <p>화면을 벗어나거나 영상이 가려지면 재생을 멈춰요. 다른 영상으로 바꾸려면 위에 새 링크를 넣어 주세요.</p>
+        __LYRICS__
         </main>
         <script>
         const input = document.getElementById('video-url');
@@ -87,6 +93,7 @@ fun youtubeEmbedHtml(appId: String): String {
           const current = ++generation;
           let settled = false;
           ready = false; controls(false);
+          resetLyrics();
           if (player) player.destroy();
           player = null;
           const target = document.createElement('div'); target.id = 'player';
@@ -135,11 +142,12 @@ fun youtubeEmbedHtml(appId: String): String {
         back.addEventListener('click', function() { seek(-5); });
         forward.addEventListener('click', function() { seek(5); });
         setInterval(function() {
+          refreshLyrics();
           if (!ready) return;
           position.textContent = time(player.getCurrentTime()) + ' / ' + time(player.getDuration());
         }, 500);
         </script>
         <script src="https://www.youtube.com/iframe_api"></script>
         </body></html>
-    """.trimIndent().replace("__APP_ORIGIN__", "https://$appId")
+    """.trimIndent().replace("__APP_ORIGIN__", "https://$appId").replace("__LYRICS__", youtubeLyricsHtml())
 }

@@ -10,7 +10,9 @@
 ## Scope
 
 Build an offline song-practice baseline with original demonstration content.
-The approved YouTube spike is a separate visible official player screen; it does not supply lyrics or replace the local AudioPlayer contract.
+The approved YouTube screen uses a visible official player with explicit LRCLIB search, selection, and timing adjustment; it does not replace the local AudioPlayer contract.
+Keep provider lyrics in screen memory, treat provider fields as text, and preserve request limits and cancellation.
+LRCLIB access does not establish commercial lyric rights.
 Keep playback in platform adapters and practice decisions in common Kotlin.
 Do not add commercial lyrics, streaming integrations, accounts, or a backend without a scoped request.
 The sample audio is an instrumental timing guide, not a vocal recording.
