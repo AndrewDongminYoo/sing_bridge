@@ -46,7 +46,7 @@ find_sdk_root() {
 
   local sdk_candidate
   for sdk_candidate in /opt/android-sdk /usr/local/lib/android/sdk; do
-    if [[ -d "$sdk_candidate" ]]; then
+    if sdk_is_complete "$sdk_candidate" || [[ -d "$sdk_candidate" && -w "$sdk_candidate" ]]; then
       printf '%s\n' "$sdk_candidate"
       return
     fi
