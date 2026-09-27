@@ -112,6 +112,43 @@ When changing dependencies, resolve the tested configurations and regenerate the
 
 Run native build jobs sequentially on memory-constrained machines.
 
+## Hosted Linux setup
+
+`setup.sh` prepares Android SDK 36 and Build Tools 36.0.0 in a Linux x86_64 container with an existing JDK supported by Gradle 9.3.1.
+It reuses a configured Android SDK when possible and otherwise downloads checksum-pinned Android command-line tools.
+The download path requires `curl`, `unzip`, and `sha256sum`; the script reports any missing prerequisite by name.
+SDK environment overrides are normalized with GNU Coreutils `realpath`, including paths that do not exist yet.
+The default local SDK directory and generated environment file are ignored by Git.
+iOS builds require macOS and are not part of Linux setup.
+
+```bash
+bash ./setup.sh
+source ./.singbridge-env
+./gradlew :shared:jvmTest :androidApp:assembleDebug :androidApp:lintDebug
+```
+
+For Codex hosted environments, use `bash ./setup.sh` as the repository setup command.
+The setup shell does not export variables into later agent shells; source `.singbridge-env` before running Gradle in those shells.
+Linux ARM64 is not supported by this Android setup script.
+
+## Continuous integration and quality checks
+
+`.github/workflows/ci.yml` defines checks for pull requests, pushes to `main`, and manual runs.
+The workflow checks shared behavior and Android builds on Linux, builds the unsigned iOS simulator host on macOS, and runs Trunk separately.
+GitHub Actions execution is distinct from the local checks recorded in `docs/notes/2026-09-27-automation.md`.
+
+Trunk checks workflow syntax with actionlint, owned shell scripts with ShellCheck, and Markdown with markdownlint.
+Gradle remains responsible for Kotlin compilation and Android lint.
+The generated Gradle wrapper is excluded only from ShellCheck.
+
+```bash
+trunk check --no-fix
+```
+
+The pre-push Trunk check is enabled.
+Automatic pre-commit formatting is disabled.
+Use `trunk actions list` to inspect local hook installation.
+
 ## Sample provenance
 
 The short practice verse, Hangul pronunciation, melody, and waveform generator were authored for this project.
@@ -130,7 +167,7 @@ Automatic pronunciation generation requires language-specific reading rules and 
 ## Project guidance
 
 `AGENTS.md`, this README, and `docs/{notes,plans,specs}` provide the initial repository baseline.
-For future repository setup, `/init` can review agent guidance and `$setup-trunk` can add a pre-commit quality gate.
-No Git hooks are configured by this baseline.
+For future repository setup, `/init` can review agent guidance.
+Trunk configuration lives in `.trunk/`.
 
 See `docs/notes/2026-09-27-verification.md` for checks actually performed and remaining limits.
