@@ -30,7 +30,7 @@ sdk_is_complete() {
 }
 
 find_sdk_root() {
-  if [[ -n "${ANDROID_HOME:-}" && -n "${ANDROID_SDK_ROOT:-}" && "$ANDROID_HOME" != "$ANDROID_SDK_ROOT" ]]; then
+  if [[ -n "${ANDROID_HOME:-}" && -n "${ANDROID_SDK_ROOT:-}" && "$ANDROID_HOME" != "$ANDROID_SDK_ROOT" && ! "$ANDROID_HOME" -ef "$ANDROID_SDK_ROOT" ]]; then
     fail "ANDROID_HOME and ANDROID_SDK_ROOT must name the same directory"
   fi
 
