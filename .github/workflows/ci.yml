@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  jvm-and-android:
+    name: JVM tests and Android checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - name: Install required Android SDK packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
+          test -x "$ANDROID_HOME/build-tools/36.0.0/aapt2"
+
+      - name: Run JVM tests and Android build checks
+        shell: bash
+        run: ./gradlew --no-daemon :shared:jvmTest :androidApp:assembleDebug :androidApp:lintDebug
+
+      - name: Upload Android lint reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: android-lint-reports
+          path: androidApp/build/reports/lint-results-debug.*
+          if-no-files-found: warn
+          retention-days: 7
+
+  ios-host:
+    name: iOS simulator host build
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - name: Install Android SDK packages needed by Gradle configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
+          test -x "$ANDROID_HOME/build-tools/36.0.0/aapt2"
+
+      - name: Select an Apple Silicon Xcode 26 host
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = arm64
+          developer_dir=""
+          for candidate in /Applications/Xcode_26*.app/Contents/Developer /Applications/Xcode.app/Contents/Developer; do
+            if [ ! -x "$candidate/usr/bin/xcodebuild" ]; then
+              continue
+            fi
+            xcode_version="$(DEVELOPER_DIR="$candidate" xcodebuild -version | awk '$1 == "Xcode" { print $2 }')"
+            case "$xcode_version" in
+              26.*)
+                developer_dir="$candidate"
+                break
+                ;;
+            esac
+          done
+          if [ -z "$developer_dir" ]; then
+            echo "::error::CI requires an installed Xcode 26 selection; Kotlin 2.3.20 is documented with Xcode 26.0."
+            exit 1
+          fi
+          echo "DEVELOPER_DIR=$developer_dir" >> "$GITHUB_ENV"
+          DEVELOPER_DIR="$developer_dir" xcodebuild -version
+
+      - name: Install pinned XcodeGen
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/xcodegen.zip"
+          curl --fail --location --retry 3 --retry-delay 2 --output "$archive" "https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip"
+          echo "4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806  $archive" | shasum -a 256 --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/xcodegen"
+          xcodegen_binary="$(find "$RUNNER_TEMP/xcodegen" -type f -path '*/bin/xcodegen' -print -quit)"
+          test -n "$xcodegen_binary"
+          echo "$(dirname "$xcodegen_binary")" >> "$GITHUB_PATH"
+          "$xcodegen_binary" --version
+
+      - name: Generate and compile the unsigned iOS simulator host
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodegen generate --spec iosApp/project.yml
+          xcodebuild -project iosApp/SingBridge.xcodeproj -scheme SingBridge -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/ios ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
+
+  trunk:
+    name: Trunk checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run Trunk checks
+        uses: trunk-io/trunk-action@e1234e67a86010d61ddac8d8ebf4b783e2ffd2fa # v2.0.0
+        with:
+          arguments: check --ci
