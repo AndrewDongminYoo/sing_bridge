@@ -12,11 +12,33 @@ Account scope: personal.
 - Real Android Media3 and iOS AVPlayer playback.
 - Playback position, seeking, current-line highlighting, selected-line repeat, and lyric hiding.
 - Playback pauses when the app leaves the foreground.
+- Import an audio file and UTF-8 LRC through the system document picker.
+- Restore the last imported song after relaunch from an app-private copy.
 
 The sample has no vocals.
 Its pronunciation and timing are authored demonstration data, not automatic transliteration or alignment.
 Practice state lasts for the current screen session.
+The last imported audio and source LRC are saved locally; returning to the sample removes that saved song.
 Commercial songs, streaming providers, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
+
+## Import a song
+
+Choose **내 노래 불러오기**, select an audio file, then select the matching LRC.
+Audio must be decodable by the native platform and at most 256 MiB; LRC must be UTF-8 and at most 1 MiB.
+The app copies audio into private storage and uses its measured duration.
+The original files are not modified, and broad storage permissions are not requested.
+Cloud file providers may need to download a selected file first.
+The Files/document picker is supported; Apple Music library and DRM-protected media are not import sources.
+
+Supported LRC includes minute/second timestamps with optional two- or three-digit fractions, repeated timestamps, and common metadata.
+Simultaneous lines are combined; empty timestamped lines end the preceding lyric.
+Nonzero offsets, word-level enhanced LRC, malformed timestamps, and out-of-range lyrics are rejected with an explanation.
+Imported lyrics display original text only; pronunciation is not generated.
+The saved format contains source LRC rather than pronunciation layers, leaving future derivation independent of this storage version.
+
+Cancellation, invalid lyrics, and a failed manifest write keep the previous song.
+**샘플곡으로** clears the saved import and returns to the bundled verse.
+See `docs/specs/2026-09-27-local-import.md` for the supported subset and limits.
 
 ## Structure
 
