@@ -1,6 +1,6 @@
 # SingBridge
 
-A Kotlin Multiplatform song-practice baseline with local audio and a separate visible YouTube player spike.
+A Kotlin Multiplatform song-practice baseline with local audio and a separate visible YouTube player with optional LRCLIB lyrics.
 
 Project ID: `sing_bridge`.
 Account scope: personal.
@@ -15,23 +15,32 @@ Account scope: personal.
 - Import an audio file and UTF-8 LRC through the system document picker.
 - Restore the last imported song after relaunch from an app-private copy.
 - Open a YouTube video URL in the official embedded player, view its playback time, and seek five seconds.
+- Search LRCLIB, select a lyric record, and adjust its timing against the video.
 
 The sample has no vocals.
 Its pronunciation and timing are authored demonstration data, not automatic transliteration or alignment.
 Practice state lasts for the current screen session.
 The last imported audio and source LRC are saved locally; returning to the sample removes that saved song.
-Lyrics for commercial songs, streaming catalog search, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
+Commercial lyric licensing, streaming catalog search, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
 
-## YouTube playback spike
+## YouTube playback and lyrics
 
 Choose **YouTube 영상 열기**, paste an HTTPS YouTube link or video ID, and tap the official player to start.
-This separate screen requires internet access and does not connect video playback to local lyrics or pronunciation.
+This separate screen requires internet access and does not generate pronunciation.
+Search by song and artist, then choose the matching LRCLIB result after checking its title, artist, album, duration, and lyric type.
+Timed lyrics follow the actual player position; positive time adjustments show lyrics later and negative adjustments show them earlier.
+Plain lyrics are displayed without synchronization.
+The player stays visible while scrolling through lyrics.
+Changing videos clears the selected lyrics and adjustment; closing the screen discards the results.
+Lyrics stay in screen memory and are not saved in the imported-song library.
+API access and attribution do not establish rights to distribute commercial lyrics; release clearance remains unresolved.
 The original local song stays saved and paused, with line repeat turned off on entry.
 The app pauses the video on background or when less than half the player is visible; returning does not resume automatically.
 Embedding restrictions and network failures may prevent a video from playing.
 The native hosts identify the app through their HTML base URL and use no audio extraction or JavaScript-to-native bridge.
 See [scope](docs/specs/2026-09-27-youtube-player.md) and [verification](docs/notes/2026-09-27-youtube-player-verification.md).
-Run `node --test tools/test-youtube.mjs` to test the shipped page logic with a controlled player.
+See [lyrics scope](docs/specs/2026-09-27-youtube-lyrics.md) and [lyrics verification](docs/notes/2026-09-28-youtube-lyrics-verification.md).
+Run `node --test tools/test-youtube.mjs` to test the shipped page logic with a controlled player and network responses.
 
 ## Import a song
 
