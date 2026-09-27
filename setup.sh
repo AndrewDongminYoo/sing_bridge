@@ -127,11 +127,21 @@ else
 fi
 repo_root=$(cd "$script_directory" && pwd -P)
 
-require_command java
-require_command javac
 require_command uname
 
-java_version_output=$(java -version 2>&1)
+if [[ -n "${JAVA_HOME:-}" ]]; then
+  java_command="$JAVA_HOME/bin/java"
+  javac_command="$JAVA_HOME/bin/javac"
+  [[ -x "$java_command" ]] || fail "JAVA_HOME does not contain an executable java: $java_command"
+  [[ -x "$javac_command" ]] || fail "JAVA_HOME does not contain an executable javac: $javac_command"
+else
+  require_command java
+  require_command javac
+  java_command=java
+  javac_command=javac
+fi
+
+java_version_output=$("$java_command" -version 2>&1)
 if [[ ! "$java_version_output" =~ version\ \"([0-9]+) ]]; then
   fail "could not determine the JDK version from java -version"
 fi
@@ -139,19 +149,14 @@ jdk_major=${BASH_REMATCH[1]}
 if (( jdk_major < 17 || jdk_major > 25 )); then
   fail "JDK $jdk_major is unsupported; Gradle 9.3.1 requires JDK 17 through 25"
 fi
-java -version
-javac -version
-
-if [[ -n "${JAVA_HOME:-}" ]]; then
-  java_home_command="$JAVA_HOME/bin/java"
-  if [[ ! -x "$java_home_command" ]]; then
-    fail "JAVA_HOME does not contain an executable java: $java_home_command"
-  fi
-  java_home_version_output=$("$java_home_command" -version 2>&1)
-  if [[ "$java_home_version_output" != "$java_version_output" ]]; then
-    fail "JAVA_HOME does not select the java command validated by setup.sh"
-  fi
+javac_version_output=$("$javac_command" -version 2>&1)
+if [[ ! "$javac_version_output" =~ javac\ ([0-9]+) ]]; then
+  fail "could not determine the compiler version from javac -version"
 fi
+if (( BASH_REMATCH[1] != jdk_major )); then
+  fail "javac version does not match JDK $jdk_major"
+fi
+printf '%s\n' "$java_version_output" "$javac_version_output" >&2
 
 operating_system=$(uname -s)
 if [[ "$operating_system" != "Linux" ]]; then
