@@ -12,11 +12,30 @@ plugins:
 runtimes:
   enabled:
     - node@22.16.0
+    - java@23.0.1
 lint:
+  definitions:
+    - name: ktlint
+      commands:
+        # The pinned plugin only formats; SARIF also reports non-fixable rules.
+        - name: lint
+          run: java -Xmx512m -jar ${linter}/ktlint --relative --log-level=none --reporter=sarif "${target}"
+          output: sarif
+          batch: true
+          success_codes: [0, 1]
+        - name: format
+          platforms: [linux, macos]
+          run: java -Xmx512m -jar ${linter}/ktlint -F "${target}"
+          output: rewrite
+          formatter: true
+          in_place: true
+          batch: true
+          success_codes: [0, 1]
   enabled:
     - actionlint@1.7.12
     - markdownlint@0.45.0
     - shellcheck@0.11.0
+    - ktlint@1.7.1
   ignore:
     - linters: [shellcheck]
       paths:
