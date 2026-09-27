@@ -1,0 +1,11 @@
+.DS_Store
+.gradle/
+.kotlin/
+**/build/
+local.properties
+.idea/
+*.iml
+DerivedData/
+*.xcuserstate
+xcuserdata/
+iosApp/SingBridge.xcodeproj/
