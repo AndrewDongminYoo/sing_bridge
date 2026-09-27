@@ -30,17 +30,22 @@ sdk_is_complete() {
 }
 
 find_sdk_root() {
-  if [[ -n "${ANDROID_HOME:-}" && -n "${ANDROID_SDK_ROOT:-}" && "$ANDROID_HOME" != "$ANDROID_SDK_ROOT" && ! "$ANDROID_HOME" -ef "$ANDROID_SDK_ROOT" ]]; then
-    fail "ANDROID_HOME and ANDROID_SDK_ROOT must name the same directory"
-  fi
+  local home_sdk=""
+  local root_sdk=""
 
-  if [[ -n "${ANDROID_HOME:-}" ]]; then
-    printf '%s\n' "$ANDROID_HOME"
-    return
-  fi
+  if [[ -n "${ANDROID_HOME:-}" || -n "${ANDROID_SDK_ROOT:-}" ]]; then
+    require_command realpath
+    if [[ -n "${ANDROID_HOME:-}" ]]; then
+      home_sdk=$(realpath -m -- "$ANDROID_HOME") || fail "could not normalize ANDROID_HOME"
+    fi
+    if [[ -n "${ANDROID_SDK_ROOT:-}" ]]; then
+      root_sdk=$(realpath -m -- "$ANDROID_SDK_ROOT") || fail "could not normalize ANDROID_SDK_ROOT"
+    fi
+    if [[ -n "$home_sdk" && -n "$root_sdk" && "$home_sdk" != "$root_sdk" ]]; then
+      fail "ANDROID_HOME and ANDROID_SDK_ROOT must name the same directory"
+    fi
 
-  if [[ -n "${ANDROID_SDK_ROOT:-}" ]]; then
-    printf '%s\n' "$ANDROID_SDK_ROOT"
+    printf '%s\n' "${home_sdk:-$root_sdk}"
     return
   fi
 

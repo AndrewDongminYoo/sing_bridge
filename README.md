@@ -117,6 +117,7 @@ Run native build jobs sequentially on memory-constrained machines.
 `setup.sh` prepares Android SDK 36 and Build Tools 36.0.0 in a Linux x86_64 container with an existing JDK supported by Gradle 9.3.1.
 It reuses a configured Android SDK when possible and otherwise downloads checksum-pinned Android command-line tools.
 The download path requires `curl`, `unzip`, and `sha256sum`; the script reports any missing prerequisite by name.
+SDK environment overrides are normalized with GNU Coreutils `realpath`, including paths that do not exist yet.
 The default local SDK directory and generated environment file are ignored by Git.
 iOS builds require macOS and are not part of Linux setup.
 
