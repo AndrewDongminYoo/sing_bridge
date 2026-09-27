@@ -47,6 +47,9 @@ jobs:
         shell: bash
         run: ./gradlew --no-daemon :shared:jvmTest :androidApp:assembleDebug :androidApp:lintDebug
 
+      - name: Test shared YouTube player JavaScript
+        run: node --test tools/test-youtube.mjs
+
       - name: Upload Android lint reports
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
