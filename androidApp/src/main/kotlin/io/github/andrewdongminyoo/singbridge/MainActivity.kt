@@ -1,5 +1,6 @@
 package io.github.andrewdongminyoo.singbridge
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -45,6 +46,10 @@ class MainActivity : ComponentActivity() {
                     } else {
                         library.reportError("저장한 곡을 지우지 못했습니다. 다시 시도해 주세요.")
                     }
+                },
+                onYouTube = {
+                    library.song.player.pause()
+                    startActivity(Intent(this, YouTubeActivity::class.java))
                 },
             )
         }

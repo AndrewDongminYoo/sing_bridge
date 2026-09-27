@@ -1,6 +1,6 @@
 # SingBridge
 
-An offline Kotlin Multiplatform baseline for practicing foreign-language songs with readable pronunciation.
+A Kotlin Multiplatform song-practice baseline with local audio and a separate visible YouTube player spike.
 
 Project ID: `sing_bridge`.
 Account scope: personal.
@@ -14,12 +14,24 @@ Account scope: personal.
 - Playback pauses when the app leaves the foreground.
 - Import an audio file and UTF-8 LRC through the system document picker.
 - Restore the last imported song after relaunch from an app-private copy.
+- Open a YouTube video URL in the official embedded player, view its playback time, and seek five seconds.
 
 The sample has no vocals.
 Its pronunciation and timing are authored demonstration data, not automatic transliteration or alignment.
 Practice state lasts for the current screen session.
 The last imported audio and source LRC are saved locally; returning to the sample removes that saved song.
-Commercial songs, streaming providers, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
+Lyrics for commercial songs, streaming catalog search, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
+
+## YouTube playback spike
+
+Choose **YouTube 영상 열기**, paste an HTTPS YouTube link or video ID, and tap the official player to start.
+This separate screen requires internet access and does not connect video playback to local lyrics or pronunciation.
+The original local song stays saved and paused, with line repeat turned off on entry.
+The app pauses the video on background or when less than half the player is visible; returning does not resume automatically.
+Embedding restrictions and network failures may prevent a video from playing.
+The native hosts identify the app through their HTML base URL and use no audio extraction or JavaScript-to-native bridge.
+See [scope](docs/specs/2026-09-27-youtube-player.md) and [verification](docs/notes/2026-09-27-youtube-player-verification.md).
+Run `node --test tools/test-youtube.mjs` to test the shipped page logic with a controlled player.
 
 ## Import a song
 
@@ -195,3 +207,4 @@ For future repository setup, `/init` can review agent guidance.
 Trunk configuration lives in `.trunk/`.
 
 See `docs/notes/2026-09-27-verification.md` for checks actually performed and remaining limits.
+See [YouTube player verification](docs/notes/2026-09-27-youtube-player-verification.md) for the embedded-player checks and runtime limits.

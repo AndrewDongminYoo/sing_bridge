@@ -67,6 +67,11 @@ class PracticeSession(val track: PracticeTrack, private val player: AudioPlayer)
         lyricsHidden = !lyricsHidden
     }
 
+    fun leavePractice() {
+        repeatEnabled = false
+        player.pause()
+    }
+
     fun togglePlayback() {
         val playback = player.snapshot()
         if (!playback.isReady || playback.error != null) return
