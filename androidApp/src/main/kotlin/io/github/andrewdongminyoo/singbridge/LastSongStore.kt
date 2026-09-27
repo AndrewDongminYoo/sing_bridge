@@ -20,7 +20,9 @@ internal class LastSongStore(private val context: Context) {
         val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
             if (it.moveToFirst()) it.getString(0) else null
         } ?: "내 노래"
-        val extension = name.substringAfterLast('.', "audio").filter { it.isLetterOrDigit() }.take(10).ifEmpty { "audio" }
+        val extension = name.substringAfterLast('.', "audio").filter {
+            it.isLetterOrDigit()
+        }.take(10).ifEmpty { "audio" }
         val file = File(directory, "song-${UUID.randomUUID()}.$extension")
         try {
             requireNotNull(resolver.openInputStream(uri)).use { input ->

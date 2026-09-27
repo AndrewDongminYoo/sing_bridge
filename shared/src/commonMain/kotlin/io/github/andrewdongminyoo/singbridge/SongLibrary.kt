@@ -47,7 +47,9 @@ class SongLibrary(initialPlayer: AudioPlayer) {
         error = message
     }
 
-    fun finishReading() { busy = false }
+    fun finishReading() {
+        busy = false
+    }
 
     fun selectAudio(audio: ImportedAudio) {
         if (released) {
@@ -60,11 +62,7 @@ class SongLibrary(initialPlayer: AudioPlayer) {
         error = null
     }
 
-    fun completeImport(
-        text: String,
-        persist: () -> String? = { null },
-        createPlayer: (ImportedAudio) -> AudioPlayer,
-    ) {
+    fun completeImport(text: String, persist: () -> String? = { null }, createPlayer: (ImportedAudio) -> AudioPlayer) {
         if (released) return
         val audio = pendingAudio ?: return reportError("오디오 파일을 먼저 선택해 주세요.")
         val track = try {

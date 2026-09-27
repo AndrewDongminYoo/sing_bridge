@@ -159,7 +159,9 @@ Linux ARM64 is not supported by this Android setup script.
 The workflow checks shared behavior and Android builds on Linux, builds the unsigned iOS simulator host on macOS, and runs Trunk separately.
 GitHub Actions execution is distinct from the local checks recorded in `docs/notes/2026-09-27-automation.md`.
 
-Trunk checks workflow syntax with actionlint, owned shell scripts with ShellCheck, and Markdown with markdownlint.
+Trunk checks workflow syntax with actionlint, owned shell scripts with ShellCheck, Markdown with markdownlint, and Kotlin source and scripts with ktlint.
+Ktlint uses managed Java, the Android Studio code style, Compose-aware function naming, and trailing commas from `.editorconfig`.
+A SARIF lint command supplements the pinned plugin formatter so non-fixable rules also fail the gate.
 Gradle remains responsible for Kotlin compilation and Android lint.
 The generated Gradle wrapper is excluded only from ShellCheck.
 

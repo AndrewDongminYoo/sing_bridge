@@ -20,12 +20,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -67,16 +67,23 @@ private data class PracticeScreenState(
 )
 
 private fun PracticeSession.screenState(playback: PlaybackSnapshot) = PracticeScreenState(
-    playback, selectedLine, repeatEnabled, lyricsHidden,
+    playback,
+    selectedLine,
+    repeatEnabled,
+    lyricsHidden,
 )
 
 @Composable
 fun LibraryApp(library: SongLibrary, onPickAudio: () -> Unit, onPickLyrics: () -> Unit, onSample: () -> Unit) {
     val song = library.song
     App(
-        song.player, song.track, song.title, song.imported,
+        song.player,
+        song.track,
+        song.title,
+        song.imported,
         library.importOpen || library.busy || !library.foreground,
-        library::openImport, onSample,
+        library::openImport,
+        onSample,
         if (library.importOpen) null else library.error,
     )
     if (library.importOpen) {
@@ -85,7 +92,10 @@ fun LibraryApp(library: SongLibrary, onPickAudio: () -> Unit, onPickLyrics: () -
                 onDismissRequest = library::cancelImport,
                 title = { Text("내 노래 불러오기") },
                 text = {
-                    Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(
+                        Modifier.verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         Text("오디오를 선택한 뒤 같은 곡의 LRC 가사를 선택해 주세요. 가져온 가사는 원문으로 표시돼요.")
                         Text("마지막 한 곡을 앱에 복사해 보관해요. 샘플곡으로 돌아가면 저장한 곡은 삭제돼요.")
                         Button(onClick = onPickAudio, enabled = !library.busy) { Text("1. 오디오 선택") }
@@ -180,8 +190,11 @@ fun App(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Text(
-                                    if (state.repeatEnabled) "${state.selectedLine + 1}번 구절 반복 중"
-                                    else "내 속도로 익혀 보세요",
+                                    if (state.repeatEnabled) {
+                                        "${state.selectedLine + 1}번 구절 반복 중"
+                                    } else {
+                                        "내 속도로 익혀 보세요"
+                                    },
                                     style = MaterialTheme.typography.labelMedium,
                                     color = Pine,
                                 )
@@ -271,8 +284,10 @@ fun App(
                         )
                         Row {
                             onImport?.let { TextButton(onClick = it, enabled = !suspended) { Text("내 노래 불러오기") } }
-                            if (imported || notice != null) onSample?.let {
-                                TextButton(onClick = it, enabled = !suspended) { Text("샘플곡으로") }
+                            if (imported || notice != null) {
+                                onSample?.let {
+                                    TextButton(onClick = it, enabled = !suspended) { Text("샘플곡으로") }
+                                }
                             }
                         }
                         notice?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -302,8 +317,11 @@ fun App(
                     }
                     item {
                         Text(
-                            if (imported) "가져온 가사를 그대로 표시해요. 자동 발음 변환은 아직 지원하지 않아요."
-                            else "한글 발음은 따라 부르기를 돕는 참고 표기예요.",
+                            if (imported) {
+                                "가져온 가사를 그대로 표시해요. 자동 발음 변환은 아직 지원하지 않아요."
+                            } else {
+                                "한글 발음은 따라 부르기를 돕는 참고 표기예요."
+                            },
                             Modifier.padding(top = 8.dp),
                             color = Color(0xFF63716A),
                             style = MaterialTheme.typography.bodySmall,
