@@ -10,6 +10,7 @@
 ## Scope
 
 Build an offline song-practice baseline with original demonstration content.
+The approved YouTube spike is a separate visible official player screen; it does not supply lyrics or replace the local AudioPlayer contract.
 Keep playback in platform adapters and practice decisions in common Kotlin.
 Do not add commercial lyrics, streaming integrations, accounts, or a backend without a scoped request.
 The sample audio is an instrumental timing guide, not a vocal recording.
@@ -31,6 +32,7 @@ Keep automatic pre-commit formatting disabled unless its scope has been reviewed
 ## Checks
 
 - Shared behavior: `./gradlew :shared:jvmTest`
+- Shared YouTube page behavior: `node --test tools/test-youtube.mjs` (Node 22 or later).
 - Android: `./gradlew :androidApp:assembleDebug :androidApp:lintDebug`
 - iOS framework: `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
 - iOS host: generate with `xcodegen generate --spec iosApp/project.yml`, then use the simulator build command in `README.md`.

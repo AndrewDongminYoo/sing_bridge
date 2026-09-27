@@ -125,6 +125,19 @@ class PracticeSessionTest {
     }
 
     @Test
+    fun leavingPracticeAtTrackEndDoesNotRestartRepeat() {
+        val player = TestPlayer()
+        val session = PracticeSession(track, player)
+        session.selectLine(2)
+        session.toggleRepeat()
+        player.current = PlaybackSnapshot(12_000, isReady = true, hasEnded = true)
+        session.leavePractice()
+        val snapshot = session.poll()
+        assertFalse(snapshot.isPlaying)
+        assertEquals(12_000, snapshot.positionMs)
+    }
+
+    @Test
     fun playDoesNothingWhenAudioIsUnavailable() {
         val player = TestPlayer()
         val session = PracticeSession(track, player)

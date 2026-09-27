@@ -74,7 +74,13 @@ private fun PracticeSession.screenState(playback: PlaybackSnapshot) = PracticeSc
 )
 
 @Composable
-fun LibraryApp(library: SongLibrary, onPickAudio: () -> Unit, onPickLyrics: () -> Unit, onSample: () -> Unit) {
+fun LibraryApp(
+    library: SongLibrary,
+    onPickAudio: () -> Unit,
+    onPickLyrics: () -> Unit,
+    onSample: () -> Unit,
+    onYouTube: (() -> Unit)? = null,
+) {
     val song = library.song
     App(
         song.player,
@@ -85,6 +91,7 @@ fun LibraryApp(library: SongLibrary, onPickAudio: () -> Unit, onPickLyrics: () -
         library::openImport,
         onSample,
         if (library.importOpen) null else library.error,
+        onYouTube,
     )
     if (library.importOpen) {
         MaterialTheme {
@@ -126,6 +133,7 @@ fun App(
     onImport: (() -> Unit)? = null,
     onSample: (() -> Unit)? = null,
     notice: String? = null,
+    onYouTube: (() -> Unit)? = null,
 ) {
     val session = remember(player, track) { PracticeSession(track, player) }
     var state by remember(session) { mutableStateOf(session.screenState(player.snapshot())) }
@@ -289,6 +297,15 @@ fun App(
                                     TextButton(onClick = it, enabled = !suspended) { Text("샘플곡으로") }
                                 }
                             }
+                        }
+                        onYouTube?.let {
+                            TextButton(
+                                onClick = {
+                                    update(session::leavePractice)
+                                    it()
+                                },
+                                enabled = !suspended,
+                            ) { Text("YouTube 영상 열기") }
                         }
                         notice?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                         Spacer(Modifier.height(20.dp))
