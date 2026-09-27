@@ -22,7 +22,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -63,28 +66,74 @@ private data class PracticeScreenState(
     val lyricsHidden: Boolean,
 )
 
-private fun PracticeSession.screenState() = PracticeScreenState(
-    poll(), selectedLine, repeatEnabled, lyricsHidden,
+private fun PracticeSession.screenState(playback: PlaybackSnapshot) = PracticeScreenState(
+    playback, selectedLine, repeatEnabled, lyricsHidden,
 )
 
 @Composable
-fun App(player: AudioPlayer) {
-    val session = remember(player) { PracticeSession(sampleTrack, player) }
-    var state by remember(session) { mutableStateOf(session.screenState()) }
-    var draggedPosition by remember { mutableStateOf<Float?>(null) }
+fun LibraryApp(library: SongLibrary, onPickAudio: () -> Unit, onPickLyrics: () -> Unit, onSample: () -> Unit) {
+    val song = library.song
+    App(
+        song.player, song.track, song.title, song.imported,
+        library.importOpen || library.busy || !library.foreground,
+        library::openImport, onSample,
+        if (library.importOpen) null else library.error,
+    )
+    if (library.importOpen) {
+        MaterialTheme {
+            AlertDialog(
+                onDismissRequest = library::cancelImport,
+                title = { Text("내 노래 불러오기") },
+                text = {
+                    Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text("오디오를 선택한 뒤 같은 곡의 LRC 가사를 선택해 주세요. 가져온 가사는 원문으로 표시돼요.")
+                        Text("마지막 한 곡을 앱에 복사해 보관해요. 샘플곡으로 돌아가면 저장한 곡은 삭제돼요.")
+                        Button(onClick = onPickAudio, enabled = !library.busy) { Text("1. 오디오 선택") }
+                        library.pendingAudio?.let { Text(it.name) }
+                        Button(onClick = onPickLyrics, enabled = !library.busy && library.pendingAudio != null) {
+                            Text("2. LRC 선택하고 연습 시작")
+                        }
+                        if (library.busy) Text("파일을 읽고 있어요…")
+                        library.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                        Text("오디오 최대 256 MiB · UTF-8 LRC 최대 1 MiB · 시간 보정과 단어별 타이밍은 아직 지원하지 않아요.")
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = library::cancelImport, enabled = !library.busy) { Text("취소") }
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun App(
+    player: AudioPlayer,
+    track: PracticeTrack = sampleTrack,
+    title: String = "아침의 리듬",
+    imported: Boolean = false,
+    suspended: Boolean = false,
+    onImport: (() -> Unit)? = null,
+    onSample: (() -> Unit)? = null,
+    notice: String? = null,
+) {
+    val session = remember(player, track) { PracticeSession(track, player) }
+    var state by remember(session) { mutableStateOf(session.screenState(player.snapshot())) }
+    var draggedPosition by remember(session) { mutableStateOf<Float?>(null) }
     val listState = rememberLazyListState()
     fun update(action: () -> Unit) {
         action()
-        state = session.screenState()
+        state = session.screenState(player.snapshot())
     }
-    LaunchedEffect(session) {
+    LaunchedEffect(session, suspended) {
         while (isActive) {
-            state = session.screenState()
+            state = session.screenState(if (suspended) player.snapshot() else session.poll())
             delay(80)
         }
     }
-    val activeLine = sampleTrack.activeLineAt(state.playback.positionMs)
-    val controlsEnabled = state.playback.isReady && state.playback.error == null
+    val activeLine = track.activeLineAt(state.playback.positionMs)
+    val controlsEnabled = !suspended && state.playback.isReady && state.playback.error == null
+    LaunchedEffect(session) { listState.scrollToItem(0) }
     LaunchedEffect(activeLine) {
         if (state.playback.isPlaying && activeLine != null) {
             listState.animateScrollToItem(activeLine + 1)
@@ -137,7 +186,7 @@ fun App(player: AudioPlayer) {
                                     color = Pine,
                                 )
                                 Text(
-                                    "${formatTime(state.playback.positionMs)} / 0:28",
+                                    "${formatTime(state.playback.positionMs)} / ${formatTime(track.durationMs)}",
                                     style = MaterialTheme.typography.labelMedium,
                                 )
                             }
@@ -148,7 +197,7 @@ fun App(player: AudioPlayer) {
                                     draggedPosition?.let { position -> update { session.seekTo(position.toLong()) } }
                                     draggedPosition = null
                                 },
-                                valueRange = 0f..sampleTrack.durationMs.toFloat(),
+                                valueRange = 0f..track.durationMs.toFloat(),
                                 enabled = controlsEnabled,
                                 modifier = Modifier.semantics { contentDescription = "재생 위치" },
                             )
@@ -208,18 +257,25 @@ fun App(player: AudioPlayer) {
                         Spacer(Modifier.height(28.dp))
                         Text("한 구절씩, 내 노래로", color = Pine, fontSize = 13.sp)
                         Text(
-                            "아침의 리듬",
+                            title,
                             Modifier.padding(top = 8.dp),
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
                         )
-                        Text("일본어 → 한글 발음", Modifier.padding(top = 8.dp), color = Pine)
+                        Text(if (imported) "내 가사 · 원문" else "일본어 → 한글 발음", Modifier.padding(top = 8.dp), color = Pine)
                         Text(
-                            "연습용 샘플 · 보컬 없는 28초 반주",
+                            if (imported) "내 오디오와 LRC · 기기에 저장됨" else "연습용 샘플 · 보컬 없는 28초 반주",
                             Modifier.padding(top = 8.dp),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color(0xFF63716A),
                         )
+                        Row {
+                            onImport?.let { TextButton(onClick = it, enabled = !suspended) { Text("내 노래 불러오기") } }
+                            if (imported || notice != null) onSample?.let {
+                                TextButton(onClick = it, enabled = !suspended) { Text("샘플곡으로") }
+                            }
+                        }
+                        notice?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                         Spacer(Modifier.height(20.dp))
                         Text(
                             "구절을 누르면 그 부분부터 연습할 수 있어요.",
@@ -233,7 +289,7 @@ fun App(player: AudioPlayer) {
                             Text(message, color = MaterialTheme.colorScheme.error)
                         }
                     }
-                    itemsIndexed(sampleTrack.lines, key = { _, line -> line.id }) { index, line ->
+                    itemsIndexed(track.lines, key = { _, line -> line.id }) { index, line ->
                         LyricCard(
                             line = line,
                             index = index,
@@ -246,7 +302,8 @@ fun App(player: AudioPlayer) {
                     }
                     item {
                         Text(
-                            "한글 발음은 따라 부르기를 돕는 참고 표기예요.",
+                            if (imported) "가져온 가사를 그대로 표시해요. 자동 발음 변환은 아직 지원하지 않아요."
+                            else "한글 발음은 따라 부르기를 돕는 참고 표기예요.",
                             Modifier.padding(top = 8.dp),
                             color = Color(0xFF63716A),
                             style = MaterialTheme.typography.bodySmall,
@@ -295,9 +352,9 @@ private fun LyricCard(
                 if (hidden) "가사를 떠올리며 불러 보세요" else line.original,
                 Modifier.padding(top = 12.dp),
                 color = if (active) Color(0xFFDFEAE3) else Color(0xFF63716A),
-                fontSize = 15.sp,
+                fontSize = if (line.pronunciation.isEmpty()) 21.sp else 15.sp,
             )
-            if (!hidden) {
+            if (!hidden && line.pronunciation.isNotEmpty()) {
                 Text(
                     line.pronunciation,
                     Modifier.padding(top = 6.dp),
