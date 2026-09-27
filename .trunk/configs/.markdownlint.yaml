@@ -1,0 +1,2 @@
+# Preserve sentence-level prose without forced hard wraps.
+MD013: false
