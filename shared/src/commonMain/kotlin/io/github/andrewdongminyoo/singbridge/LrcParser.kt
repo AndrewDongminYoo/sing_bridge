@@ -3,6 +3,7 @@ package io.github.andrewdongminyoo.singbridge
 private val timestamp = Regex("\\[(\\d{1,6}):([0-5]\\d)(?:\\.(\\d{2,3}))?]")
 private val metadata = Regex("\\[(ar|al|ti|au|by|re|ve|length):.*]", RegexOption.IGNORE_CASE)
 private val wordTimestamp = Regex("<\\d+:\\d+")
+private val offsetTag = Regex("\\[offset:([+-]?\\d+)]", RegexOption.IGNORE_CASE)
 
 fun parseLrc(text: String, durationMs: Long): PracticeTrack {
     require(durationMs > 0) { "음원의 길이를 확인할 수 없습니다." }
@@ -12,7 +13,7 @@ fun parseLrc(text: String, durationMs: Long): PracticeTrack {
     val entries = mutableListOf<Pair<Long, String>>()
     text.removePrefix("\uFEFF").lineSequence().forEachIndexed { index, source ->
         val line = source.trim()
-        if (line.isEmpty() || metadata.matches(line) || line.equals("[offset:0]", ignoreCase = true)) {
+        if (line.isEmpty() || metadata.matches(line) || offsetTag.matchEntire(line)?.groupValues?.get(1)?.toLongOrNull() == 0L) {
             return@forEachIndexed
         }
         require(!line.startsWith("[offset:", ignoreCase = true)) {

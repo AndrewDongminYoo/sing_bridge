@@ -38,6 +38,19 @@ class LrcParserTest {
     }
 
     @Test
+    fun acceptsSignedAndPaddedZeroOffsetsWithoutMovingLyrics() {
+        listOf("0", "+0", "-0", "000", "+000", "-000").forEach { offset ->
+            val track = parseLrc("[offset:$offset]\n[00:01]Start", 2_000)
+            assertEquals(1_000L, track.lines.single().startMs)
+        }
+        listOf("+1", "-1", "001", "", "zero", "0.0", "99999999999999999999").forEach { offset ->
+            assertFailsWith<IllegalArgumentException>(offset) {
+                parseLrc("[offset:$offset]\n[00:01]Start", 2_000)
+            }
+        }
+    }
+
+    @Test
     fun acceptsMetadataAndZeroOffsetButRejectsInvalidDurationAndOversizedInput() {
         assertEquals(1, parseLrc("[ar:Artist]\n[offset:0]\n[00:00]Start", 1_000).lines.size)
         assertFailsWith<IllegalArgumentException> { parseLrc("[00:00]Start", 0) }
