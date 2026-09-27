@@ -1,27 +1,36 @@
 package io.github.andrewdongminyoo.singbridge
 
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
 import platform.AVFAudio.AVAudioSessionInterruptionNotification
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIApplicationWillResignActiveNotification
+import platform.UIKit.UIApplicationDidBecomeActiveNotification
 
-fun MainViewController() = ComposeUIViewController {
-    val player = remember { IosAudioPlayer() }
-    DisposableEffect(player) {
+fun MainViewController(
+    library: SongLibrary,
+    onPickAudio: () -> Unit,
+    onPickLyrics: () -> Unit,
+    onSample: () -> Unit,
+) = ComposeUIViewController {
+    DisposableEffect(library) {
         val center = NSNotificationCenter.defaultCenter
         val observers = listOf(
-            UIApplicationWillResignActiveNotification,
-            AVAudioSessionInterruptionNotification,
-        ).map { name ->
-            center.addObserverForName(name, null, NSOperationQueue.mainQueue) { player.pause() }
-        }
+            center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) {
+                library.setActive(false)
+            },
+            center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) {
+                library.setActive(true)
+            },
+            center.addObserverForName(AVAudioSessionInterruptionNotification, null, NSOperationQueue.mainQueue) {
+                library.song.player.pause()
+            },
+        )
         onDispose {
             observers.forEach(center::removeObserver)
-            player.release()
+            library.release()
         }
     }
-    App(player)
+    LibraryApp(library, onPickAudio, onPickLyrics, onSample)
 }

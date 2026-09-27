@@ -18,8 +18,10 @@ import platform.CoreMedia.CMTimeGetSeconds
 import platform.CoreMedia.CMTimeMake
 import platform.Foundation.NSURL
 
-class IosAudioPlayer : AudioPlayer {
-    private val player = AVPlayer.playerWithURL(requireNotNull(NSURL.URLWithString(sampleAudioUri())))
+class IosAudioPlayer(uri: String, private val durationMs: Long) : AudioPlayer {
+    constructor() : this(sampleAudioUri(), sampleTrack.durationMs)
+
+    private val player = AVPlayer.playerWithURL(requireNotNull(NSURL.URLWithString(uri)))
     private val audioSession = AVAudioSession.sharedInstance()
     private var sessionError: String? = null
     private var pendingPosition: Long? = null
@@ -33,9 +35,9 @@ class IosAudioPlayer : AudioPlayer {
             positionMs = position.coerceAtLeast(0),
             isPlaying = player.rate > 0,
             isReady = item?.status == AVPlayerItemStatusReadyToPlay,
-            hasEnded = pendingPosition == null && position >= sampleTrack.durationMs,
+            hasEnded = pendingPosition == null && position >= durationMs,
             error = sessionError ?: item?.error?.let {
-                "샘플 음원을 재생할 수 없습니다. 앱을 다시 열어 주세요."
+                "음원을 재생할 수 없습니다. 다른 파일이나 샘플곡을 선택해 주세요."
             },
         )
     }

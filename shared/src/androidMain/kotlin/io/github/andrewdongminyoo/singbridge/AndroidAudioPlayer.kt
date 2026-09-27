@@ -7,7 +7,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 
-class AndroidAudioPlayer(context: Context) : AudioPlayer {
+class AndroidAudioPlayer(context: Context, uri: String = sampleAudioUri()) : AudioPlayer {
     private val player = ExoPlayer.Builder(context.applicationContext).build().apply {
         setAudioAttributes(
             AudioAttributes.Builder()
@@ -17,7 +17,7 @@ class AndroidAudioPlayer(context: Context) : AudioPlayer {
             true,
         )
         setHandleAudioBecomingNoisy(true)
-        setMediaItem(MediaItem.fromUri(sampleAudioUri()))
+        setMediaItem(MediaItem.fromUri(uri))
         prepare()
     }
 
@@ -27,7 +27,7 @@ class AndroidAudioPlayer(context: Context) : AudioPlayer {
         isReady = player.playbackState == Player.STATE_READY ||
             player.playbackState == Player.STATE_ENDED,
         hasEnded = player.playbackState == Player.STATE_ENDED,
-        error = player.playerError?.let { "샘플 음원을 재생할 수 없습니다. 앱을 다시 열어 주세요." },
+        error = player.playerError?.let { "음원을 재생할 수 없습니다. 다른 파일이나 샘플곡을 선택해 주세요." },
     )
 
     override fun play() = player.play()
