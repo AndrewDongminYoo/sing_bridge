@@ -23,6 +23,10 @@ Keep dependency versions pinned and regenerate Gradle lockfiles when dependencie
 Change `iosApp/project.yml` before regenerating the Xcode project with XcodeGen.
 Change `tools/generate_sample.py` before regenerating sample audio.
 Do not commit generated build output or machine-specific SDK paths.
+For hosted Linux x86_64 containers, run `bash ./setup.sh` and source `.singbridge-env` before invoking Gradle in a later shell.
+Keep `.singbridge-env` and `.android-sdk/` out of Git.
+Use `trunk check --no-fix` for routine quality checks.
+Keep automatic pre-commit formatting disabled unless its scope has been reviewed and accepted.
 
 ## Checks
 
@@ -31,3 +35,5 @@ Do not commit generated build output or machine-specific SDK paths.
 - iOS framework: `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
 - iOS host: generate with `xcodegen generate --spec iosApp/project.yml`, then use the simulator build command in `README.md`.
 - Native runtime: confirm playback, seeking, repeat, hiding lyrics, and background pause on a simulator or emulator.
+- Automation: validate `.github/workflows/ci.yml` with actionlint through Trunk and `setup.sh` with `/bin/bash -n setup.sh` plus ShellCheck.
+- Hosted setup: distinguish controlled fixture tests from real Linux installation and GitHub-hosted execution.
