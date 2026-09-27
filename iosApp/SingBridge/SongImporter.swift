@@ -103,6 +103,7 @@ final class SongImporter: ObservableObject {
                     }) { selected in
                         IosAudioPlayer(uri: selected.uri, durationMs: selected.durationMs)
                     }
+                    if library.error == nil && library.pendingAudio == nil { store.removeUnusedCopies() }
                 }
             } catch {
                 library.reportError(message: audio

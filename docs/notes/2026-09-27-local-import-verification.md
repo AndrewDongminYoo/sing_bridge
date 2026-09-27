@@ -79,3 +79,14 @@ The signed and padded zero-offset regression failed before the parser fix and pa
 The updated shared suite passed 21 tests.
 GitHub Actions passed JVM/Android, Trunk, and the iOS simulator host build for `71f313684283112b7d83feb84973434ea9444d30`.
 This parser-only correction does not change the rendered import screen.
+
+## Failed-restore replacement cleanup
+
+A hosted review found a retained private copy when a saved LRC fails parsing and the user imports a replacement.
+The Android emulator reproduced the failure through the actual system pickers: after a successful replacement, `song-failed.wav` remained beside the new manifest and audio.
+The file assertion failed as expected before the fix.
+Both platforms now remove unused copies only after `completeImport` returns without an error or pending draft, after the previous player has been released.
+The same Android scenario passed after the fix: the directory contained only `current.json` and its referenced audio.
+Returning to the sample then left the private import directory empty, and the session-owned emulator was shut down.
+Shared tests, Android build/Lint, and the unsigned iOS host build were rerun for this correction.
+The iOS cleanup call received source review and compilation coverage; its Files-picker runtime limitation above remains.

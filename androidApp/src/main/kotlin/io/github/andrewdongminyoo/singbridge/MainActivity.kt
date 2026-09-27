@@ -101,6 +101,7 @@ class MainActivity : ComponentActivity() {
                 library.completeImport(text, persist = {
                     if (audio == null) "오디오 파일을 다시 선택해 주세요." else store.save(audio, text)
                 }) { AndroidAudioPlayer(this@MainActivity, it.uri) }
+                if (library.error == null && library.pendingAudio == null) store.removeUnusedCopies()
             } catch (exception: CancellationException) {
                 throw exception
             } catch (_: Exception) {
