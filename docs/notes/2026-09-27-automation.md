@@ -73,7 +73,9 @@ After fixture removal, actionlint checked the actual workflow and reported no is
 These checks establish syntax and supported workflow structure, not successful execution on GitHub runners.
 
 Runner labels were checked against [GitHub's hosted runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
-The Xcode selection follows [Kotlin's compatibility guide](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html), which lists Xcode 26.0 for Kotlin 2.3.20.
+The initial Xcode selection used the 26.x series based on [Kotlin's compatibility guide](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html), which lists Xcode 26.0 for Kotlin 2.3.20.
+The first hosted run selected Xcode 26.0.1 without a matching installed simulator runtime.
+CI now selects Xcode 26.6, whose simulator platform is included in the [runner image](https://github.com/actions/runner-images/blob/macos-26-arm64/20260907.0351/images/macos/macos-26-arm64-Readme.md).
 XcodeGen uses the checksum-verified [2.46.0 release](https://github.com/yonaskolb/XcodeGen/releases/tag/2.46.0).
 External action commits were checked against their official release tags and pinned by full SHA.
 
