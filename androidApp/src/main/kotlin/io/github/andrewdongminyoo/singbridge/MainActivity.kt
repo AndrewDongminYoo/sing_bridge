@@ -1,7 +1,7 @@
 package io.github.andrewdongminyoo.singbridge
 
-import android.os.Bundle
 import android.net.Uri
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -40,7 +40,9 @@ class MainActivity : ComponentActivity() {
                     if (store.clear()) {
                         library.useSample(AndroidAudioPlayer(this))
                         store.removeUnusedCopies()
-                    } else library.reportError("저장한 곡을 지우지 못했습니다. 다시 시도해 주세요.")
+                    } else {
+                        library.reportError("저장한 곡을 지우지 못했습니다. 다시 시도해 주세요.")
+                    }
                 },
             )
         }

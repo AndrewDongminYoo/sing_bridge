@@ -117,8 +117,14 @@ private class ImportTestPlayer : AudioPlayer {
     var releaseCount = 0
     val released get() = releaseCount > 0
     override fun snapshot() = PlaybackSnapshot(isReady = true, isPlaying = playing)
-    override fun play() { playing = true }
-    override fun pause() { playing = false }
+    override fun play() {
+        playing = true
+    }
+    override fun pause() {
+        playing = false
+    }
     override fun seekTo(positionMs: Long) = Unit
-    override fun release() { releaseCount++ }
+    override fun release() {
+        releaseCount++
+    }
 }

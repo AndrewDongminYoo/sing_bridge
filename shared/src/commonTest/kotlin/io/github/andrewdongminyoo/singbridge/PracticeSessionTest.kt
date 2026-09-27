@@ -137,8 +137,12 @@ class PracticeSessionTest {
 private class TestPlayer : AudioPlayer {
     var current = PlaybackSnapshot(isReady = true)
     override fun snapshot() = current
-    override fun play() { current = current.copy(isPlaying = true) }
-    override fun pause() { current = current.copy(isPlaying = false) }
+    override fun play() {
+        current = current.copy(isPlaying = true)
+    }
+    override fun pause() {
+        current = current.copy(isPlaying = false)
+    }
     override fun seekTo(positionMs: Long) {
         current = current.copy(positionMs = positionMs, hasEnded = false)
     }

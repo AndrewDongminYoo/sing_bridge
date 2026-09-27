@@ -13,7 +13,9 @@ fun parseLrc(text: String, durationMs: Long): PracticeTrack {
     val entries = mutableListOf<Pair<Long, String>>()
     text.removePrefix("\uFEFF").lineSequence().forEachIndexed { index, source ->
         val line = source.trim()
-        if (line.isEmpty() || metadata.matches(line) || offsetTag.matchEntire(line)?.groupValues?.get(1)?.toLongOrNull() == 0L) {
+        if (line.isEmpty() || metadata.matches(line) ||
+            offsetTag.matchEntire(line)?.groupValues?.get(1)?.toLongOrNull() == 0L
+        ) {
             return@forEachIndexed
         }
         require(!line.startsWith("[offset:", ignoreCase = true)) {
