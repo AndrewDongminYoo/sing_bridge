@@ -4,7 +4,8 @@
 
 Import one user-selected audio file and one UTF-8 LRC file on Android and iOS, and restore the last imported song after relaunch.
 Use native document pickers and existing playback adapters without new dependencies or storage permissions.
-Keep the current song until both inputs validate, pause before opening a picker, and never autoplay after import or cancellation.
+Keep the current song until both inputs validate and the candidate player reports ready without an error, pause before opening a picker, and never autoplay after import or cancellation.
+Wait at most ten seconds for playback readiness before reporting a retryable import failure; cancellation releases the candidate without changing the manifest.
 Copy the selected audio into app-private storage before inspecting its native media duration.
 Limit audio copies to 256 MiB; retain only the committed copy plus a temporary draft while importing.
 Persist a versioned manifest with the audio basename, display name, and source LRC using atomic replacement.

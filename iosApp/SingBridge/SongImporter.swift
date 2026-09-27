@@ -17,14 +17,36 @@ final class SongImporter: ObservableObject {
                 if let (saved, url) = try store.load() {
                     let selected = try await prepareAudio(url, name: saved.title)
                     library.selectAudio(audio: selected)
-                    library.completeImport(text: saved.lyrics, persist: { nil }) { audio in
-                        IosAudioPlayer(uri: audio.uri, durationMs: audio.durationMs)
-                    }
+                    try await completePreparedImport(text: saved.lyrics)
                 } else { library.finishReading() }
             } catch {
                 library.reportError(message: "저장한 곡을 열지 못했습니다. 다시 불러오거나 샘플곡을 사용해 주세요.")
             }
         }
+    }
+
+    private func completePreparedImport(text: String, save: Bool = false) async throws {
+        guard let audio = library.pendingAudio else { throw ImportError.unreadable }
+        library.startReading()
+        let player = IosAudioPlayer(uri: audio.uri, durationMs: audio.durationMs)
+        var handedToLibrary = false
+        defer { if !handedToLibrary { player.release() } }
+        for _ in 0..<200 {
+            try Task.checkCancellation()
+            let playback = player.snapshot()
+            guard playback.error == nil else { throw ImportError.playbackNotReady }
+            if playback.isReady {
+                library.completeImport(text: text, persist: { [store] in
+                    save ? store.save(audio: audio, lyrics: text) : nil
+                }) { _ in
+                    handedToLibrary = true
+                    return player
+                }
+                return
+            }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        throw ImportError.playbackNotReady
     }
 
     func useSample() {
@@ -97,14 +119,11 @@ final class SongImporter: ObservableObject {
                         return text
                     }.value
                     try Task.checkCancellation()
-                    library.completeImport(text: text, persist: { [store, library] in
-                        guard let selected = library.pendingAudio else { return "오디오 파일을 다시 선택해 주세요." }
-                        return store.save(audio: selected, lyrics: text)
-                    }) { selected in
-                        IosAudioPlayer(uri: selected.uri, durationMs: selected.durationMs)
-                    }
+                    try await completePreparedImport(text: text, save: true)
                     if library.error == nil && library.pendingAudio == nil { store.removeUnusedCopies() }
                 }
+            } catch ImportError.playbackNotReady {
+                library.reportError(message: "음원을 재생할 수 없습니다. 다른 오디오 파일을 선택해 주세요.")
             } catch {
                 library.reportError(message: audio
                     ? "음원을 가져오지 못했습니다. 256 MiB 이하 오디오 파일과 저장 공간을 확인해 주세요."
@@ -118,4 +137,5 @@ final class SongImporter: ObservableObject {
 
 private enum ImportError: Error {
     case unreadable
+    case playbackNotReady
 }

@@ -77,6 +77,11 @@ class SongLibrary(initialPlayer: AudioPlayer) {
         } catch (_: Exception) {
             return reportError("음원을 열 수 없습니다. 다른 오디오 파일을 선택해 주세요.")
         }
+        val playback = player.snapshot()
+        if (!playback.isReady || playback.error != null) {
+            player.release()
+            return reportError(playback.error ?: "음원이 아직 준비되지 않았습니다. 다시 시도해 주세요.")
+        }
         val saveError = try {
             persist()
         } catch (_: Exception) {

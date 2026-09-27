@@ -14,7 +14,7 @@ An initial stub run failed 8 of 18 tests.
 Independent review then identified that a character-count bound did not enforce a UTF-8 byte limit; a multibyte regression failed before adding the byte check.
 A persistence-failure test failed before adding transactional manifest commit handling.
 A failed-restore cleanup test failed before clearing the retained draft on sample reset.
-The final suite passed 21 tests with zero failures and errors: 10 existing practice tests, 5 parser tests, and 6 import ownership tests.
+The final suite passed 23 tests with zero failures and errors: 10 existing practice tests, 5 parser tests, and 8 import ownership tests.
 
 ## Build and static checks
 
@@ -90,3 +90,16 @@ The same Android scenario passed after the fix: the directory contained only `cu
 Returning to the sample then left the private import directory empty, and the session-owned emulator was shut down.
 Shared tests, Android build/Lint, and the unsigned iOS host build were rerun for this correction.
 The iOS cleanup call received source review and compilation coverage; its Files-picker runtime limitation above remains.
+
+## Playback readiness before commit
+
+Two regressions showed that an unready player or a ready player with an error could reach persistence and replace the previous song.
+Both failed before the common readiness guard and passed afterward; the suite now contains 23 tests.
+Android and iOS import/restore coordinators wait for a paused candidate to report ready without an error before passing it to the common commit path.
+The wait is bounded to ten seconds, and a candidate not handed to the library is released on failure or cancellation.
+The common guard independently rejects an unready or failed candidate before persistence.
+These tests use controlled snapshots; they do not establish that every codec or truncated media payload is rejected before playback begins.
+Android runtime confirmed successful system-picker import, playback, and paused restoration after force-stop through the new readiness path.
+Returning to the sample cleared the private directory; the emulator was shut down.
+The final correction passed shared tests, Android build/Lint, unsigned iOS compilation, and separate shared/native source reviews.
+The iOS picker/runtime limitation remains unchanged.

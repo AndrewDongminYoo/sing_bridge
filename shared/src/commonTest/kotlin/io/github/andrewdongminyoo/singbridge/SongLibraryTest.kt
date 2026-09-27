@@ -10,6 +10,43 @@ import kotlin.test.assertTrue
 
 class SongLibraryTest {
     @Test
+    fun unreadyPlayerDoesNotCommitOrReplaceThePreviousSong() {
+        assertRejectedPlayer(PlaybackSnapshot(isReady = false))
+    }
+
+    @Test
+    fun failedPlayerDoesNotCommitEvenWhenItReportsReady() {
+        assertRejectedPlayer(PlaybackSnapshot(isReady = true, error = "Decoder failed"))
+    }
+
+    private fun assertRejectedPlayer(snapshot: PlaybackSnapshot) {
+        val previous = ImportTestPlayer()
+        var releases = 0
+        var saves = 0
+        val candidate = object : AudioPlayer {
+            override fun snapshot() = snapshot
+            override fun play() = Unit
+            override fun pause() = Unit
+            override fun seekTo(positionMs: Long) = Unit
+            override fun release() {
+                releases++
+            }
+        }
+        val library = SongLibrary(previous)
+        library.selectAudio(ImportedAudio("Candidate", "file:candidate", 10_000) {})
+        library.completeImport("[00:01]Hello", {
+            saves++
+            null
+        }) { candidate }
+        assertEquals(0, saves)
+        assertSame(previous, library.song.player)
+        assertFalse(previous.released)
+        assertEquals(1, releases)
+        assertNotNull(library.pendingAudio)
+        assertNotNull(library.error)
+    }
+
+    @Test
     fun returningToSampleClearsDraftLeftByFailedRestore() {
         var disposed = false
         val library = SongLibrary(ImportTestPlayer())

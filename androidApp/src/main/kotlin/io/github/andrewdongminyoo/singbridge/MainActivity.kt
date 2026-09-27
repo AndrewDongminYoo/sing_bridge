@@ -11,8 +11,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : ComponentActivity() {
     private lateinit var library: SongLibrary
@@ -53,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 val saved = withContext(Dispatchers.IO) { store.load() }
                 if (saved != null) {
                     library.selectAudio(saved.first)
-                    library.completeImport(saved.second) { AndroidAudioPlayer(this@MainActivity, it.uri) }
+                    completePreparedImport(saved.second)
                 } else {
                     library.finishReading()
                 }
@@ -97,16 +99,42 @@ class MainActivity : ComponentActivity() {
                     }
                     bytes.decodeToString(throwOnInvalidSequence = true)
                 }
-                val audio = library.pendingAudio
-                library.completeImport(text, persist = {
-                    if (audio == null) "오디오 파일을 다시 선택해 주세요." else store.save(audio, text)
-                }) { AndroidAudioPlayer(this@MainActivity, it.uri) }
+                completePreparedImport(text, save = true)
                 if (library.error == null && library.pendingAudio == null) store.removeUnusedCopies()
             } catch (exception: CancellationException) {
                 throw exception
             } catch (_: Exception) {
                 library.reportError("LRC를 읽을 수 없습니다. UTF-8로 저장된 1 MiB 이하 파일을 선택해 주세요.")
             }
+        }
+    }
+
+    private suspend fun completePreparedImport(text: String, save: Boolean = false) {
+        val audio = requireNotNull(library.pendingAudio)
+        library.startReading()
+        val player = AndroidAudioPlayer(this, audio.uri)
+        var handedToLibrary = false
+        try {
+            val ready = withTimeoutOrNull(10_000) {
+                var playback = player.snapshot()
+                while (!playback.isReady && playback.error == null) {
+                    delay(50)
+                    playback = player.snapshot()
+                }
+                check(playback.error == null)
+                true
+            }
+            check(ready == true)
+            library.completeImport(text, persist = { if (save) store.save(audio, text) else null }) {
+                handedToLibrary = true
+                player
+            }
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (_: Exception) {
+            library.reportError("음원을 재생할 수 없습니다. 다른 오디오 파일을 선택해 주세요.")
+        } finally {
+            if (!handedToLibrary) player.release()
         }
     }
 
