@@ -55,13 +55,15 @@ find_sdk_root() {
   printf '%s/.android-sdk\n' "$repo_root"
 }
 
-bootstrap_command_line_tools() {
-  local archive_path="$sdk_root/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}.zip"
+bootstrap_command_line_tools() (
+  local archive_path
   local command_line_tools_root="$sdk_root/cmdline-tools"
-  local extracted_tools_root="$command_line_tools_root/cmdline-tools"
+  local extraction_root
+  local extracted_tools_root
 
   require_command curl
   require_command mkdir
+  require_command mktemp
   require_command mv
   require_command rm
   require_command sha256sum
@@ -72,9 +74,13 @@ bootstrap_command_line_tools() {
   fi
 
   mkdir -p "$command_line_tools_root"
+  extraction_root=$(mktemp -d "$command_line_tools_root/.singbridge-tools.XXXXXX")
+  trap 'rm -rf "$extraction_root"' EXIT
+  archive_path="$extraction_root/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}.zip"
+  extracted_tools_root="$extraction_root/cmdline-tools"
   curl --fail --show-error --location --proto '=https' --tlsv1.2 --output "$archive_path" "$COMMAND_LINE_TOOLS_URL"
   printf '%s  %s\n' "$COMMAND_LINE_TOOLS_SHA256" "$archive_path" | sha256sum --check --status || fail "checksum verification failed for Android command-line tools $COMMAND_LINE_TOOLS_VERSION"
-  unzip -q "$archive_path" -d "$command_line_tools_root"
+  unzip -q "$archive_path" -d "$extraction_root"
   rm -f "$archive_path"
 
   if [[ ! -d "$extracted_tools_root" ]]; then
@@ -82,7 +88,7 @@ bootstrap_command_line_tools() {
   fi
 
   mv "$extracted_tools_root" "$command_line_tools_root/latest"
-}
+)
 
 install_android_sdk_packages() {
   local sdkmanager_path="$sdk_root/cmdline-tools/latest/bin/sdkmanager"
