@@ -14,7 +14,7 @@ An initial stub run failed 8 of 18 tests.
 Independent review then identified that a character-count bound did not enforce a UTF-8 byte limit; a multibyte regression failed before adding the byte check.
 A persistence-failure test failed before adding transactional manifest commit handling.
 A failed-restore cleanup test failed before clearing the retained draft on sample reset.
-The final suite passed 20 tests with zero failures and errors: 10 existing practice tests, 4 parser tests, and 6 import ownership tests.
+The final suite passed 21 tests with zero failures and errors: 10 existing practice tests, 5 parser tests, and 6 import ownership tests.
 
 ## Build and static checks
 
@@ -72,3 +72,10 @@ Both reviewers reported no remaining P1/P2 findings in their scoped final pass; 
 Physical speaker output, minimum supported OS versions, large cloud-provider downloads, disk-full device behavior, and DRM-protected media were not exercised.
 Persistence failure is covered by a controlled failure callback, not an actual full disk.
 Automatic pronunciation, multiple simultaneous vocal parts, word-level timing, and third-party playback remain outside this PR.
+
+## Hosted offset review
+
+The signed and padded zero-offset regression failed before the parser fix and passed afterward.
+The updated shared suite passed 21 tests.
+GitHub Actions passed JVM/Android, Trunk, and the iOS simulator host build for `71f313684283112b7d83feb84973434ea9444d30`.
+This parser-only correction does not change the rendered import screen.
