@@ -1,0 +1,17 @@
+{
+  "query": "Vaundy - Odoriko",
+  "selection": "First lyric result after sorting by video duration difference",
+  "videoDurationSeconds": 246,
+  "storageKey": "singbridge.practice.v1",
+  "practice": {
+    "version": 1,
+    "items": [
+      {
+        "videoId": "7HgJIAUtICU",
+        "lyricId": 35923881,
+        "title": "Vaundy - odoriko",
+        "offset": 5.5
+      }
+    ]
+  }
+}
