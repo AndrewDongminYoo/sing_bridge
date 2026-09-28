@@ -14,4 +14,20 @@ class YouTubeEmbedTest {
         assertFailsWith<IllegalArgumentException> { youtubeEmbedHtml("app';alert(1)//") }
         assertFailsWith<IllegalArgumentException> { youtubeEmbedHtml("") }
     }
+
+    @Test
+    fun searchConfigurationDoesNotLeakIntoUnreplacedMarkup() {
+        val html = buildYoutubeEmbedHtml("io.github.andrewdongminyoo.singbridge", "fixture-key")
+        assertTrue(html.contains("const youtubeApiKey = 'fixture-key'"))
+        assertTrue(html.contains("id=\"song-search\""))
+        assertFalse(html.contains("__SEARCH__"))
+        assertFalse(html.contains("__LYRICS__"))
+        assertFalse(html.contains("__YOUTUBE_API_KEY__"))
+        assertTrue(
+            buildYoutubeEmbedHtml("io.github.andrewdongminyoo.singbridge", "").contains("const youtubeApiKey = ''"),
+        )
+        assertFailsWith<IllegalArgumentException> {
+            buildYoutubeEmbedHtml("io.github.andrewdongminyoo.singbridge", "';alert(1)//")
+        }
+    }
 }
