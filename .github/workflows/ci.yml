@@ -48,7 +48,7 @@ jobs:
         run: ./gradlew --no-daemon :shared:jvmTest :androidApp:assembleDebug :androidApp:lintDebug
 
       - name: Test shared YouTube player JavaScript
-        run: node --test tools/test-youtube.mjs
+        run: node --test tools/test-youtube.mjs server/pronunciation.test.mjs
 
       - name: Upload Android lint reports
         if: ${{ always() }}
