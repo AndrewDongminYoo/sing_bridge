@@ -11,6 +11,7 @@ Oracle returned [no precedent found] for this scoped personal-project query.
 ## Contract
 
 - A user explicitly saves the video, lyric selection, signed offset, generated segments, target language, source snapshot, and per-line text overrides.
+- Only the pronunciation save action persists a new layer or edits; ordinary practice saving preserves existing saved layers while updating reference metadata and timing.
 - Existing reference-only library entries remain readable without migration.
 - Korean and English layers are independent; edits do not modify generated segments, original source text, or timestamps.
 - Restoring fetches the exact LRCLIB record and compares source text and timestamps before applying a saved layer.

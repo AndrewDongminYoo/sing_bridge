@@ -1508,6 +1508,30 @@ async function reopenPronunciation(storage, restoredRecord = record) {
   return f;
 }
 
+test('generic practice saves never persist unsaved pronunciation or edits', async () => {
+  const storage = memoryStorage(); const f = await generatedPractice(storage);
+  f.element('save-practice').click();
+  let saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
+  assert.equal(saved.pronunciations, undefined, 'Reference save must not store generated lyrics');
+  f.element('pronunciation-save').click();
+  const original = JSON.stringify(JSON.parse(storage.getItem('singbridge.practice.v1')).items[0].pronunciations);
+  f.element('pronunciation-edit-text').value = 'Unsaved draft'; f.element('pronunciation-edit-text').input();
+  f.element('lyrics-later').click();
+  assert.equal(f.element('save-practice').disabled, false);
+  f.element('save-practice').click();
+  saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
+  assert.equal(saved.offset, 0.5);
+  assert.equal(JSON.stringify(saved.pronunciations), original, 'Timing save must retain the previously saved layer');
+  f.element('pronunciation-edit-text').value = 'one\ntwo'; f.element('pronunciation-edit-text').input();
+  f.element('lyrics-later').click();
+  assert.equal(f.element('save-practice').disabled, false, 'Invalid pronunciation must not block a reference-only save');
+  assert.equal(f.element('pronunciation-save').disabled, true);
+  f.element('save-practice').click();
+  saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
+  assert.equal(saved.offset, 1);
+  assert.equal(JSON.stringify(saved.pronunciations), original);
+});
+
 test('saved pronunciation and line edits survive a new page without an AI bridge', async () => {
   const storage = memoryStorage();
   const first = await generatedPractice(storage);

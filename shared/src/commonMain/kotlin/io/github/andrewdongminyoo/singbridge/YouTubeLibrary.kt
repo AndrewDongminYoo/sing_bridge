@@ -53,31 +53,30 @@ internal fun youtubeLibraryHtml(): String = """
     }
     function updateSaveControl() {
       const selected = savedPractices.find(entry => entry.videoId === activeVideoId && entry.lyricId === selectedLyricRecord?.id);
-      const draft = pronunciationSnapshot();
-      const unchanged = selected && selected.offset === lyricAdjustment && (!draft ||
-        (selected.pronunciationTarget === draft.target && JSON.stringify(selected.pronunciations?.[draft.target]) === JSON.stringify(draft)));
-      saveButton.disabled = !ready || !activeVideoId || !selectedLyricRecord || !!unchanged || pronunciationBusy || !validPronunciationEdits();
+      const unchanged = selected && selected.offset === lyricAdjustment;
+      saveButton.disabled = !ready || !activeVideoId || !selectedLyricRecord || !!unchanged || pronunciationBusy;
       saveButton.textContent = unchanged ? '저장됨' : selected ? '변경 내용 저장' : '이 연습 저장';
     }
-    function saveCurrentPractice() {
-      if (!ready || !activeVideoId || !selectedLyricRecord || pronunciationBusy || !validPronunciationEdits()) return false;
+    function saveCurrentPractice(includePronunciation = false) {
+      if (!ready || !activeVideoId || !selectedLyricRecord || pronunciationBusy) return false;
+      const draft = includePronunciation ? pronunciationSnapshot() : null;
+      if (includePronunciation && !draft) return false;
       const entry = { videoId: activeVideoId, lyricId: selectedLyricRecord.id,
         title: (selectedLyricRecord.artistName + ' - ' + selectedLyricRecord.trackName).slice(0, 1000), offset: lyricAdjustment };
       const previous = savedPractices.find(item => item.videoId === entry.videoId && item.lyricId === entry.lyricId);
       if (previous?.pronunciations) entry.pronunciations = previous.pronunciations;
       if (previous?.pronunciationTarget) entry.pronunciationTarget = previous.pronunciationTarget;
-      const draft = pronunciationSnapshot();
       if (draft) { entry.pronunciations = { ...entry.pronunciations, [draft.target]: draft }; entry.pronunciationTarget = draft.target; }
       if (!validSavedEntry(entry)) { saveStatus.textContent = '이 연습을 저장하지 못했어요.'; return false; }
       const remaining = savedPractices.filter(item => item.videoId !== entry.videoId || item.lyricId !== entry.lyricId);
       if (remaining.length >= 20) { saveStatus.textContent = '최대 20개까지 저장할 수 있어요. 노래 찾기에서 저장한 연습을 삭제해 주세요.'; return false; }
       const saved = writeSavedPractices([entry, ...remaining]);
       saveStatus.textContent = saved
-        ? '연습과 음차를 저장했어요. 노래 찾기에서 다시 열 수 있어요.'
+        ? '영상·가사 선택·싱크를 저장했어요. 노래 찾기에서 다시 열 수 있어요.'
         : '저장하지 못했어요. 저장 공간이나 기기 설정을 확인해 주세요.';
       updateSaveControl(); return saved;
     }
-    saveButton.addEventListener('click', saveCurrentPractice);
+    saveButton.addEventListener('click', function() { saveCurrentPractice(); });
     function renderSavedPractices() {
       const list = document.getElementById('saved-practices'); list.replaceChildren();
       if (storageReadable) savedStatus.textContent = savedPractices.length ? '' : '아직 저장한 연습이 없어요.';

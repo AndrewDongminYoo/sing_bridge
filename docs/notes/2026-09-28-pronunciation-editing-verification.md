@@ -39,6 +39,11 @@ Closed the browser session and stopped the temporary fixture server.
 
 ## Limits and next action
 
+Hosted code review identified that ordinary practice saving also persisted unsaved pronunciation.
+A new regression failed on the unexpected stored layer before the fix; ordinary saving now updates references and timing while only the pronunciation save action persists drafts.
+The regression also checks that an offset save preserves previous pronunciation and remains available when a pronunciation draft is invalid.
+The complete Node suite passed 89 tests after this repair.
+
 Native keyboard editing remains unverified: the earlier automated input did not reach the editor, and a later Device Hub retry was blocked by the locked Mac before input could be tested.
 The operator deferred that check while working remotely; this is not evidence that Device Hub cannot type or paste.
 No physical device was used.

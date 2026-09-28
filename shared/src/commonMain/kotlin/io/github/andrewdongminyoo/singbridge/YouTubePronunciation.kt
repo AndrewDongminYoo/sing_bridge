@@ -233,7 +233,7 @@ internal fun youtubePronunciationHtml(): String = """
     });
     pronunciationSave.addEventListener('click', function() {
       if (pronunciationSave.disabled) return;
-      pronunciationStatus.textContent = saveCurrentPractice() ? '음차와 수정 내용을 이 기기에 저장했어요.' : '저장하지 못했어요. 저장 공간과 입력 내용을 확인해 주세요. 기존 저장본은 유지됩니다.';
+      pronunciationStatus.textContent = saveCurrentPractice(true) ? '음차와 수정 내용을 이 기기에 저장했어요.' : '저장하지 못했어요. 저장 공간과 입력 내용을 확인해 주세요. 기존 저장본은 유지됩니다.';
     });
     pronunciationTarget.addEventListener('change', function() { resetPronunciation(); restorePronunciation(false); });
     pronunciationToggle.addEventListener('click', function() {
