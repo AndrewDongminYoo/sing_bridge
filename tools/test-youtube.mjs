@@ -44,8 +44,9 @@ function memoryStorage() {
 }
 function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key", storage = memoryStorage()) {
   const elements = new Map();
-  function node() {
+  function node(tagName = 'div') {
     return {
+      tagName: tagName.toUpperCase(),
       attributes: {},
       style: {},
       clientHeight: 200,
@@ -148,6 +149,9 @@ function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key
         }
         pauseVideo() {
           this.pauses++;
+        }
+        playVideo() {
+          this.plays = (this.plays || 0) + 1;
         }
         destroy() {
           this.destroyed = true;
@@ -1644,4 +1648,84 @@ test('timestamp-like and markup-like edits stay literal and never enter the LRC 
   assert.equal(vm.runInContext('JSON.stringify(lyricLines)', next.context), original);
   assert.equal(next.element('lyrics-timing').children.length, f.element('lyrics-timing').children.length);
   assert.equal(next.element('lyrics-timing').children[0].children[0].textContent, '[99:59.99]<script>wrong()</script>');
+});
+
+test('lyric activation seeks with the signed offset and starts playback without changing lyrics', async () => {
+  const f = await generatedPractice(); const p = f.players[0];
+  const source = vm.runInContext('JSON.stringify(lyricLines)', f.context);
+  const row = f.element('lyrics-timing').children[0];
+  assert.equal(row.tagName, 'BUTTON');
+  for (const [offset, expected] of [[0, 2], [5.5, 7.5], [-1, 1], [-5, 0]]) {
+    f.element('lyrics-offset').value = String(offset); f.element('lyrics-offset').change();
+    const plays = p.plays || 0;
+    row.click?.({ detail: 0 });
+    assert.deepEqual(p.seek, [expected, true]);
+    assert.equal(p.plays, plays + 1);
+    assert.equal(f.element('lyrics-offset').value, String(offset));
+    assert.equal(vm.runInContext('JSON.stringify(lyricLines)', f.context), source);
+  }
+  f.element('pronunciation-toggle').click(); f.element('pronunciation-toggle').click();
+  row.click({ detail: 0 });
+  assert.match(row.textContent, /테스트 발음/);
+  assert.deepEqual(p.seek, [0, true]);
+});
+
+test('lyric activation rejects hidden, unready, invalid-duration and out-of-range playback', async () => {
+  const cases = [
+    f => f.visibility(0), f => { f.document.hidden = true; },
+    f => vm.runInContext('foreground = false', f.context),
+    f => { f.element('practice-screen').hidden = true; },
+    f => { f.element('lyrics-panel').open = true; },
+    f => vm.runInContext('ready = false', f.context),
+    f => { f.players[0].duration = NaN; }, f => { f.players[0].duration = 0; },
+    f => { f.players[0].duration = 2; },
+    f => { f.element('lyrics-offset').value = '100'; f.element('lyrics-offset').change(); },
+  ];
+  for (const disable of cases) {
+    const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+    const row = f.element('lyrics-timing').children[0]; disable(f);
+    row.click?.({ detail: 0 });
+    assert.equal(f.players[0].seek, undefined);
+    assert.equal(f.players[0].plays, undefined);
+  }
+});
+
+test('lyric drag, scrolling, and pointer cancellation cannot seek but the next tap can', async () => {
+  const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+  const reading = f.element('lyric-window'), row = f.element('lyrics-timing').children[0], p = f.players[0];
+  const down = { pointerId: 1, clientX: 40, clientY: 40 };
+  for (const gesture of [
+    () => f.window.pointermove?.({ ...down, clientY: 60 }),
+    () => { reading.scrollTop += 20; reading.scroll?.(); },
+    () => f.window.pointercancel(down),
+  ]) {
+    reading.pointerdown(down); gesture(); f.window.pointerup(down); row.click?.({ detail: 1 });
+    assert.equal(p.seek, undefined);
+  }
+  reading.pointerdown(down); f.window.pointerup(down); row.click?.({ detail: 1 });
+  assert.deepEqual(p.seek, [2, true]);
+  assert.equal(p.plays, 1);
+  f.tick(); assert.equal(f.currentLyric(), row);
+});
+
+test('blank markers and obsolete lyric rows never seek', async () => {
+  const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+  const [row, , blank] = f.element('lyrics-timing').children;
+  assert.notEqual(blank.tagName, 'BUTTON'); blank.click?.({ detail: 0 });
+  vm.runInContext('renderTimedLyrics()', f.context);
+  row.click?.({ detail: 0 });
+  assert.equal(f.players[0].seek, undefined);
+  f.element('lyrics-timing').children[0].click?.({ detail: 0 });
+  assert.deepEqual(f.players[0].seek, [2, true]);
+});
+
+test('lyric seek following waits for the real player position', async () => {
+  const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+  const p = f.players[0]; p.position = 2; f.tick();
+  const first = f.currentLyric();
+  p.seekTo = function(value, ahead) { this.seek = [value, ahead]; };
+  f.element('lyrics-timing').children[1].click?.({ detail: 0 });
+  assert.deepEqual(p.seek, [5, true]);
+  f.tick(); assert.equal(f.currentLyric(), first);
+  p.position = 5; f.tick(); assert.equal(f.currentLyric().textContent, 'Second');
 });
