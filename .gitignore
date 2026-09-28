@@ -11,3 +11,4 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 iosApp/SingBridge.xcodeproj/
+.env
