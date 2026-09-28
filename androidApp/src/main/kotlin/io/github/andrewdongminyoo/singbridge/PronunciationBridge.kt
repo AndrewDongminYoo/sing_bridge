@@ -45,6 +45,7 @@ internal class PronunciationBridge {
                         // adb reverse maps device loopback to the development host.
                         request = URL("http://127.0.0.1:18773/pronunciation").openConnection() as HttpURLConnection
                         connection = request
+                        if (requestId != id) return@execute
                         request.requestMethod = "POST"
                         request.instanceFollowRedirects = false
                         request.connectTimeout = 5000
@@ -52,6 +53,7 @@ internal class PronunciationBridge {
                         request.setRequestProperty("Content-Type", "application/json")
                         request.setRequestProperty("X-SingBridge-Client", "native-dev")
                         request.doOutput = true
+                        if (requestId != id) return@execute
                         request.outputStream.use { it.write(input.toString().toByteArray(Charsets.UTF_8)) }
                         check(request.responseCode == 200)
                         val bytes = request.inputStream.use { stream ->
