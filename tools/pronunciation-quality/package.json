@@ -1,0 +1,12 @@
+{
+  "name": "singbridge-pronunciation-quality",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test reference.test.mjs evaluate.test.mjs",
+    "evaluate": "node evaluate.mjs cases.json"
+  },
+  "dependencies": { "kuromoji": "0.1.2" }
+}
