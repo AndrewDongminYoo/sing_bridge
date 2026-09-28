@@ -30,6 +30,9 @@ private struct YouTubeWebView: UIViewRepresentable {
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = .all
         configuration.allowsPictureInPictureMediaPlayback = false
+        #if DEBUG && targetEnvironment(simulator)
+        configuration.userContentController.add(context.coordinator.pronunciation, name: "pronunciation")
+        #endif
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
         let appId = Bundle.main.bundleIdentifier!
@@ -52,6 +55,8 @@ private struct YouTubeWebView: UIViewRepresentable {
     }
 
     static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
+        coordinator.pronunciation.close()
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "pronunciation")
         webView.pauseAllMediaPlayback()
         webView.setAllMediaPlaybackSuspended(true)
         webView.stopLoading()
@@ -60,6 +65,20 @@ private struct YouTubeWebView: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate {
+        let pronunciation = PronunciationBridge()
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            guard webView.url?.host == Bundle.main.bundleIdentifier else { return }
+            #if DEBUG && targetEnvironment(simulator)
+            let available = true
+            #else
+            let available = false
+            #endif
+            webView.callAsyncJavaScript("window.singBridgeConfigurePronunciation(locale, available)",
+                arguments: ["locale": Locale.preferredLanguages.first ?? "", "available": available],
+                in: nil, in: .page, completionHandler: nil)
+        }
+
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,

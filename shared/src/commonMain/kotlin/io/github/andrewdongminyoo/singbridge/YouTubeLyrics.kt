@@ -39,6 +39,7 @@ internal fun youtubeLyricsHtml(): String = """
     <p id="lyrics-scripts"></p>
     <button id="save-practice" class="button-primary" type="button" disabled>이 연습 저장</button>
     <p id="save-status" role="status" aria-live="polite"></p>
+    __PRONUNCIATION__
     <details id="lyrics-settings" open>
     <summary>노래 제목·가수로 가사 찾기</summary>
     <form id="lyrics-search">
@@ -105,7 +106,8 @@ internal fun youtubeLyricsHtml(): String = """
       if (lyricsPanel.open) lyricsPanel.close();
       document.getElementById('lyric-window').scrollTop = 0;
       if (lyricRequest) lyricRequest.abort();
-      selectedLyricRecord = null; lyricLines = []; renderTimedLyrics(); lyricAdjustment = 0; lyricsOffset.value = '0'; lyricsOffset.disabled = true;
+      resetPronunciation();
+      selectedLyricRecord = null; lyricLines = []; renderTimedLyrics(); updatePronunciationControl(); lyricAdjustment = 0; lyricsOffset.value = '0'; lyricsOffset.disabled = true;
       lyricCandidates = []; rankedDuration = 0;
       document.getElementById('lyrics-ranking').textContent = '';
       lyricsResults.replaceChildren();
@@ -245,8 +247,9 @@ internal fun youtubeLyricsHtml(): String = """
       try {
         const lines = record.syncedLyrics ? parseTimedLyrics(record.syncedLyrics) : [];
         if (!lines.length && !record.plainLyrics) throw new Error('이 결과에는 표시할 가사가 없어요.');
+        resetPronunciation();
         selectedLyricRecord = record; lyricLines = lines; lyricAdjustment = 0; lyricsOffset.value = '0';
-        renderTimedLyrics();
+        renderTimedLyrics(); updatePronunciationControl();
         lyricsOffset.disabled = !lines.length;
         document.getElementById('lyrics-timing').hidden = !lines.length;
         document.getElementById('lyrics-plain').textContent = lines.length ? '' : record.plainLyrics;
