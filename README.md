@@ -49,6 +49,10 @@ Long lyrics scroll inside the reading area; the transport and timing controls st
 Visible **재생 이동** and **가사 싱크** captions distinguish seeking from timing adjustment; search and save actions use primary buttons.
 Timed lyrics form a stable list: the active row is emphasized and smoothly follows the actual playback position.
 Touch, wheel, or keyboard reading suspends automatic following until four seconds after the last interaction; reduced-motion settings disable animated scrolling.
+Tap a timed lyric or its pronunciation to play from that line, including the current timing adjustment; Enter and Space work on focused rows.
+Dragging or scrolling only moves the reading area, and blank markers and plain lyrics remain noninteractive.
+Playback requires the visible foreground player; targets at or beyond the video end are ignored.
+See [tap playback verification](docs/notes/2026-09-28-lyric-tap-seek-verification.md) for automated checks and remaining native-device coverage.
 **가사 선택** or **가사·설정** opens a separate scrollable panel for lyric search, metadata, and precise timing entry.
 Opening that panel pauses playback; choosing lyrics, closing it, or pressing Escape does not resume automatically.
 In short landscape viewports, video and lyric controls sit side by side.

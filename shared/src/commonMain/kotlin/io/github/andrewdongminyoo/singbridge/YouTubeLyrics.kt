@@ -4,7 +4,7 @@ internal fun youtubeLyricsHtml(): String = """
     <section id="lyric-workspace" aria-label="가사 연습">
     <div id="lyric-window" tabindex="0" aria-label="가사">
     <p id="lyrics-placeholder">가사를 선택해 연습을 시작하세요.</p>
-    <div id="lyrics-timing" role="list" aria-label="시간에 맞춘 가사" hidden></div>
+    <div id="lyrics-timing" role="group" aria-label="시간에 맞춘 가사" hidden></div>
     <p id="lyrics-plain" class="lyric-plain"></p>
     </div>
     <div class="lyric-meta">
@@ -79,9 +79,12 @@ internal fun youtubeLyricsHtml(): String = """
     const lyricList = document.getElementById('lyrics-timing');
     let lyricRows = [], activeLyricIndex = -1, followDirty = true;
     let manualUntil = 0, lyricPointerDown = false;
+    let lyricGesture = null;
     function suspendLyricFollow() { manualUntil = Date.now() + 4000; followDirty = true; }
     lyricWindow.addEventListener('wheel', suspendLyricFollow, { passive: true });
-    lyricWindow.addEventListener('pointerdown', function() {
+    lyricWindow.addEventListener('pointerdown', function(event = {}) {
+      lyricGesture = { id: event.pointerId, x: event.clientX, y: event.clientY,
+        scrollTop: lyricWindow.scrollTop, cancelled: lyricPointerDown || event.isPrimary === false };
       lyricPointerDown = true; suspendLyricFollow();
       lyricWindow.scrollTo({ top: lyricWindow.scrollTop, behavior: 'instant' });
     });
@@ -90,7 +93,17 @@ internal fun youtubeLyricsHtml(): String = """
       lyricPointerDown = false; suspendLyricFollow();
     }
     window.addEventListener('pointerup', releaseLyricPointer);
-    window.addEventListener('pointercancel', releaseLyricPointer);
+    window.addEventListener('pointermove', function(event) {
+      if (lyricPointerDown && lyricGesture && event.pointerId === lyricGesture.id &&
+          Math.hypot(event.clientX - lyricGesture.x, event.clientY - lyricGesture.y) > 8) lyricGesture.cancelled = true;
+    });
+    window.addEventListener('pointercancel', function() {
+      if (lyricGesture) lyricGesture.cancelled = true;
+      releaseLyricPointer();
+    });
+    lyricWindow.addEventListener('scroll', function() {
+      if (lyricPointerDown && lyricGesture && Math.abs(lyricWindow.scrollTop - lyricGesture.scrollTop) > 4) lyricGesture.cancelled = true;
+    }, { passive: true });
     lyricWindow.addEventListener('keydown', function(event) {
       if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) suspendLyricFollow();
     });
@@ -153,12 +166,24 @@ internal fun youtubeLyricsHtml(): String = """
 
     function renderTimedLyrics() {
       lyricRows = []; activeLyricIndex = -1; followDirty = true;
-      manualUntil = 0; lyricPointerDown = false;
+      manualUntil = 0; lyricPointerDown = false; lyricGesture = null;
       lyricList.replaceChildren();
       for (let i = 0; i < lyricLines.length; i++) {
-        const row = document.createElement('p');
+        const row = document.createElement(lyricLines[i].text ? 'button' : 'p');
         row.id = 'lyric-line-' + i; row.className = 'lyric-row';
-        row.setAttribute('role', 'listitem'); row.textContent = lyricLines[i].text;
+        row.textContent = lyricLines[i].text;
+        if (lyricLines[i].text) {
+          row.type = 'button'; row.title = '이 구절부터 재생';
+          row.addEventListener('click', function(event) {
+            if (event.detail > 0 && lyricGesture?.cancelled) return;
+            if (lyricRows[i] !== row || !ready || !canPlay() || !player) return;
+            const duration = player.getDuration(), target = Math.max(0, lyricLines[i].time + lyricAdjustment);
+            if (!Number.isFinite(duration) || duration <= 0 || !Number.isFinite(target) || target >= duration) return;
+            player.seekTo(target, true); player.playVideo();
+            manualUntil = 0; lyricPointerDown = false; followDirty = true;
+            refreshLyrics();
+          });
+        } else row.setAttribute('aria-hidden', 'true');
         lyricRows.push(row); lyricList.append(row);
       }
     }

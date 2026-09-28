@@ -50,6 +50,9 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         #lyrics-timing { padding-inline: 12px; }
         .lyric-row, .lyric-plain { white-space: pre-wrap; margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
         .lyric-row { min-height: 1.5em; padding-block: 14px; font-size: 1.35rem; font-weight: 700; color: #596d65; opacity: 0.8; transition: color 240ms ease, opacity 240ms ease; }
+        button.lyric-row { display: block; width: 100%; padding-inline: 0; border: 0; border-radius: 6px; background: transparent; text-align: inherit; font-family: inherit; }
+        button.lyric-row:focus-visible { outline-offset: -2px; }
+        button.lyric-row:not(:disabled):active { background: var(--control-tint); box-shadow: none; }
         .pronunciation-layer { display: block; margin-top: 6px; font-size: 1rem; font-weight: 500; color: #235e52; }
         .pronunciation-languages { display: block; margin-top: 4px; font-size: 0.6875rem; font-weight: 400; }
         .pronunciation-review { text-decoration: underline dotted; text-underline-offset: 4px; }
