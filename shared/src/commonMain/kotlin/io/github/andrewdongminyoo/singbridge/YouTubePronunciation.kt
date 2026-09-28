@@ -7,7 +7,7 @@ internal fun youtubePronunciationHtml(): String = """
     <select id="pronunciation-target">
     <option value="">언어를 선택하세요</option><option value="ko">한국어</option><option value="en">English</option>
     </select>
-    <p class="candidate-detail">선택한 가사를 서버와 OpenAI에 보내 발음을 만듭니다. 번역이 아니며, 노래에서 부르는 발음과 다를 수 있어요.</p>
+    <p class="candidate-detail">선택한 가사를 서버와 OpenAI에 보내 발음을 만듭니다. 번역이 아니며, 노래에서 부르는 발음과 다를 수 있어요. 밑줄 친 구절은 발음이 불확실해 원문을 그대로 보여 줍니다.</p>
     <button id="pronunciation-generate" type="button" disabled>음차 만들기</button>
     <button id="pronunciation-toggle" type="button" aria-pressed="false" disabled>음차 숨기기</button>
     <button id="pronunciation-save" type="button" disabled>음차 저장</button>
@@ -120,10 +120,10 @@ internal fun youtubePronunciationHtml(): String = """
           layer.append(phrase);
         }
         row.append(layer);
-        const languages = document.createElement('span'); languages.className = 'pronunciation-languages';
-        languages.textContent = validEditedPronunciation(pronunciationEdits[result.id]) ? '직접 수정' : 'AI · ' + [...new Set(result.segments.filter(s => /\p{L}/u.test(s.source)).map(s => names[s.language]))].join(' · ') +
-          (result.segments.some(s => s.needsReview && /\p{L}/u.test(s.source)) ? ' · 밑줄 구절은 원문 유지' : '');
-        row.append(languages);
+        if (validEditedPronunciation(pronunciationEdits[result.id])) {
+          const edited = document.createElement('span'); edited.className = 'pronunciation-languages';
+          edited.textContent = '직접 수정'; row.append(edited);
+        }
       });
       followDirty = true;
     }

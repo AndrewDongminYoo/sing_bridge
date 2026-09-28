@@ -274,6 +274,9 @@ See [YouTube player verification](docs/notes/2026-09-27-youtube-player-verificat
 
 ## Development pronunciation server
 
+For independent Japanese dictionary reading comparisons, see the [offline reference tool](tools/pronunciation-quality/README.md).
+It reports agreement, differences, and unassessable phrases without changing app output or saved edits; dictionary agreement is not sung-pronunciation accuracy.
+
 The YouTube lyric settings can request AI phrase identification and pronunciation in Korean or English.
 The initial target follows the native preferred language; other locales require an explicit choice.
 Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
