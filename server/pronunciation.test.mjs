@@ -1,6 +1,35 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { copyFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { validateRequest, validateResult, generatePronunciation } from './pronunciation.mjs';
+
+test('credential properties never consume an adjacent line', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'singbridge-config-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  mkdirSync(join(directory, 'server'));
+  const config = join(directory, 'server', 'config.mjs');
+  copyFileSync(new URL('./config.mjs', import.meta.url), config);
+  for (const [properties, expected] of [
+    ['OPENAI_API_KEY=\nYOUTUBE_API_KEY=fixture-other\n', null],
+    ['OPEN_AI_API_KEY= \t\r\nYOUTUBE_API_KEY=fixture-other\r\n', null],
+    ['OPENAI_API_KEY\n=fixture-other\n', null],
+    ['OPENAI_API_KEY=\nOPEN_AI_API_KEY = fixture-key\n', 'fixture-key'],
+    ['OPENAI_API_KEY \t= \tfixture-key \t\r\nYOUTUBE_API_KEY=fixture-other\r\n', 'fixture-key'],
+  ]) {
+    writeFileSync(join(directory, 'local.properties'), properties);
+    const assertion = expected === null
+      ? "assert.throws(() => apiKey(), /Set OPENAI_API_KEY on the server/);"
+      : `assert.equal(apiKey(), ${JSON.stringify(expected)});`;
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e',
+      `import assert from 'node:assert/strict'; import { apiKey } from ${JSON.stringify(pathToFileURL(config).href)}; ${assertion}`,
+    ], { env: {}, encoding: 'utf8' });
+    assert.equal(child.status, 0, child.stderr);
+  }
+});
 
 const request = { target: 'ko', lines: [{ id: 'line-0', text: '오늘도 Hello!' }] };
 const result = () => ({ target: 'ko', lines: [{ id: 'line-0', segments: [
