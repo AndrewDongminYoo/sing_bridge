@@ -1473,3 +1473,12 @@ test('video replacement disables pronunciation until new timed lyrics are select
   f.submit('dQw4w9WgXcQ');
   assert.equal(f.element('pronunciation-generate').disabled,true);
 });
+
+
+test('confident foreign pronunciation cannot be missing or blank', () => {
+  const f=fixture();
+  for (const pronunciation of [null, '   ']) {
+    f.context.candidate={target:'ko',lines:[{id:'line-0',segments:[{source:'Hello',language:'en',reading:null,pronunciation,needsReview:false}]}]};
+    assert.throws(()=>vm.runInContext("validatePronunciation({target:'ko',lines:[{id:'line-0',text:'Hello'}]}, candidate)",f.context));
+  }
+});

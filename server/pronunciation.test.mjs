@@ -24,6 +24,8 @@ test('rejects source mutation, IDs, unknown fields, unsupported language and sam
     r => r.lines[0].segments[0].language = 'fr',
     r => r.lines[0].segments[0].pronunciation = 'rewritten',
     r => r.lines[0].segments[1].needsReview = true,
+    r => r.lines[0].segments[1].pronunciation = null,
+    r => r.lines[0].segments[1].pronunciation = '   ',
   ]) { const value = result(); mutate(value); assert.throws(() => validateResult(request, value)); }
 });
 test('provider uses fixed model, no storage, strict schema; refuses incomplete or refused output', async () => {

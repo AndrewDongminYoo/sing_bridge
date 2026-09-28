@@ -76,6 +76,7 @@ internal fun youtubePronunciationHtml(): String = """
           for (const key of ['reading','pronunciation']) if (s[key] !== null && (typeof s[key] !== 'string' || !s[key].length || s[key].length > 1000)) throw new Error('invalid_response');
           if ((s.language === request.target || s.language === 'und' || s.needsReview) && s.pronunciation !== null) throw new Error('invalid_response');
           if (s.language === 'und' && !s.needsReview) throw new Error('invalid_response');
+          if (s.language !== request.target && !s.needsReview && !s.pronunciation?.trim()) throw new Error('invalid_response');
         }
         if (line.segments.map(s => s.source).join('') !== request.lines[index].text) throw new Error('invalid_response');
       });

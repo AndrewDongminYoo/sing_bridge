@@ -32,6 +32,7 @@ export function validateResult(request, value) {
       for (const key of ['reading', 'pronunciation']) if (segment[key] !== null) string(segment[key], 1000);
       if ((segment.language === request.target || segment.language === 'und' || segment.needsReview) && segment.pronunciation !== null) throw new Error('Uncertain or same-language phrase must retain source');
       if (segment.language === 'und' && !segment.needsReview) throw new Error('Unknown language requires review');
+      if (segment.language !== request.target && !segment.needsReview && !segment.pronunciation?.trim()) throw new Error('Foreign phrase requires pronunciation');
     }
     if (line.segments.map(s => s.source).join('') !== request.lines[index].text) throw new Error('Source changed');
   });
