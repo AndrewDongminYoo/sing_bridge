@@ -249,7 +249,7 @@ internal fun youtubeLyricsHtml(): String = """
         if (!lines.length && !record.plainLyrics) throw new Error('이 결과에는 표시할 가사가 없어요.');
         resetPronunciation();
         selectedLyricRecord = record; lyricLines = lines; lyricAdjustment = 0; lyricsOffset.value = '0';
-        renderTimedLyrics(); updatePronunciationControl();
+        renderTimedLyrics(); restorePronunciation();
         lyricsOffset.disabled = !lines.length;
         document.getElementById('lyrics-timing').hidden = !lines.length;
         document.getElementById('lyrics-plain').textContent = lines.length ? '' : record.plainLyrics;

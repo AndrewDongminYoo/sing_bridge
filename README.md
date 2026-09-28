@@ -274,7 +274,16 @@ The YouTube lyric settings can request AI phrase identification and pronunciatio
 The initial target follows the native preferred language; other locales require an explicit choice.
 Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
 The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction, and leaves original lyrics usable on failure.
-Results are optional, memory-only, and may need correction for sung readings.
+Results are optional and may need correction for sung readings.
+Use **음차 저장** to save the current practice, generated pronunciation, and line edits on this device.
+The ordinary practice save button updates video, lyric selection, and timing only; it preserves previously saved pronunciation without storing unsaved generated text or edits.
+Use **음차 수정** to edit one existing pronunciation line or restore its generated text; original lyrics and timestamps remain unchanged.
+Edits reject blank text, line breaks, control characters, and more than 2,000 characters per line or 30,000 edited characters overall.
+Saving is explicit; leaving the screen or switching lyrics or target languages discards unsaved edits.
+Reopening a saved practice restores the selected language and pronunciation without an AI request when the fetched source text and timestamps match exactly.
+YouTube playback and LRCLIB retrieval still need internet access.
+Changed source lyrics leave the saved pronunciation untouched and report why it was not applied.
+The local library allows 20 practices and bounds its serialized data to 2,097,152 characters; failed writes preserve the previous saved data.
 Plain lyrics and production builds are not enabled in this prototype.
 
 Start the server with Node 22 or later:

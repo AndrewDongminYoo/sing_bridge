@@ -53,7 +53,10 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         .pronunciation-layer { display: block; margin-top: 6px; font-size: 1rem; font-weight: 500; color: #235e52; }
         .pronunciation-languages { display: block; margin-top: 4px; font-size: 0.6875rem; font-weight: 400; }
         .pronunciation-review { text-decoration: underline dotted; text-underline-offset: 4px; }
-        #pronunciation-target { min-height: 44px; padding: 8px; font: inherit; color: inherit; background: #fff; border: 1px solid var(--control-border); border-radius: 10px; }
+        #pronunciation-target, #pronunciation-edit-line, #pronunciation-edit-text { min-height: 44px; padding: 8px; font: inherit; color: inherit; background: #fff; border: 1px solid var(--control-border); border-radius: 10px; }
+        #pronunciation-editor { margin-top: 12px; }
+        #pronunciation-edit-line, #pronunciation-edit-text { display: block; width: 100%; margin-block: 8px; }
+        #pronunciation-edit-text { resize: vertical; }
         .lyric-row.is-current { color: #263b35; opacity: 1; }
         @media (prefers-reduced-motion: reduce) { .lyric-row { transition: none; } }
         .lyric-plain:empty { display: none; }
