@@ -15,21 +15,41 @@ Account scope: personal.
 - Import an audio file and UTF-8 LRC through the system document picker.
 - Restore the last imported song after relaunch from an app-private copy.
 - Open a YouTube video URL in the official embedded player, view its playback time, and seek five seconds.
-- Search LRCLIB, select a lyric record, and adjust its timing against the video.
+- Search YouTube by artist - title, open the top candidate, and search LRCLIB with the same terms.
+- Select a lyric record and adjust its timing against the video.
 
 The sample has no vocals.
 Its pronunciation and timing are authored demonstration data, not automatic transliteration or alignment.
 Practice state lasts for the current screen session.
 The last imported audio and source LRC are saved locally; returning to the sample removes that saved song.
-Commercial lyric licensing, streaming catalog search, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
+Commercial lyric licensing, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
 
 ## YouTube playback and lyrics
 
-Choose **YouTube 영상 열기**, paste an HTTPS YouTube link or video ID, and tap the official player to start.
+Choose **YouTube 영상 열기**, search with **가수 - 제목**, or paste an HTTPS YouTube link or video ID.
+Search opens the highest-ranked embedded-video candidate and searches LRCLIB with the original artist and title after player readiness.
+Search and link entry are on a separate discovery screen.
+Opening a video moves to the practice screen; **곡 찾기** pauses playback and returns to discovery.
+**연습으로 돌아가기** preserves the current video and lyrics without resuming playback automatically.
+Check the displayed video title and channel; relevance does not guarantee the intended recording.
+Tap the official player to start; search never autoplays.
+Single-song repeat is enabled by default and can be disabled with **한 곡 반복**; it resets to enabled when the YouTube screen is reopened.
 This separate screen requires internet access and does not generate pronunciation.
 Search by song and artist, then choose the matching LRCLIB result after checking its title, artist, album, duration, and lyric type.
+Candidates are ranked by absolute duration difference from the player before limiting the display to 20 results.
+Unknown candidate lengths follow known lengths; ties preserve provider order.
+Until video metadata arrives, provider order is preserved.
+Later duration refinements update ranking without replacing the selected lyrics; focused result controls defer reordering until focus leaves them.
 Timed lyrics follow the actual player position; positive time adjustments show lyrics later and negative adjustments show them earlier.
+Use **0.5초 일찍**, **0.5초 늦게**, and **초기화** without opening a keyboard.
+Precise numeric entry remains under **시간 직접 입력** in the settings panel, bounded to ±600 seconds.
 Plain lyrics are displayed without synchronization.
+The practice screen fits the WebView viewport with the official video, lyrics, and bottom controls visible together.
+Long lyrics scroll inside the reading area; the transport and timing controls stay in place.
+**가사 선택** or **가사·설정** opens a separate scrollable panel for lyric search, metadata, and precise timing entry.
+Opening that panel pauses playback; choosing lyrics, closing it, or pressing Escape does not resume automatically.
+In short landscape viewports, video and lyric controls sit side by side.
+Search and link inputs disable automatic correction.
 The player stays visible while scrolling through lyrics.
 Changing videos clears the selected lyrics and adjustment; closing the screen discards the results.
 Lyrics stay in screen memory and are not saved in the imported-song library.
@@ -37,10 +57,27 @@ API access and attribution do not establish rights to distribute commercial lyri
 The original local song stays saved and paused, with line repeat turned off on entry.
 The app pauses the video on background or when less than half the player is visible; returning does not resume automatically.
 Embedding restrictions and network failures may prevent a video from playing.
+Search request failures keep the current video.
+If a searched candidate fails before playback starts, the previous usable video and selected lyrics are restored without autoplay.
 The native hosts identify the app through their HTML base URL and use no audio extraction or JavaScript-to-native bridge.
 See [scope](docs/specs/2026-09-27-youtube-player.md) and [verification](docs/notes/2026-09-27-youtube-player-verification.md).
 See [lyrics scope](docs/specs/2026-09-27-youtube-lyrics.md) and [lyrics verification](docs/notes/2026-09-28-youtube-lyrics-verification.md).
 Run `node --test tools/test-youtube.mjs` to test the shipped page logic with a controlled player and network responses.
+
+### Configure YouTube search
+
+Enable YouTube Data API v3 for your Google Cloud project and add its API key to the ignored `local.properties` file:
+
+```properties
+YOUTUBE_API_KEY=your_api_key
+```
+
+Gradle generates the shared configuration under `shared/build`; neither the local file nor generated output belongs in Git.
+Builds without a key retain direct-link playback and manual LRCLIB search.
+Service-account credentials are not supported for this YouTube flow.
+The key is included in configured client builds and can be extracted; apply API/application restrictions and quota controls before distribution.
+No backend is introduced.
+See [song-search scope](docs/specs/2026-09-28-song-search.md) and [verification](docs/notes/2026-09-28-song-search-verification.md).
 
 ## Import a song
 

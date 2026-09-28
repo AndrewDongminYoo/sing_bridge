@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -5,6 +6,27 @@ plugins {
     alias(libs.plugins.android.multiplatform.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+}
+
+val generateYouTubeConfig by tasks.registering {
+    val localConfig = rootProject.file("local.properties")
+    val outputDirectory = layout.buildDirectory.dir("generated/youtubeConfig/commonMain")
+    inputs.files(provider { listOf(localConfig).filter { it.exists() } })
+    outputs.dir(outputDirectory)
+    doLast {
+        val config = Properties()
+        if (localConfig.exists()) localConfig.inputStream().use { config.load(it) }
+        val apiKey = config.getProperty("YOUTUBE_API_KEY", "").trim()
+        require(apiKey.isEmpty() || Regex("[A-Za-z0-9_-]{1,200}").matches(apiKey)) {
+            "YOUTUBE_API_KEY has an unsupported format"
+        }
+        val output = outputDirectory.get().file("YouTubeConfig.kt").asFile
+        output.parentFile.mkdirs()
+        output.writeText(
+            "package io.github.andrewdongminyoo.singbridge\n\n" +
+                "internal const val youtubeDataApiKey: String = \"$apiKey\"\n",
+        )
+    }
 }
 
 kotlin {
@@ -25,6 +47,7 @@ kotlin {
         }
     }
     sourceSets {
+        getByName("commonMain").kotlin.srcDir(generateYouTubeConfig)
         commonMain.dependencies {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

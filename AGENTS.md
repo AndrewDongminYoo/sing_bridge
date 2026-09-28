@@ -10,7 +10,10 @@
 ## Scope
 
 Build an offline song-practice baseline with original demonstration content.
-The approved YouTube screen uses a visible official player with explicit LRCLIB search, selection, and timing adjustment; it does not replace the local AudioPlayer contract.
+The approved YouTube screen uses a visible official player with artist-title YouTube search, LRCLIB search, explicit lyric selection, and timing adjustment; it does not replace the local AudioPlayer contract.
+Read optional YOUTUBE_API_KEY only from ignored local.properties and generate its common configuration under shared/build.
+Never print credentials or commit generated configuration.
+Keep direct links usable in builds without a search key.
 Keep provider lyrics in screen memory, treat provider fields as text, and preserve request limits and cancellation.
 LRCLIB access does not establish commercial lyric rights.
 Keep playback in platform adapters and practice decisions in common Kotlin.
