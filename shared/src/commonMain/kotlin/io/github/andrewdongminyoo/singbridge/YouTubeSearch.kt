@@ -21,7 +21,7 @@ internal fun youtubeSearchHtml(): String = """
       searchSequence++;
       if (songRequest) songRequest.abort();
       songRequest = null; songButton.disabled = false;
-      songResult.textContent = ''; songStatus.textContent = '';
+      songStatus.textContent = '';
     }
 
     document.getElementById('song-search').addEventListener('submit', async function(event) {
@@ -59,10 +59,10 @@ internal fun youtubeSearchHtml(): String = """
         if (!data.items.length) { songStatus.textContent = '재생할 수 있는 영상을 찾지 못했어요. 검색어를 바꾸거나 영상 링크로 열어 주세요.'; return; }
         const item = data.items[0];
         if (!/^[A-Za-z0-9_-]{11}$/.test(item?.id?.videoId || '') || typeof item?.snippet?.title !== 'string' || typeof item?.snippet?.channelTitle !== 'string') throw new Error('Invalid video');
-        songResult.textContent = item.snippet.title.slice(0, 500) + ' · ' + item.snippet.channelTitle.slice(0, 500);
+        const videoLabel = item.snippet.title.slice(0, 500) + ' · ' + item.snippet.channelTitle.slice(0, 500);
         songStatus.textContent = '가장 관련성 높은 영상을 열었어요. 다른 곡이면 검색어를 바꾸거나 링크로 열어 주세요.';
         input.value = 'https://www.youtube.com/watch?v=' + item.id.videoId;
-        openVideo(item.id.videoId, query, sequence);
+        openVideo(item.id.videoId, query, sequence, null, videoLabel);
       } catch (_) {
         if (sequence === searchSequence) songStatus.textContent = controller.signal.aborted
           ? '검색 시간이 초과됐어요. 다시 검색하거나 영상 링크로 열어 주세요.'

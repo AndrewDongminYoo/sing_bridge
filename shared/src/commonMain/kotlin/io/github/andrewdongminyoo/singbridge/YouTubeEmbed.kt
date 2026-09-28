@@ -177,11 +177,12 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
           cancelSongSearch();
           openVideo(id);
         });
-        function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null) {
+        function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null, videoLabel = '노래 연습') {
           let fallback = lyricQuery && ready && activeVideoId ? {
             id: activeVideoId, record: selectedLyricRecord, adjustment: lyricAdjustment,
-            query: lyricsQuery.value, position: player.getCurrentTime()
+            query: lyricsQuery.value, position: player.getCurrentTime(), label: songResult.textContent
           } : null;
+          songResult.textContent = restoration ? restoration.label : videoLabel;
           showPractice();
           const current = ++generation;
           let settled = false, lyricsStarted = false;
@@ -241,7 +242,6 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
             if (!fallback || searchVersion !== searchSequence) return false;
             const previous = fallback; fallback = null;
             songStatus.textContent = '검색한 영상을 재생할 수 없어 이전 영상으로 돌아왔어요. 다른 검색어나 링크를 입력해 주세요.';
-            songResult.textContent = songStatus.textContent;
             input.value = 'https://www.youtube.com/watch?v=' + previous.id;
             openVideo(previous.id, null, searchVersion, previous);
             return true;

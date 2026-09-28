@@ -1011,3 +1011,54 @@ test("new lyrics reset the shared reading area scroll without moving the control
   f.tick();
   assert.equal(f.element("lyric-window").scrollTop, 0);
 });
+
+test("failed or cancelled replacement searches preserve active video metadata", async () => {
+  let replacement, resolve;
+  const f = fixture((url) => {
+    if (!url.includes("googleapis.com")) return response();
+    if (replacement === "fail") return new Response("", { status: 403 });
+    if (replacement === "pending") return new Promise((r) => { resolve = r; });
+    return youtubeResponse();
+  });
+  f.ready();
+  await f.song();
+  f.players.at(-1).options.events.onReady();
+  await new Promise((r) => setImmediate(r));
+  const label = f.element("song-result").textContent;
+  assert.match(label, /<Song>.*Official artist/);
+  replacement = "fail";
+  f.element("find-another-song").click();
+  await f.song("Another - Song");
+  f.element("return-to-practice").click();
+  assert.equal(f.element("song-result").textContent, label);
+  replacement = "pending";
+  f.element("find-another-song").click();
+  const pending = f.song("Another - Song");
+  f.element("return-to-practice").click();
+  resolve(youtubeResponse());
+  await pending;
+  assert.equal(f.element("song-result").textContent, label);
+  f.element("lyrics-panel-open").click();
+  assert.equal(f.element("video-details").textContent, label);
+  f.element("lyrics-panel-close").click();
+  f.submit();
+  assert.equal(f.element("song-result").textContent, "노래 연습");
+});
+
+test("failed candidate playback restores the previous video's title and channel", async () => {
+  let replacement = false;
+  const f = fixture((url) => {
+    if (!url.includes("googleapis.com")) return response();
+    return replacement ? Response.json({ items: [{ id: { videoId: "M7lc1UVf-VE" }, snippet: { title: "Unavailable", channelTitle: "Other" } }] }) : youtubeResponse();
+  });
+  f.ready();
+  await f.song();
+  f.players.at(-1).options.events.onReady();
+  await new Promise((r) => setImmediate(r));
+  const label = f.element("song-result").textContent;
+  replacement = true;
+  await f.song("Another - Song");
+  f.players.at(-1).options.events.onError({ data: 150 });
+  f.players.at(-1).options.events.onReady();
+  assert.equal(f.element("song-result").textContent, label);
+});
