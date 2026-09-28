@@ -5,7 +5,7 @@ internal fun youtubeSearchHtml(): String = """
     <form id="song-search">
     <label for="song-query">가수 - 제목</label>
     <input id="song-query" type="search" maxlength="120" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="Vaundy - 踊り子">
-    <button id="song-search-button" type="submit">노래 검색</button>
+    <button id="song-search-button" class="button-primary" type="submit">노래 검색</button>
     </form>
     <p id="song-status" role="status" aria-live="polite">YouTube에서 가장 관련성 높은 영상을 찾고, 같은 정보로 가사도 검색해요.</p>
     </section>

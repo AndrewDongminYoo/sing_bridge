@@ -33,12 +33,31 @@ const searchScript = [...searchHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)]
   .map((match) => match[1])
   .join("\n");
 
-function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key") {
+const libraryPath = new URL("../shared/src/commonMain/kotlin/io/github/andrewdongminyoo/singbridge/YouTubeLibrary.kt", import.meta.url);
+const libraryHtml = readFileSync(libraryPath, "utf8").split('"""')[1];
+const libraryScript = [...libraryHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(match => match[1]).join("\n");
+function memoryStorage() {
+  const values = new Map();
+  return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), values };
+}
+function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key", storage = memoryStorage()) {
   const elements = new Map();
   function node() {
     return {
+      attributes: {},
+      style: {},
+      clientHeight: 200,
+      offsetHeight: 80,
+      offsetTop: 0,
+      scrollTop: 0,
+      scrolls: [],
+      setAttribute(name, value) { this.attributes[name] = value; },
+      removeAttribute(name) { delete this.attributes[name]; },
+      scrollTo(options) { this.scrolls.push(options); this.scrollTop = options.top; },
       value: "",
-      textContent: "",
+      _text: "",
+      get textContent() { return this._text + this.children.map(child => child.textContent).join(""); },
+      set textContent(value) { this._text = value; this.children = []; },
       open: false,
       showModal() {
         this.open = true;
@@ -53,10 +72,10 @@ function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key
         this[type] = fn;
       },
       replaceChildren(...children) {
-        this.children = children;
+        this._text = ""; this.children = children;
       },
       append(...children) {
-        this.children.push(...children);
+        for (const child of children) { child.offsetTop = this.children.length * 100; this.children.push(child); }
       },
       set innerHTML(_) {
         throw new Error("Untrusted HTML insertion");
@@ -78,13 +97,17 @@ function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key
       this[type] = fn;
     },
   };
-  const window = {};
+  const window = {
+    addEventListener(type, fn) { this[type] = fn; },
+    matchMedia() { return { matches: this.reducedMotion || false }; },
+  };
   const requests = [];
   let now = 1700000000000;
   let intersection;
   const context = vm.createContext({
     document,
     window,
+    localStorage: storage,
     URL,
     console,
     TextEncoder,
@@ -147,12 +170,14 @@ function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key
   // Match the script order in the shipped HTML, including deferred function references.
   vm.runInContext(searchScript.replace("__YOUTUBE_API_KEY__", apiKey), context);
   vm.runInContext(lyricsScript, context);
+  vm.runInContext(libraryScript, context);
   vm.runInContext(script, context);
   return {
     context,
     element,
     window,
     document,
+    currentLyric() { return element("lyrics-timing").children.find(n => n.attributes["aria-current"] === "true") || { textContent: "" }; },
     players,
     intervals,
     timeouts,
@@ -320,11 +345,11 @@ test("search identifies the client and waits for explicit candidate selection", 
   assert.match(request.options.headers["Lrclib-Client"], /SingBridge.*github.com/);
   assert.equal(f.element("lyrics-results").children.length, 1);
   assert.match(f.element("lyrics-results").children[0].textContent, /Original <song>/);
-  assert.equal(f.element("lyric-current").textContent, "");
+  assert.equal(f.currentLyric().textContent, "");
   f.select();
   f.players[0].position = 2;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "First");
+  assert.equal(f.currentLyric().textContent, "First");
 });
 
 test("timed lines use actual playback boundaries, blank markers and signed offsets", async () => {
@@ -341,21 +366,21 @@ test("timed lines use actual playback boundaries, blank markers and signed offse
   ]) {
     f.players[0].position = position;
     f.tick();
-    assert.equal(f.element("lyric-current").textContent, expected);
+    assert.equal(f.currentLyric().textContent, expected);
   }
   f.element("lyrics-offset").value = "2";
   f.element("lyrics-offset").change();
   f.players[0].position = 3;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "");
+  assert.equal(f.currentLyric().textContent, "");
   f.players[0].position = 4;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "First");
+  assert.equal(f.currentLyric().textContent, "First");
   f.element("lyrics-offset").value = "-1";
   f.element("lyrics-offset").change();
   f.players[0].position = 4;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "Second");
+  assert.equal(f.currentLyric().textContent, "Second");
 });
 
 test("plain lyrics stay unsynchronized and provider markup remains text", async () => {
@@ -370,7 +395,7 @@ test("plain lyrics stay unsynchronized and provider markup remains text", async 
   f.tick();
   assert.match(f.element("lyrics-status").textContent, /시간표시/);
   assert.equal(f.element("lyrics-plain").textContent, "<img src=x onerror=alert(1)>\nOriginal");
-  assert.equal(f.element("lyric-current").textContent, "");
+  assert.equal(f.currentLyric().textContent, "");
   assert.equal(f.element("lyrics-offset").disabled, true);
 });
 
@@ -456,10 +481,10 @@ test("multi-timestamp and same-time lyrics merge, unsupported offsets fail expli
   f.select();
   f.players[0].position = 2;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "Echo\nHarmony");
+  assert.equal(f.currentLyric().textContent, "Echo\nHarmony");
   f.players[0].position = 6;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "Echo");
+  assert.equal(f.currentLyric().textContent, "Echo");
   const bad = fixture(() =>
     response([{ ...record, syncedLyrics: "[offset:100]\n[00:02.00]Line", plainLyrics: null }])
   );
@@ -467,7 +492,7 @@ test("multi-timestamp and same-time lyrics merge, unsupported offsets fail expli
   await bad.search();
   bad.select();
   assert.match(bad.element("lyrics-status").textContent, /offset/);
-  assert.equal(bad.element("lyric-current").textContent, "");
+  assert.equal(bad.currentLyric().textContent, "");
 });
 
 test("replacing a video clears an existing selection and its offset", async () => {
@@ -479,9 +504,9 @@ test("replacing a video clears an existing selection and its offset", async () =
   f.element("lyrics-offset").change();
   f.players[0].position = 4;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "First");
+  assert.equal(f.currentLyric().textContent, "First");
   f.submit("dQw4w9WgXcQ");
-  assert.equal(f.element("lyric-current").textContent, "");
+  assert.equal(f.currentLyric().textContent, "");
   assert.equal(f.element("lyrics-source").textContent, "");
   assert.equal(f.element("lyrics-offset").value, "0");
   assert.equal(f.element("lyrics-offset").disabled, true);
@@ -517,22 +542,7 @@ test("unsuccessful responses abort their unread body without changing the error 
   }
 });
 
-test("a new lyric resets its internal scroll while polling the same lyric preserves it", async () => {
-  const f = fixture(() => response());
-  f.ready();
-  await f.search();
-  f.select();
-  f.players[0].position = 2;
-  f.tick();
-  const current = f.element("lyric-current");
-  current.scrollTop = 24;
-  f.tick();
-  assert.equal(current.scrollTop, 24);
-  f.players[0].position = 5;
-  f.tick();
-  assert.equal(current.textContent, "Second");
-  assert.equal(current.scrollTop, 0);
-});
+
 
 const youtubeResponse = () =>
   response({
@@ -794,7 +804,7 @@ test("lyrics rank by video duration before limiting results, with stable ties an
     false
   );
   assert.match(f.element("lyrics-ranking").textContent, /1:40/);
-  assert.match(names[1], /차이 1초/);
+  assert.match(names[1], /1초 차이/);
   assert.equal(f.element("lyrics-source").textContent, "");
 });
 
@@ -832,10 +842,10 @@ test("offset buttons adjust lyric timing without seeking and reset to the origin
   f.select();
   f.players[0].position = 1.75;
   f.tick();
-  assert.equal(f.element("lyric-current").textContent, "");
+  assert.equal(f.currentLyric().textContent, "");
   f.element("lyrics-earlier").click();
   assert.equal(f.element("lyrics-offset").value, "-0.5");
-  assert.equal(f.element("lyric-current").textContent, "First");
+  assert.equal(f.currentLyric().textContent, "First");
   assert.match(f.element("lyrics-offset-value").textContent, /0.5초 일찍/);
   f.element("lyrics-later").click();
   f.element("lyrics-later").click();
@@ -997,20 +1007,7 @@ test("changing videos clears the lyrics panel and shows an actionable empty stat
   assert.equal(f.element("lyrics-placeholder").hidden, false);
 });
 
-test("new lyrics reset the shared reading area scroll without moving the controls", async () => {
-  const f = fixture(() => response());
-  f.ready();
-  await f.search();
-  f.select();
-  f.players[0].position = 2;
-  f.tick();
-  f.element("lyric-window").scrollTop = 100;
-  f.tick();
-  assert.equal(f.element("lyric-window").scrollTop, 100);
-  f.players[0].position = 5;
-  f.tick();
-  assert.equal(f.element("lyric-window").scrollTop, 0);
-});
+
 
 test("failed or cancelled replacement searches preserve active video metadata", async () => {
   let replacement, resolve;
@@ -1132,4 +1129,250 @@ test("new candidates during recovery loading retain the usable snapshot without 
   await f.song("Another - Candidate");
   f.players.at(-1).options.events.onError({ data: 150 });
   assert.equal(f.players.at(-1).options.videoId, "M7lc1UVf-VE");
+});
+
+
+test("timed rows keep identity and scroll only when the active timestamp changes", async () => {
+  const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+  const rows = [...f.element("lyrics-timing").children];
+  assert.equal(rows.length, 3);
+  const reading = f.element("lyric-window");
+  f.players[0].position = 2; f.tick();
+  assert.equal(f.currentLyric().textContent, "First");
+  const calls = reading.scrolls.length;
+  f.tick(); assert.equal(reading.scrolls.length, calls);
+  f.players[0].position = 5; f.tick();
+  assert.equal(f.currentLyric(), rows[1]);
+  assert.deepEqual(f.element("lyrics-timing").children, rows);
+  assert.equal(reading.scrolls.at(-1).behavior, "smooth");
+  assert.equal(reading.scrolls.length, calls + 1);
+  assert.equal(f.players[0].seek, undefined);
+});
+
+test("manual lyric reading suspends tracking then catches up without a timestamp change", async () => {
+  const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+  const reading = f.element("lyric-window");
+  reading.wheel(); const calls = reading.scrolls.length;
+  f.players[0].position = 2; f.tick();
+  assert.equal(reading.scrolls.length, calls);
+  f.advance(3999); f.tick(); assert.equal(reading.scrolls.length, calls);
+  f.advance(1); f.tick(); assert.equal(reading.scrolls.length, calls + 1);
+  reading.pointerdown(); const heldCalls = reading.scrolls.length;
+  f.advance(8000); f.tick();
+  assert.equal(reading.scrolls.length, heldCalls);
+  f.window.pointerup(); f.advance(4000); f.tick();
+  assert.equal(reading.scrolls.length, heldCalls + 1);
+});
+
+test("reduced motion uses immediate alignment and seek or repeat can move backwards", async () => {
+  const f = fixture(() => response()); f.window.reducedMotion = true;
+  f.ready(); await f.search(); f.select();
+  f.players[0].position = 5; f.tick();
+  const reading = f.element("lyric-window");
+  assert.equal(reading.scrolls.at(-1).behavior, "instant");
+  const secondTop = reading.scrollTop;
+  f.players[0].position = 2; f.tick();
+  assert.ok(reading.scrollTop < secondTop);
+  assert.equal(f.currentLyric().textContent, "First");
+  f.players[0].position = 0; f.tick();
+  assert.equal(f.currentLyric().textContent, "");
+});
+
+test("hidden practice and open settings defer tracking until practice is visible", async () => {
+  const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+  const reading = f.element("lyric-window");
+  f.element("find-another-song").click(); const calls = reading.scrolls.length;
+  f.players[0].position = 2; f.tick(); assert.equal(reading.scrolls.length, calls);
+  f.element("return-to-practice").click(); f.tick();
+  assert.equal(reading.scrolls.length, calls + 1);
+  f.element("lyrics-panel-open").click(); f.players[0].position = 5; f.tick();
+  assert.equal(reading.scrolls.length, calls + 1);
+  f.element("lyrics-panel-close").click(); f.tick();
+  assert.equal(reading.scrolls.length, calls + 2);
+});
+
+
+test("script labels use displayed lyrics and preserve mixed writing systems", async () => {
+  const f = fixture(() => response([{ ...record, plainLyrics: "Only English", syncedLyrics: "[ar:English Artist]\n[00:02.00]안녕 Hello\n[00:05.00]踊る キミ écho" }]));
+  f.ready(); await f.search();
+  const label = f.element("lyrics-results").children[0].textContent;
+  assert.match(label, /한글/); assert.match(label, /라틴 문자/);
+  assert.match(label, /일본어/); assert.doesNotMatch(label, /가나|한자|\d+%/);
+  assert.match(label, /안녕 Hello/);
+  assert.doesNotMatch(label, /English Artist|Only English|영어 가사/);
+  f.select();
+  assert.match(f.element("lyrics-scripts").textContent, /한글/);
+});
+
+test("script labels handle decomposed Hangul, halfwidth kana, accents and unknown letters", async () => {
+  const f = fixture(() => response([{ ...record, syncedLyrics: "", plainLyrics: "한 ｶﾅ café Ж مرحبا अ ไทย א Ω ሀ 🎵 123" }]));
+  f.ready(); await f.search();
+  const label = f.element("lyrics-results").children[0].textContent;
+  for (const script of ["한글", "일본어", "라틴 문자", "키릴", "아랍", "데바나가리", "태국", "히브리", "그리스", "기타 문자"]) assert.ok(label.includes(script), script);
+});
+
+test("saved practice survives a new page and fetches the exact record with its signed offset", async () => {
+  const storage = memoryStorage();
+  const first = fixture(() => response(), "fixture-key", storage);
+  first.ready(); await first.search(); first.select();
+  first.element("lyrics-offset").value = "-2.5"; first.element("lyrics-offset").change();
+  first.element("save-practice").click?.();
+  assert.equal(storage.values.size, 1, "save writes device storage");
+  const raw = [...storage.values.values()][0];
+  assert.doesNotMatch(raw, /syncedLyrics|plainLyrics|First|fixture-key/);
+  const second = fixture(() => response(record), "", storage);
+  assert.equal(second.element("saved-practices").children.length, 1);
+  assert.equal(second.players.length, 0, "no automatic playback on load");
+  second.window.onYouTubeIframeAPIReady(); second.visibility(1);
+  second.element("saved-practices").children[0].children[0].click();
+  second.players[0].options.events.onReady();
+  await vm.runInContext("lyricFinished", second.context);
+  assert.equal(new URL(second.requests[0].url).pathname, "/api/get/42");
+  assert.equal(second.players[0].options.videoId, "M7lc1UVf-VE");
+  assert.equal(second.players[0].options.playerVars.autoplay, 0);
+  assert.equal(second.element("lyrics-offset").value, "-2.5");
+  second.players[0].position = 0; second.tick();
+  assert.equal(second.currentLyric().textContent, "First");
+});
+
+test("save updates only its video and lyric pair and removal persists", async () => {
+  const storage = memoryStorage();
+  const f = fixture(() => response(), "fixture-key", storage);
+  f.ready(); await f.search(); f.select(); f.element("save-practice").click?.();
+  f.element("lyrics-later").click(); f.element("save-practice").click?.();
+  assert.equal(f.element("saved-practices").children.length, 1);
+  f.submit("dQw4w9WgXcQ"); f.players.at(-1).options.events.onReady();
+  await f.search(); f.select(); f.element("save-practice").click();
+  assert.equal(f.element("saved-practices").children.length, 2);
+  f.element("saved-practices").children[0].children[1].click();
+  const next = fixture(undefined, "", storage);
+  assert.equal(next.element("saved-practices").children.length, 1);
+});
+
+test("storage failure never reports success and cannot block normal lyrics", async () => {
+  const storage = { getItem() { throw new Error("denied"); }, setItem() { throw new Error("quota"); } };
+  const f = fixture(() => response(), "fixture-key", storage);
+  f.ready(); await f.search(); f.select(); f.element("save-practice").click?.();
+  assert.match(f.element("save-status").textContent, /저장하지 못/);
+  f.players[0].position = 2; f.tick();
+  assert.equal(f.currentLyric().textContent, "First");
+  assert.equal(f.element("saved-practices").children.length, 0);
+});
+
+async function savedFixture(makeResponse) {
+  const storage = memoryStorage();
+  const f = fixture(() => response(), "fixture-key", storage);
+  f.ready(); await f.search(); f.select(); f.element("save-practice").click?.();
+  assert.equal(storage.values.size, 1);
+  const next = fixture(makeResponse, "", storage);
+  next.window.onYouTubeIframeAPIReady(); next.visibility(1);
+  next.element("saved-practices").children[0].children[0].click();
+  next.players[0].options.events.onReady();
+  await Promise.resolve();
+  return next;
+}
+
+test("missing or mismatched saved lyrics are not silently substituted", async () => {
+  for (const make of [() => new Response("", { status: 404 }), () => response({ ...record, id: 43 }), () => response({ ...record, syncedLyrics: "bad", plainLyrics: "" })]) {
+    const f = await savedFixture(make);
+    await vm.runInContext("lyricFinished", f.context);
+    assert.equal(vm.runInContext("selectedLyricRecord", f.context), null);
+    assert.equal(f.element("lyrics-offset").value, "0");
+    assert.ok(f.element("lyrics-status").textContent.length > 0);
+    assert.equal(f.element("saved-practices").children.length, 1);
+  }
+});
+
+test("stale saved lyric response cannot replace a newer video selection", async () => {
+  let resolve;
+  const f = await savedFixture(() => new Promise(r => { resolve = r; }));
+  f.submit("dQw4w9WgXcQ"); f.players.at(-1).options.events.onReady();
+  resolve(response(record)); await vm.runInContext("lyricFinished", f.context);
+  assert.equal(vm.runInContext("selectedLyricRecord", f.context), null);
+  assert.equal(f.requests[0].options.signal.aborted, true);
+});
+
+
+test("saving exposes unsaved timing changes instead of retaining a success message", async () => {
+  const f = fixture(() => response());
+  f.ready(); await f.search(); f.select(); f.element("save-practice").click();
+  f.element("lyrics-later").click();
+  assert.equal(f.element("save-status").textContent, "");
+  assert.match(f.element("save-practice").textContent, /변경/);
+});
+
+test("kana prolonged marks do not create a spurious other-script label", async () => {
+  const f = fixture(() => response([{ ...record, syncedLyrics: "", plainLyrics: "スーパー" }]));
+  f.ready(); await f.search();
+  assert.match(f.element("lyrics-results").children[0].textContent, /일본어/);
+  assert.doesNotMatch(f.element("lyrics-results").children[0].textContent, /혼용|기타/);
+});
+
+
+test("corrupt or future storage stays untouched and does not prevent normal practice", async () => {
+  for (const raw of ["{bad", JSON.stringify({ version: 2, items: [] }), JSON.stringify({ version: 1, items: [{ videoId: "bad" }] })]) {
+    const storage = memoryStorage(); storage.setItem("singbridge.practice.v1", raw);
+    const f = fixture(() => response(), "fixture-key", storage);
+    assert.match(f.element("saved-status").textContent, /읽지 못/);
+    f.ready(); await f.search(); f.select(); f.element("save-practice").click();
+    assert.equal(storage.getItem("singbridge.practice.v1"), raw);
+    assert.match(f.element("save-status").textContent, /저장하지 못/);
+  }
+});
+
+test("full saved library rejects new entries without eviction but permits updates", async () => {
+  const storage = memoryStorage();
+  const f = fixture(() => response(), "fixture-key", storage);
+  f.ready(); await f.search(); f.select(); f.element("save-practice").click();
+  const data = JSON.parse(storage.getItem("singbridge.practice.v1"));
+  const base = data.items[0];
+  data.items = Array.from({ length: 20 }, (_, i) => ({ ...base, lyricId: 100 + i }));
+  storage.setItem("singbridge.practice.v1", JSON.stringify(data));
+  const full = fixture(() => response(), "fixture-key", storage);
+  full.ready(); await full.search(); full.select(); full.element("save-practice").click();
+  assert.match(full.element("save-status").textContent, /20개/);
+  assert.equal(JSON.parse(storage.getItem("singbridge.practice.v1")).items.length, 20);
+  assert.equal(JSON.parse(storage.getItem("singbridge.practice.v1")).items[0].lyricId, 100);
+  const update = fixture(() => response([{ ...record, id: 100 }]), "fixture-key", storage);
+  update.ready(); await update.search(); update.select(); update.element("lyrics-later").click(); update.element("save-practice").click();
+  assert.equal(JSON.parse(storage.getItem("singbridge.practice.v1")).items.length, 20);
+  assert.equal(JSON.parse(storage.getItem("singbridge.practice.v1")).items[0].offset, 0.5);
+});
+
+test("quota errors preserve the previously saved entry and removal failures remain visible", async () => {
+  const storage = memoryStorage();
+  const f = fixture(() => response(), "fixture-key", storage);
+  f.ready(); await f.search(); f.select(); f.element("save-practice").click();
+  const before = storage.getItem("singbridge.practice.v1");
+  storage.setItem = () => { throw new Error("quota"); };
+  f.element("lyrics-later").click(); f.element("save-practice").click();
+  assert.equal(storage.getItem("singbridge.practice.v1"), before);
+  assert.match(f.element("save-status").textContent, /저장하지 못/);
+  f.element("saved-practices").children[0].children[1].click();
+  assert.equal(f.element("saved-practices").children.length, 1);
+  assert.match(f.element("saved-status").textContent, /삭제하지 못/);
+});
+
+test("saved restores honor retry backoff and never automatically retry", async () => {
+  const f = await savedFixture(() => new Response("", { status: 429, headers: { "Retry-After": "120" } }));
+  await vm.runInContext("lyricFinished", f.context);
+  await f.search();
+  assert.equal(f.requests.length, 1);
+  assert.match(f.element("lyrics-status").textContent, /120초/);
+  assert.equal(f.requests[0].options.signal.aborted, true);
+});
+
+
+test("Japanese display grouping does not label Han-only lyrics as Japanese", async () => {
+  const f = fixture(() => response([{ ...record, syncedLyrics: "", plainLyrics: "春天 Hello" }]));
+  f.ready(); await f.search();
+  const label = f.element("lyrics-results").children[0].textContent;
+  assert.match(label, /한자/); assert.match(label, /라틴 문자/);
+  assert.doesNotMatch(label, /일본어|\d+%/);
+});
+
+test("Japanese kana and Han collapse into one display label while Latin stays visible", async () => {
+  const f = fixture(() => response([{ ...record, syncedLyrics: "[00:02.00]明日の青い空 Hello", plainLyrics: "" }]));
+  f.ready(); await f.search(); f.select();
+  assert.equal(f.element("lyrics-scripts").textContent, "표기: 일본어 · 라틴 문자");
 });

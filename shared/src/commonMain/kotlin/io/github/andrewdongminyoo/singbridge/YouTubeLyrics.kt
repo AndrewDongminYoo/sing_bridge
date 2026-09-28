@@ -4,11 +4,7 @@ internal fun youtubeLyricsHtml(): String = """
     <section id="lyric-workspace" aria-label="가사 연습">
     <div id="lyric-window" tabindex="0" aria-label="가사">
     <p id="lyrics-placeholder">가사를 선택해 연습을 시작하세요.</p>
-    <div id="lyrics-timing" hidden>
-    <p id="lyric-previous" class="lyric-context"></p>
-    <p id="lyric-current" class="lyric-current"></p>
-    <p id="lyric-next" class="lyric-context"></p>
-    </div>
+    <div id="lyrics-timing" role="list" aria-label="시간에 맞춘 가사" hidden></div>
     <p id="lyrics-plain" class="lyric-plain"></p>
     </div>
     <div class="lyric-meta">
@@ -17,14 +13,20 @@ internal fun youtubeLyricsHtml(): String = """
     <button id="lyrics-panel-open" type="button">가사·설정</button>
     </div>
     <footer class="practice-controls" aria-label="연습 조작">
+    <div class="control-row" role="group" aria-labelledby="transport-caption">
+    <span id="transport-caption" class="control-caption">재생<br>이동</span>
     <div class="transport-controls">
     <button id="back" type="button" disabled>5초 뒤로</button>
     <button id="forward" type="button" disabled>5초 앞으로</button>
     </div>
-    <div class="sync-controls" role="group" aria-label="가사 싱크 조정">
+    </div>
+    <div class="control-row" role="group" aria-labelledby="sync-caption">
+    <span id="sync-caption" class="control-caption">가사<br>싱크</span>
+    <div class="sync-controls">
     <button id="lyrics-earlier" type="button" disabled>0.5초 일찍</button>
     <button id="lyrics-later" type="button" disabled>0.5초 늦게</button>
     <button id="lyrics-reset" type="button" disabled>초기화</button>
+    </div>
     </div>
     </footer>
     <dialog id="lyrics-panel" aria-labelledby="lyrics-panel-heading">
@@ -34,14 +36,17 @@ internal fun youtubeLyricsHtml(): String = """
     </div>
     <p id="video-details"></p>
     <p id="lyrics-source"></p>
+    <p id="lyrics-scripts"></p>
+    <button id="save-practice" class="button-primary" type="button" disabled>이 연습 저장</button>
+    <p id="save-status" role="status" aria-live="polite"></p>
     <details id="lyrics-settings" open>
     <summary>노래 제목·가수로 가사 찾기</summary>
     <form id="lyrics-search">
     <label for="lyrics-query">노래 제목·가수</label>
     <input id="lyrics-query" type="search" maxlength="120" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="노래 제목과 가수를 입력해 주세요">
-    <button id="lyrics-search-button" type="submit">가사 검색</button>
+    <button id="lyrics-search-button" class="button-primary" type="submit">가사 검색</button>
     </form>
-    <p>검색 결과에서 영상과 같은 곡·버전을 직접 골라 주세요.</p>
+    <p>미리보기로 영상과 같은 곡·버전인지 확인해 주세요.</p>
     <p id="lyrics-ranking" role="status" aria-live="polite"></p>
     <div id="lyrics-results"></div>
     </details>
@@ -69,6 +74,28 @@ internal fun youtubeLyricsHtml(): String = """
     const lyricsEarlier = document.getElementById('lyrics-earlier');
     const lyricsLater = document.getElementById('lyrics-later');
     const lyricsReset = document.getElementById('lyrics-reset');
+    const lyricWindow = document.getElementById('lyric-window');
+    const lyricList = document.getElementById('lyrics-timing');
+    let lyricRows = [], activeLyricIndex = -1, followDirty = true;
+    let manualUntil = 0, lyricPointerDown = false;
+    function suspendLyricFollow() { manualUntil = Date.now() + 4000; followDirty = true; }
+    lyricWindow.addEventListener('wheel', suspendLyricFollow, { passive: true });
+    lyricWindow.addEventListener('pointerdown', function() {
+      lyricPointerDown = true; suspendLyricFollow();
+      lyricWindow.scrollTo({ top: lyricWindow.scrollTop, behavior: 'instant' });
+    });
+    function releaseLyricPointer() {
+      if (!lyricPointerDown) return;
+      lyricPointerDown = false; suspendLyricFollow();
+    }
+    window.addEventListener('pointerup', releaseLyricPointer);
+    window.addEventListener('pointercancel', releaseLyricPointer);
+    lyricWindow.addEventListener('keydown', function(event) {
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) suspendLyricFollow();
+    });
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(function() {
+      followDirty = true;
+    }).observe(lyricWindow);
     let lyricCandidates = [], rankedDuration = 0;
     let lyricLines = [], lyricAdjustment = 0, lyricRequest = null, lyricBusy = false, lyricRetryAt = 0;
 
@@ -78,11 +105,13 @@ internal fun youtubeLyricsHtml(): String = """
       if (lyricsPanel.open) lyricsPanel.close();
       document.getElementById('lyric-window').scrollTop = 0;
       if (lyricRequest) lyricRequest.abort();
-      selectedLyricRecord = null; lyricLines = []; lyricAdjustment = 0; lyricsOffset.value = '0'; lyricsOffset.disabled = true;
+      selectedLyricRecord = null; lyricLines = []; renderTimedLyrics(); lyricAdjustment = 0; lyricsOffset.value = '0'; lyricsOffset.disabled = true;
       lyricCandidates = []; rankedDuration = 0;
       document.getElementById('lyrics-ranking').textContent = '';
       lyricsResults.replaceChildren();
       document.getElementById('lyrics-source').textContent = '';
+      document.getElementById('lyrics-scripts').textContent = '';
+      document.getElementById('save-status').textContent = '';
       document.getElementById('lyrics-plain').textContent = '';
       document.getElementById('lyrics-timing').hidden = true;
       document.getElementById('lyrics-settings').open = true;
@@ -120,15 +149,40 @@ internal fun youtubeLyricsHtml(): String = """
       return groups;
     }
 
-    function showLyric(id, text) {
-      const element = document.getElementById(id);
-      if (element.textContent === text) return;
-      element.textContent = text;
-      element.scrollTop = 0;
-      if (id === 'lyric-current') document.getElementById('lyric-window').scrollTop = 0;
+    function renderTimedLyrics() {
+      lyricRows = []; activeLyricIndex = -1; followDirty = true;
+      manualUntil = 0; lyricPointerDown = false;
+      lyricList.replaceChildren();
+      for (let i = 0; i < lyricLines.length; i++) {
+        const row = document.createElement('p');
+        row.id = 'lyric-line-' + i; row.className = 'lyric-row';
+        row.setAttribute('role', 'listitem'); row.textContent = lyricLines[i].text;
+        lyricRows.push(row); lyricList.append(row);
+      }
+    }
+
+    function followLyric(index) {
+      if (activeLyricIndex !== index) {
+        const previous = lyricRows[activeLyricIndex];
+        if (previous) { previous.className = 'lyric-row'; previous.removeAttribute('aria-current'); }
+        const current = lyricRows[index];
+        if (current) { current.className = 'lyric-row is-current'; current.setAttribute('aria-current', 'true'); }
+        activeLyricIndex = index; followDirty = true;
+      }
+      if (!followDirty || !lyricRows.length || lyricPointerDown || Date.now() < manualUntil ||
+          !ready || practiceScreen.hidden || lyricsPanel.open || !foreground || document.hidden || lyricWindow.clientHeight <= 0) return;
+      const height = lyricWindow.clientHeight;
+      const inset = height / 2 + 'px';
+      if (lyricList.style.paddingBlock !== inset) lyricList.style.paddingBlock = inset;
+      const row = lyricRows[index >= 0 ? index : player.getCurrentTime() >= player.getDuration() ? lyricRows.length - 1 : 0];
+      const top = Math.max(0, row.offsetTop - Math.max(0, (height - row.offsetHeight) / 2));
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      lyricWindow.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' });
+      followDirty = false;
     }
 
     function refreshLyrics() {
+      updateSaveControl();
       updateOffsetControls();
       const placeholder = document.getElementById('lyrics-placeholder');
       placeholder.hidden = !!selectedLyricRecord;
@@ -152,9 +206,7 @@ internal fun youtubeLyricsHtml(): String = """
           index = low - 1;
         }
       }
-      showLyric('lyric-previous', index > 0 ? lyricLines[index - 1].text : '');
-      showLyric('lyric-current', index >= 0 ? lyricLines[index].text : '');
-      showLyric('lyric-next', index >= 0 && index + 1 < lyricLines.length ? lyricLines[index + 1].text : '');
+      followLyric(index);
     }
 
     function updateOffsetControls() {
@@ -169,6 +221,7 @@ internal fun youtubeLyricsHtml(): String = """
 
     function adjustLyrics(value) {
       if (!ready || !lyricLines.length) return;
+      saveStatus.textContent = '';
       lyricAdjustment = Math.max(-600, Math.min(600, Number(value.toFixed(1))));
       lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
     }
@@ -183,25 +236,29 @@ internal fun youtubeLyricsHtml(): String = """
         lyricsStatus.textContent = '시간 조정은 -600초부터 600초까지 입력해 주세요.';
         return;
       }
+      saveStatus.textContent = '';
       lyricAdjustment = value; refreshLyrics();
     });
 
     function chooseLyrics(record, videoGeneration) {
-      if (videoGeneration !== generation || !ready) return;
+      if (videoGeneration !== generation || !ready) return false;
       try {
         const lines = record.syncedLyrics ? parseTimedLyrics(record.syncedLyrics) : [];
         if (!lines.length && !record.plainLyrics) throw new Error('이 결과에는 표시할 가사가 없어요.');
         selectedLyricRecord = record; lyricLines = lines; lyricAdjustment = 0; lyricsOffset.value = '0';
+        renderTimedLyrics();
         lyricsOffset.disabled = !lines.length;
         document.getElementById('lyrics-timing').hidden = !lines.length;
         document.getElementById('lyrics-plain').textContent = lines.length ? '' : record.plainLyrics;
         document.getElementById('lyrics-source').textContent = record.trackName + ' · ' + record.artistName + ' · ' + record.albumName + ' · LRCLIB #' + record.id;
+        document.getElementById('lyrics-scripts').textContent = '표기: ' + lyricDescription(record).scripts;
+        document.getElementById('save-status').textContent = '';
         document.getElementById('lyrics-settings').open = false;
         if (lyricsPanel.open) lyricsPanel.close();
         document.getElementById('lyric-window').scrollTop = 0;
         lyricsStatus.textContent = lines.length ? '영상과 가사가 어긋나면 시간을 조정해 주세요.' : '시간표시가 없는 가사예요. 영상에 맞춰 자동으로 움직이지 않아요.';
-        refreshLyrics();
-      } catch (error) { lyricsStatus.textContent = error.message; }
+        refreshLyrics(); return true;
+      } catch (error) { lyricsStatus.textContent = error.message; return false; }
     }
 
     async function readBoundedJson(response) {
@@ -220,6 +277,47 @@ internal fun youtubeLyricsHtml(): String = """
       } finally { await reader.cancel(); }
     }
 
+    const scriptRules = [
+      ['한글', /\p{Script=Hangul}/u], ['가나', /[\p{Script_Extensions=Hiragana}\p{Script_Extensions=Katakana}]/u],
+      ['한자', /\p{Script=Han}/u], ['라틴 문자', /\p{Script=Latin}/u],
+      ['키릴 문자', /\p{Script=Cyrillic}/u], ['아랍 문자', /\p{Script=Arabic}/u],
+      ['데바나가리', /\p{Script=Devanagari}/u], ['태국 문자', /\p{Script=Thai}/u],
+      ['히브리 문자', /\p{Script=Hebrew}/u], ['그리스 문자', /\p{Script=Greek}/u]
+    ];
+    const lyricDescriptions = new WeakMap();
+    function lyricDescription(record) {
+      if (lyricDescriptions.has(record)) return lyricDescriptions.get(record);
+      const text = (record.syncedLyrics || record.plainLyrics || '').split(/\r?\n/).map(line => {
+        if (record.syncedLyrics) {
+          if (/^\s*\[(ar|al|ti|au|by|re|ve|length|offset):/i.test(line)) return '';
+          line = line.replace(/\[\d+:\d+(?:\.\d+)?]/g, '').replace(/<\d+:\d+(?:\.\d+)?>/g, '');
+        }
+        return line.trim();
+      }).filter(Boolean).join('\n');
+      const counts = new Map();
+      for (const letter of text.normalize('NFKC')) {
+        if (!/\p{Letter}/u.test(letter)) continue;
+        const name = scriptRules.find(rule => rule[1].test(letter))?.[0] || '기타 문자';
+        counts.set(name, (counts.get(name) || 0) + 1);
+      }
+      if (counts.has('가나')) {
+        counts.set('일본어', counts.get('가나') + (counts.get('한자') || 0));
+        counts.delete('가나'); counts.delete('한자');
+      }
+      const labels = [...counts].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+      if (!labels.length) labels.push('표기 미상');
+      const result = { labels, scripts: labels.join(' · '), preview: [...text.split('\n').slice(0, 2).join(' / ')].slice(0, 100).join('') };
+      lyricDescriptions.set(record, result); return result;
+    }
+
+    function normalizeLyricRecord(item) {
+      if (!item || !Number.isSafeInteger(item.id) || item.id <= 0 || typeof item.trackName !== 'string' || typeof item.artistName !== 'string') return null;
+      return { id: item.id, trackName: item.trackName.slice(0, 500), artistName: item.artistName.slice(0, 500),
+        albumName: typeof item.albumName === 'string' ? item.albumName.slice(0, 500) : '', duration: item.duration,
+        instrumental: item.instrumental === true, syncedLyrics: typeof item.syncedLyrics === 'string' ? item.syncedLyrics : '',
+        plainLyrics: typeof item.plainLyrics === 'string' ? item.plainLyrics : '' };
+    }
+
     function renderLyricCandidates(videoGeneration) {
       const duration = ready && player ? player.getDuration() : 0;
       rankedDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
@@ -230,26 +328,37 @@ internal fun youtubeLyricsHtml(): String = """
         : '영상 길이를 확인하면 길이 차이가 작은 순서로 정렬해요.';
       lyricsResults.replaceChildren();
       for (const item of records.slice(0, 20)) {
-        const record = { ...item, trackName: item.trackName.slice(0, 500), artistName: item.artistName.slice(0, 500), albumName: typeof item.albumName === 'string' ? item.albumName.slice(0, 500) : '', syncedLyrics: typeof item.syncedLyrics === 'string' ? item.syncedLyrics : '', plainLyrics: typeof item.plainLyrics === 'string' ? item.plainLyrics : '' };
+        const record = item;
         const button = document.createElement('button'); button.type = 'button';
         const hasLyrics = !record.instrumental && (record.syncedLyrics || record.plainLyrics);
         const duration = Number.isFinite(record.duration) && record.duration > 0 ? time(record.duration) : '길이 미상';
-        button.textContent = record.trackName + ' · ' + record.artistName + ' · ' + record.albumName + ' · ' + duration + ' · ' + (record.instrumental ? '연주곡' : record.syncedLyrics ? '싱크 가사' : record.plainLyrics ? '일반 가사' : '가사 없음');
-        if (rankedDuration && Number.isFinite(distance(record))) button.textContent += ' · 차이 ' + Number(distance(record).toFixed(1)) + '초';
+        function part(className, text, parent = button) {
+          const span = document.createElement('span'); span.className = className; span.textContent = text;
+          parent.append(span); return span;
+        }
+        part('candidate-title', record.trackName);
+        const album = record.albumName.trim().toLowerCase() === record.trackName.trim().toLowerCase() ? '' : record.albumName;
+        part('candidate-detail', record.artistName + (album ? ' · ' + album : ''));
+        const badges = part('candidate-badges', '');
+        if (hasLyrics) for (const label of lyricDescription(record).labels) part('candidate-badge', label, badges);
+        part('candidate-badge candidate-type', record.instrumental ? '연주곡' : record.syncedLyrics ? '싱크 가사' : record.plainLyrics ? '일반 가사' : '가사 없음', badges);
+        const difference = rankedDuration && Number.isFinite(distance(record)) ? ' · 영상과 ' + Number(distance(record).toFixed(1)) + '초 차이' : '';
+        part('candidate-detail candidate-duration', duration + difference);
+        if (hasLyrics) part('candidate-preview', lyricDescription(record).preview);
         button.disabled = !hasLyrics;
         button.addEventListener('click', () => chooseLyrics(record, videoGeneration));
         lyricsResults.append(button);
       }
     }
 
-    async function searchLyrics(query) {
+    async function searchLyrics(query, saved = null) {
       if (lyricBusy) return;
       if (!ready) { lyricsStatus.textContent = '먼저 YouTube 영상을 열어 주세요.'; return; }
       if (Date.now() < lyricRetryAt) {
         lyricsStatus.textContent = '요청이 많아요. ' + Math.ceil((lyricRetryAt - Date.now()) / 1000) + '초 뒤에 다시 검색해 주세요.';
         return;
       }
-      if (query.length < 2 || query.length > 120) { lyricsStatus.textContent = '검색어를 2자부터 120자까지 입력해 주세요.'; return; }
+      if (!saved && (query.length < 2 || query.length > 120)) { lyricsStatus.textContent = '검색어를 2자부터 120자까지 입력해 주세요.'; return; }
       const videoGeneration = generation;
       const controller = new AbortController(); lyricRequest = controller;
       lyricBusy = true; lyricsButton.disabled = true; lyricCandidates = []; rankedDuration = 0;
@@ -257,7 +366,8 @@ internal fun youtubeLyricsHtml(): String = """
       lyricsStatus.textContent = 'LRCLIB에서 가사를 찾고 있어요…';
       const timeout = setTimeout(() => controller.abort(), 15000);
       try {
-        const url = new URL('https://lrclib.net/api/search'); url.searchParams.set('q', query);
+        const url = new URL(saved ? 'https://lrclib.net/api/get/' + saved.lyricId : 'https://lrclib.net/api/search');
+        if (!saved) url.searchParams.set('q', query);
         const response = await fetch(url.toString(), {
           headers: { 'Lrclib-Client': 'SingBridge/0.1 (https://github.com/AndrewDongminYoo/sing_bridge)' },
           credentials: 'omit', signal: controller.signal
@@ -268,11 +378,21 @@ internal fun youtubeLyricsHtml(): String = """
           lyricRetryAt = Date.now() + (Number.isFinite(delay) && delay > 0 ? delay : 60000);
           throw new Error('요청이 많아요. ' + Math.ceil((lyricRetryAt - Date.now()) / 1000) + '초 뒤에 다시 검색해 주세요.');
         }
+        if (saved && response.status === 404) throw new Error('저장한 가사를 찾을 수 없어요. 다른 가사를 선택해 주세요.');
         if (!response.ok) throw new Error('가사를 불러오지 못했어요. 잠시 후 다시 검색해 주세요.');
         const records = await readBoundedJson(response);
         if (videoGeneration !== generation || controller.signal.aborted) return;
+        if (saved) {
+          const record = normalizeLyricRecord(records);
+          if (!record || record.id !== saved.lyricId || record.instrumental) throw new Error('저장한 가사 응답이 올바르지 않아요. 다른 가사를 선택해 주세요.');
+          if (chooseLyrics(record, videoGeneration)) {
+            lyricAdjustment = lyricLines.length ? saved.offset : 0;
+            lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
+          }
+          return;
+        }
         if (!Array.isArray(records)) throw new Error('가사 응답을 읽지 못했어요. 잠시 후 다시 검색해 주세요.');
-        lyricCandidates = records.filter(item => item && Number.isSafeInteger(item.id) && item.id > 0 && typeof item.trackName === 'string' && typeof item.artistName === 'string');
+        lyricCandidates = records.map(normalizeLyricRecord).filter(Boolean);
         renderLyricCandidates(videoGeneration);
         const count = lyricsResults.children.length;
         lyricsStatus.textContent = count ? '영상과 같은 곡·버전을 골라 주세요. 길이가 같아도 가사 시간이 다를 수 있어요.' : '검색 결과가 없어요. 노래 제목이나 가수를 바꿔 검색해 주세요.';
