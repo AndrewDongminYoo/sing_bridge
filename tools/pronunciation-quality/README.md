@@ -47,6 +47,54 @@ It can be null or omitted; such cases are unassessable.
 Keep mixed-language phrase boundaries supplied by the model or reviewer; non-Japanese phrases and mixed-script Japanese phrases are not compared.
 The checked-in cases are original phrases with synthetic candidate readings, including deliberate mistakes; they are not measured AI responses.
 
+## Evaluate a captured server response
+
+Place one authorized request and its corresponding validated server result in a local JSON file:
+
+```json
+{
+  "version": 1,
+  "request": {
+    "target": "ko",
+    "lines": [{ "id": "line-0", "text": "青い空" }]
+  },
+  "result": {
+    "target": "ko",
+    "lines": [{
+      "id": "line-0",
+      "segments": [{
+        "source": "青い空",
+        "language": "ja",
+        "reading": "アオイソラ",
+        "pronunciation": "아오이 소라",
+        "needsReview": false
+      }]
+    }]
+  }
+}
+```
+
+This example is synthetic; it is not a measured model response.
+`result` is the app-facing pronunciation object, not a raw OpenAI response or a saved-library entry.
+Do not include API credentials, HTTP headers, or an outer usage wrapper.
+
+```sh
+node tools/pronunciation-quality/evaluate.mjs /absolute/path/to/capture.json --response
+```
+
+The tool reuses the server validators, requiring exact line IDs, original source reconstruction, supported fields, and valid review handling.
+It retains the server bounds of 12 lines, 40 segments per line, and 3,000 total source characters, plus the CLI's 1 MiB input limit.
+Unlike the synthetic fixture mode, it accepts up to 480 segments and does not accept `--check`.
+Exit 0 means a report was produced, not that the model passed a quality gate.
+
+Each result carries `lineId`, zero-based `segmentIndex`, final `pronunciation`, and the model's original `needsReview` flag; its stable ID combines line ID and segment index.
+The report includes `inputKind: "response"`, `target`, and `modelReviewRequired`, the number of flagged segments.
+A dictionary match never clears that flag or validates final target-script pronunciation.
+Whitespace-only segments are retained as `unassessable` with reason `non_lexical_source`.
+The tool does not infer or merge language boundaries and does not fill missing readings.
+Captures and reports contain supplied text; keep real samples outside Git unless explicitly approved for publication.
+No API requests are made, and no app storage is modified.
+
 ## Report
 
 The CLI emits JSON to stdout, with engine and Node versions, one dictionary-load duration, per-phrase timings, source-preserving token evidence, reference candidates, and comparison outcomes.
