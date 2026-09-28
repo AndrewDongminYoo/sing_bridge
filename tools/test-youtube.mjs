@@ -1054,6 +1054,7 @@ test("failed candidate playback restores the previous video's title and channel"
   f.ready();
   await f.song();
   f.players.at(-1).options.events.onReady();
+  f.players.at(-1).options.events.onStateChange({ data: 1 });
   await new Promise((r) => setImmediate(r));
   const label = f.element("song-result").textContent;
   replacement = true;
@@ -1061,4 +1062,74 @@ test("failed candidate playback restores the previous video's title and channel"
   f.players.at(-1).options.events.onError({ data: 150 });
   f.players.at(-1).options.events.onReady();
   assert.equal(f.element("song-result").textContent, label);
+});
+
+test("chained loading candidates retain the last usable practice snapshot", async () => {
+  const f = fixture((url) => url.includes("googleapis.com") ? youtubeResponse() : response());
+  f.ready();
+  await f.search();
+  f.select();
+  f.players[0].position = 6;
+  f.element("lyrics-offset").value = "1";
+  f.element("lyrics-offset").change();
+  await f.song();
+  const first = f.players.at(-1);
+  f.element("find-another-song").click();
+  await f.song("Another - Candidate");
+  const second = f.players.at(-1);
+  second.options.events.onError({ data: 150 });
+  const restored = f.players.at(-1);
+  assert.equal(restored.options.videoId, "M7lc1UVf-VE");
+  restored.options.events.onReady();
+  assert.match(f.element("lyrics-source").textContent, /LRCLIB #42/);
+  assert.equal(f.element("lyrics-offset").value, "1");
+  assert.equal(restored.options.playerVars.start, 6);
+  const count = f.players.length;
+  first.options.events.onError({ data: 150 });
+  assert.equal(f.players.length, count);
+});
+
+test("background candidate restoration preserves discovery and a newer search", async () => {
+  let hold = false, resolve;
+  const f = fixture(() => hold ? new Promise((r) => { resolve = r; }) : youtubeResponse());
+  f.ready();
+  await f.song();
+  const candidate = f.players.at(-1);
+  f.element("find-another-song").click();
+  hold = true;
+  const pending = f.song("Another - Candidate");
+  candidate.options.events.onError({ data: 150 });
+  assert.equal(f.players.at(-1).options.videoId, "M7lc1UVf-VE");
+  assert.equal(f.element("practice-screen").hidden, true);
+  assert.equal(f.element("discovery-screen").hidden, false);
+  resolve(youtubeResponse());
+  await pending;
+  assert.equal(f.element("practice-screen").hidden, false);
+  assert.equal(f.players.at(-1).options.videoId, "7HgJIAUtICU");
+});
+
+test("restoration after leaving a loading candidate does not reopen practice", async () => {
+  const f = fixture(() => youtubeResponse());
+  f.ready();
+  await f.song();
+  f.element("find-another-song").click();
+  f.timeouts.at(-1)();
+  assert.equal(f.players.at(-1).options.videoId, "M7lc1UVf-VE");
+  assert.equal(f.element("practice-screen").hidden, true);
+  f.players.at(-1).options.events.onReady();
+  assert.equal(f.element("discovery-screen").hidden, false);
+});
+
+test("new candidates during recovery loading retain the usable snapshot without recursive recovery", async () => {
+  const f = fixture(() => youtubeResponse());
+  f.ready();
+  await f.song();
+  f.players.at(-1).options.events.onError({ data: 150 });
+  const recovery = f.players.at(-1);
+  const count = f.players.length;
+  recovery.options.events.onError({ data: 150 });
+  assert.equal(f.players.length, count);
+  await f.song("Another - Candidate");
+  f.players.at(-1).options.events.onError({ data: 150 });
+  assert.equal(f.players.at(-1).options.videoId, "M7lc1UVf-VE");
 });

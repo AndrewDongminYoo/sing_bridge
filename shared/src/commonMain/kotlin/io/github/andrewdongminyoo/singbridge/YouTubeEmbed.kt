@@ -109,6 +109,7 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         const practiceScreen = document.getElementById('practice-screen');
         const returnToPractice = document.getElementById('return-to-practice');
         let activeVideoId = null;
+        let pendingRecovery = null;
         let player = null, ready = false, apiReady = false, foreground = true, visible = false, generation = 0;
         function videoId(value) {
           const text = value.trim();
@@ -178,12 +179,14 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
           openVideo(id);
         });
         function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null, videoLabel = '노래 연습') {
-          let fallback = lyricQuery && ready && activeVideoId ? {
+          if (lyricQuery && !pendingRecovery && ready && activeVideoId) pendingRecovery = {
             id: activeVideoId, record: selectedLyricRecord, adjustment: lyricAdjustment,
             query: lyricsQuery.value, position: player.getCurrentTime(), label: songResult.textContent
-          } : null;
+          };
+          if (!lyricQuery) pendingRecovery = restoration;
+          let fallback = lyricQuery ? pendingRecovery : null;
           songResult.textContent = restoration ? restoration.label : videoLabel;
-          showPractice();
+          if (!restoration || !practiceScreen.hidden) showPractice();
           const current = ++generation;
           let settled = false, lyricsStarted = false;
           ready = false; activeVideoId = id; controls(false);
@@ -205,6 +208,7 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
                 playerStatus('YouTube 플레이어의 재생 버튼을 눌러 주세요.');
                 if (!canPlay()) pause();
                 if (restoration) {
+                  pendingRecovery = null;
                   lyricsQuery.value = restoration.query;
                   if (restoration.record) {
                     chooseLyrics(restoration.record, current);
@@ -223,7 +227,7 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
               },
               onStateChange: function(event) {
                 if (current !== generation) return;
-                if (event.data === 1) fallback = null;
+                if (event.data === 1) { fallback = null; pendingRecovery = null; }
                 if (event.data === 1 && !canPlay()) { pause(); return; }
                 const messages = { '0': repeatSong.checked ? '같은 곡을 다시 재생해요.' : '재생이 끝났어요.', '1': '재생 중', '2': '일시정지', '3': '영상을 불러오는 중…' };
                 if (messages[event.data]) playerStatus(messages[event.data]);
@@ -239,7 +243,7 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
             }
           });
           function restorePrevious() {
-            if (!fallback || searchVersion !== searchSequence) return false;
+            if (!fallback) return false;
             const previous = fallback; fallback = null;
             songStatus.textContent = '검색한 영상을 재생할 수 없어 이전 영상으로 돌아왔어요. 다른 검색어나 링크를 입력해 주세요.';
             input.value = 'https://www.youtube.com/watch?v=' + previous.id;
