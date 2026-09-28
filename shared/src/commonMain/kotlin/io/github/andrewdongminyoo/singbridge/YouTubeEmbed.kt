@@ -13,14 +13,24 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="referrer" content="strict-origin-when-cross-origin">
         <style>
+        :root { --control-ink: #263b35; --control-muted: #596d65; --control-border: #c6d0c9; --control-surface: #fff; --control-tint: #edf2ee; --control-focus: #235e52; }
         * { box-sizing: border-box; }
         [hidden] { display: none !important; }
         body { margin: 0; background: #faf7f0; color: #263b35; font: 16px system-ui; }
         main { max-width: 720px; margin: auto; padding: 16px; }
         label, input { display: block; }
         input { width: 100%; padding: 12px; margin: 8px 0; font: inherit; }
-        button { min-height: 44px; padding: 8px 12px; font: inherit; color: inherit; cursor: pointer; }
-        button:disabled { cursor: default; }
+        input:not([type="checkbox"]) { min-height: 48px; border: 1px solid var(--control-border); border-radius: 10px; background: var(--control-surface); color: var(--control-ink); }
+        button { appearance: none; -webkit-appearance: none; min-height: 44px; padding: 10px 14px; border: 1px solid var(--control-border); border-radius: 10px; background: var(--control-surface); color: var(--control-ink); font: 600 0.9375rem/1.3 system-ui; cursor: pointer; touch-action: manipulation; }
+        button:not(:disabled):active { background: var(--control-tint); box-shadow: inset 0 0 0 1px var(--control-border); }
+        button:disabled { background: transparent; color: var(--control-muted); opacity: 0.55; cursor: default; }
+        .button-primary:not(:disabled) { background: var(--control-ink); color: #faf7f0; border-color: var(--control-ink); }
+        .button-primary:not(:disabled):active { background: var(--control-focus); border-color: var(--control-focus); box-shadow: none; }
+        button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--control-focus); outline-offset: 3px; }
+        input[type="checkbox"] { accent-color: var(--control-ink); }
+        #lyrics-panel-close, #find-another-song { background: transparent; }
+        #lyrics-panel-open { background: var(--control-tint); }
+        #return-to-practice { margin-top: 12px; }
         section { overflow-wrap: anywhere; }
         .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
         #practice-screen { position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: 720px; margin: auto; padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto clamp(200px, 30dvh, 300px) auto minmax(0, 1fr); gap: 8px; }
@@ -36,26 +46,42 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         .repeat-option { display: flex; align-items: center; gap: 6px; min-height: 32px; }
         #repeat-song { width: 20px; height: 20px; padding: 0; margin: 0; }
         #lyric-workspace { min-width: 0; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto auto; gap: 8px; }
-        #lyric-window { min-height: 0; overflow-y: auto; overscroll-behavior: contain; text-align: center; }
-        #lyrics-timing { min-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
-        .lyric-current, .lyric-context, .lyric-plain { white-space: pre-wrap; margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
-        .lyric-current { font-size: 1.35rem; font-weight: 700; }
-        .lyric-context { color: #596d65; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; flex-shrink: 0; }
+        #lyric-window { position: relative; min-height: 0; overflow-y: auto; overscroll-behavior: contain; overflow-anchor: none; text-align: left; }
+        #lyrics-timing { padding-inline: 12px; }
+        .lyric-row, .lyric-plain { white-space: pre-wrap; margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+        .lyric-row { min-height: 1.5em; padding-block: 14px; font-size: 1.35rem; font-weight: 700; color: #596d65; opacity: 0.8; transition: color 240ms ease, opacity 240ms ease; }
+        .lyric-row.is-current { color: #263b35; opacity: 1; }
+        @media (prefers-reduced-motion: reduce) { .lyric-row { transition: none; } }
         .lyric-plain:empty { display: none; }
         #lyrics-placeholder { margin: 12px 0; color: #596d65; }
         .lyric-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 0.875rem; }
         .lyric-meta a { color: #235e52; }
         #lyrics-offset-value { margin: 0; font-variant-numeric: tabular-nums; }
-        .practice-controls { display: grid; gap: 6px; }
+        .practice-controls { display: grid; gap: 8px; padding-top: 8px; border-top: 1px solid var(--control-border); }
+        .control-row { display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: center; gap: 8px; }
+        .control-caption { color: var(--control-muted); font-size: 0.6875rem; font-weight: 600; line-height: 1.4; }
         .transport-controls, .sync-controls { display: grid; gap: 6px; }
         .transport-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .sync-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .practice-controls button { min-width: 0; padding: 8px 4px; }
+        .practice-controls button { min-width: 0; padding: 8px 4px; font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+        .transport-controls button { background: var(--control-tint); }
+        .practice-controls button:disabled { background: transparent; }
         #lyrics-panel { width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 24px); padding: 16px; border: 1px solid #c6d0c9; border-radius: 16px; background: #faf7f0; color: #263b35; overflow-y: auto; overscroll-behavior: contain; }
         #lyrics-panel::backdrop { background: rgb(0 0 0 / 45%); }
         .panel-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: -16px; padding: 8px 0; background: #faf7f0; }
         .panel-toolbar h2 { margin: 0; font-size: 1.2rem; }
-        #lyrics-results button { display: block; width: 100%; margin: 6px 0; text-align: left; }
+        #lyrics-results button { display: block; width: 100%; margin: 10px 0; padding: 14px; text-align: left; background: #fff; border: 1px solid #c6d0c9; border-radius: 12px; line-height: 1.45; font-weight: 400; }
+        #lyrics-results button:focus-visible { outline: 2px solid #235e52; outline-offset: 2px; }
+        #lyrics-results button:disabled { opacity: 0.6; }
+        .candidate-title { display: block; font-size: 1.05rem; font-weight: 700; overflow-wrap: anywhere; }
+        .candidate-detail { display: block; margin-top: 3px; color: #596d65; font-size: 0.8rem; overflow-wrap: anywhere; }
+        .candidate-badges { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0 6px; }
+        .candidate-badge { padding: 2px 8px; border-radius: 6px; background: #263b35; color: #faf7f0; font-size: 0.75rem; font-weight: 600; }
+        .candidate-type { background: #faf7f0; color: #263b35; border: 1px solid #c6d0c9; }
+        .candidate-duration { font-variant-numeric: tabular-nums; }
+        .candidate-preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 10px; padding-top: 9px; border-top: 1px solid #c6d0c9; color: #596d65; font-size: 0.9rem; overflow-wrap: anywhere; }
+        .saved-practice { display: flex; gap: 8px; margin: 8px 0; }
+        .saved-practice button:first-child { flex: 1; min-width: 0; text-align: left; overflow-wrap: anywhere; }
         #lyrics-panel p { overflow-wrap: anywhere; }
         #video-details, #lyrics-source { font-size: 0.875rem; }
         @media (min-width: 600px) and (max-height: 480px) {
@@ -76,8 +102,9 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         <label for="video-url">YouTube 영상 링크 또는 ID</label>
         <input id="video-url" type="text" inputmode="url" autocapitalize="none" autocomplete="off" autocorrect="off"
           spellcheck="false" placeholder="https://youtu.be/…" maxlength="2048">
-        <button type="submit">영상 열기</button>
+        <button class="button-primary" type="submit">영상 열기</button>
         </form>
+        <div id="saved-library"></div>
         <button id="return-to-practice" type="button" hidden>연습으로 돌아가기</button>
         </section>
         <section id="practice-screen" aria-labelledby="practice-heading" hidden>
@@ -97,6 +124,7 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         __LYRICS__
         </section>
         </main>
+        __LIBRARY__
         <script>
         const input = document.getElementById('video-url');
         const songResult = document.getElementById('song-result');
@@ -178,7 +206,7 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
           cancelSongSearch();
           openVideo(id);
         });
-        function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null, videoLabel = '노래 연습') {
+        function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null, videoLabel = '노래 연습', saved = null) {
           if (lyricQuery && !pendingRecovery && ready && activeVideoId) pendingRecovery = {
             id: activeVideoId, record: selectedLyricRecord, adjustment: lyricAdjustment,
             query: lyricsQuery.value, position: player.getCurrentTime(), label: songResult.textContent
@@ -215,6 +243,13 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
                     lyricAdjustment = restoration.adjustment;
                     lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
                   }
+                }
+                if (saved && !lyricsStarted) {
+                  lyricsStarted = true;
+                  lyricFinished = lyricFinished.then(function() {
+                    if (current !== generation || searchVersion !== searchSequence || !ready) return;
+                    return searchLyrics('', saved);
+                  });
                 }
                 if (lyricQuery && !lyricsStarted) {
                   lyricsStarted = true;
@@ -270,12 +305,13 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
           refreshLyrics();
           if (!ready) return;
           position.textContent = time(player.getCurrentTime()) + ' / ' + time(player.getDuration());
-        }, 500);
+        }, 250);
         </script>
         <script src="https://www.youtube.com/iframe_api"></script>
         </body></html>
     """.trimIndent().replace("__APP_ORIGIN__", "https://$appId")
         .replace("__SEARCH__", youtubeSearchHtml())
         .replace("__LYRICS__", youtubeLyricsHtml())
+        .replace("__LIBRARY__", youtubeLibraryHtml())
         .replace("__YOUTUBE_API_KEY__", apiKey)
 }
