@@ -1482,3 +1482,142 @@ test('confident foreign pronunciation cannot be missing or blank', () => {
     assert.throws(()=>vm.runInContext("validatePronunciation({target:'ko',lines:[{id:'line-0',text:'Hello'}]}, candidate)",f.context));
   }
 });
+
+async function generatedPractice(storage = memoryStorage()) {
+  const f = fixture(() => response(), 'fixture-key', storage);
+  f.ready(); await f.search(); f.select();
+  f.window.singBridgeConfigurePronunciation('ko', true);
+  const sent = [];
+  f.window.webkit = { messageHandlers: { pronunciation: { postMessage: m => sent.push(m) } } };
+  const pending = f.element('pronunciation-generate').click();
+  const message = sent[0];
+  f.window.singBridgePronunciationResult({ id: message.id, result: { target: 'ko', lines: message.request.lines.map(line => ({
+    id: line.id, segments: [{ source: line.text, language: 'en', reading: null, pronunciation: '테스트 발음', needsReview: false }]
+  })) } });
+  await pending;
+  return f;
+}
+
+async function reopenPronunciation(storage, restoredRecord = record) {
+  const f = fixture(() => response(restoredRecord), '', storage);
+  f.window.singBridgeConfigurePronunciation('en', false);
+  f.window.onYouTubeIframeAPIReady(); f.visibility(1);
+  f.element('saved-practices').children[0].children[0].click();
+  f.players[0].options.events.onReady();
+  await vm.runInContext('lyricFinished', f.context);
+  return f;
+}
+
+test('saved pronunciation and line edits survive a new page without an AI bridge', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('lyrics-offset').value = '5.5'; first.element('lyrics-offset').change();
+  first.element('pronunciation-edit-line').value = 'line-0'; first.element('pronunciation-edit-line').change();
+  first.element('pronunciation-edit-text').value = '내가 고친 발음'; first.element('pronunciation-edit-text').input();
+  first.element('pronunciation-save').click();
+  const second = await reopenPronunciation(storage);
+  assert.equal(second.element('pronunciation-target').value, 'ko');
+  assert.match(second.element('lyrics-timing').children[0].textContent, /내가 고친 발음.*직접 수정/);
+  assert.equal(second.element('lyrics-offset').value, '5.5');
+  assert.equal(second.element('pronunciation-generate').disabled, true);
+  assert.match(second.element('pronunciation-status').textContent, /불러왔/);
+  second.element('lyrics-later').click(); second.element('save-practice').click();
+  const third = await reopenPronunciation(storage);
+  assert.match(third.element('lyrics-timing').children[0].textContent, /내가 고친 발음/);
+  assert.equal(third.element('lyrics-offset').value, '6');
+});
+
+test('changed lyric text or timestamps cannot receive saved pronunciation', async () => {
+  const storage = memoryStorage(); const first = await generatedPractice(storage);
+  first.element('pronunciation-save').click();
+  for (const syncedLyrics of ['[00:02.00]Changed', record.syncedLyrics.replace('00:02', '00:03')]) {
+    const next = await reopenPronunciation(storage, { ...record, syncedLyrics });
+    assert.equal(vm.runInContext('pronunciationResults.size', next.context), 0);
+    assert.match(next.element('pronunciation-status').textContent, /달라/);
+  }
+});
+
+test('failed pronunciation save preserves stored result and keeps edits retryable', async () => {
+  const storage = memoryStorage(); const f = await generatedPractice(storage);
+  f.element('pronunciation-save').click();
+  const before = storage.getItem('singbridge.practice.v1');
+  f.element('pronunciation-edit-line').value = 'line-0'; f.element('pronunciation-edit-line').change();
+  f.element('pronunciation-edit-text').value = '<b>edited</b>'; f.element('pronunciation-edit-text').input();
+  storage.setItem = () => { throw new Error('Quota'); };
+  f.element('pronunciation-save').click();
+  assert.equal(storage.getItem('singbridge.practice.v1'), before);
+  assert.match(f.element('pronunciation-status').textContent, /저장하지 못/);
+  assert.match(f.element('lyrics-timing').children[0].textContent, /<b>edited<\/b>/);
+  assert.equal(f.element('pronunciation-save').disabled, false);
+  const next = await reopenPronunciation(storage);
+  assert.doesNotMatch(next.element('lyrics-timing').children[0].textContent, /edited/);
+});
+
+test('invalid edits cannot alter rendered lines, timing, or either save action', async () => {
+  const f = await generatedPractice();
+  f.element('pronunciation-save').click();
+  f.element('pronunciation-edit-line').value = 'line-0'; f.element('pronunciation-edit-line').change();
+  const times = vm.runInContext('JSON.stringify(lyricLines)', f.context);
+  for (const invalid of ['', '   ', 'one\ntwo', 'one\rtwo', 'one\u2028two', 'one\u2029two', 'one\u0000two', 'one\u202Etwo', '가'.repeat(2001)]) {
+    f.element('pronunciation-edit-text').value = invalid; f.element('pronunciation-edit-text').input();
+    assert.equal(f.element('pronunciation-save').disabled, true, JSON.stringify(invalid.slice(0, 30)));
+    assert.equal(f.element('save-practice').disabled, true);
+    assert.equal(f.element('lyrics-timing').children[0].children[0].textContent, '테스트 발음');
+    assert.equal(vm.runInContext('JSON.stringify(lyricLines)', f.context), times);
+  }
+  f.element('pronunciation-edit-text').value = '가'.repeat(2000); f.element('pronunciation-edit-text').input();
+  assert.equal(f.element('pronunciation-save').disabled, false);
+  f.element('pronunciation-edit-reset').click();
+  assert.equal(f.element('pronunciation-edit-text').value, '테스트 발음');
+  assert.doesNotMatch(f.element('lyrics-timing').children[0].textContent, /직접 수정/);
+});
+
+test('tampered stored edits and mappings cannot replace valid source or execute markup', async () => {
+  const storage = memoryStorage(); const f = await generatedPractice(storage); f.element('pronunciation-save').click();
+  const good = storage.getItem('singbridge.practice.v1');
+  const changes = [
+    d => { d.edits['line-0'] = 'one\ntwo'; },
+    d => { d.edits['line-99'] = 'wrong line'; },
+    d => { d.lines[0].segments[0].source = 'changed'; },
+    d => { d.lines.push(d.lines[0]); },
+    d => { d.source[0].time = -1; },
+    d => { d.target = 'xx'; },
+    d => { d.edits['line-0'] = '가'.repeat(2001); },
+  ];
+  for (const mutate of changes) {
+    const data = JSON.parse(good); mutate(data.items[0].pronunciations.ko);
+    const raw = JSON.stringify(data); storage.setItem('singbridge.practice.v1', raw);
+    const next = fixture(() => response(), '', storage);
+    assert.match(next.element('saved-status').textContent, /읽지 못/);
+    assert.equal(storage.getItem('singbridge.practice.v1'), raw, 'Never overwrite corrupted storage');
+    next.ready(); await next.search(); next.select();
+    assert.equal(next.element('lyrics-timing').children[0].textContent, 'First');
+  }
+});
+
+test('target switching restores the matching saved layer and keeps user edits separate', async () => {
+  const storage = memoryStorage(); const f = await generatedPractice(storage); f.element('pronunciation-save').click();
+  f.element('pronunciation-target').value = 'en'; f.element('pronunciation-target').change();
+  assert.equal(vm.runInContext('pronunciationResults.size', f.context), 0);
+  f.element('pronunciation-target').value = 'ko'; f.element('pronunciation-target').change();
+  assert.match(f.element('lyrics-timing').children[0].textContent, /테스트 발음/);
+  f.element('pronunciation-edit-text').value = '첫째 줄 수정'; f.element('pronunciation-edit-text').input();
+  f.element('pronunciation-edit-line').value = 'line-1'; f.element('pronunciation-edit-line').change();
+  assert.equal(f.element('pronunciation-edit-text').value, '테스트 발음');
+  f.element('pronunciation-edit-text').value = '둘째 줄 수정'; f.element('pronunciation-edit-text').input();
+  f.element('pronunciation-save').click();
+  const next = await reopenPronunciation(storage);
+  assert.match(next.element('lyrics-timing').children[0].textContent, /첫째 줄 수정/);
+  assert.match(next.element('lyrics-timing').children[1].textContent, /둘째 줄 수정/);
+});
+
+test('timestamp-like and markup-like edits stay literal and never enter the LRC parser', async () => {
+  const storage = memoryStorage(); const f = await generatedPractice(storage);
+  const original = vm.runInContext('JSON.stringify(lyricLines)', f.context);
+  f.element('pronunciation-edit-text').value = '[99:59.99]<script>wrong()</script>';
+  f.element('pronunciation-edit-text').input(); f.element('pronunciation-save').click();
+  const next = await reopenPronunciation(storage);
+  assert.equal(vm.runInContext('JSON.stringify(lyricLines)', next.context), original);
+  assert.equal(next.element('lyrics-timing').children.length, f.element('lyrics-timing').children.length);
+  assert.equal(next.element('lyrics-timing').children[0].children[0].textContent, '[99:59.99]<script>wrong()</script>');
+});

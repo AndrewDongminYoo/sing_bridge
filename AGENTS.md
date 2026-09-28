@@ -16,7 +16,8 @@ Never print credentials or commit generated configuration.
 The approved pronunciation prototype uses `server/` with a loopback-only Node server and native debug transports.
 Read `OPENAI_API_KEY` or `OPEN_AI_API_KEY` only on the server; never generate these values into the app.
 Keep direct links usable in builds without a search key.
-Keep provider lyrics in screen memory, treat provider fields as text, and preserve request limits and cancellation.
+Keep provider lyrics in screen memory unless the user explicitly saves a pronunciation layer with its source snapshot for local reuse.
+Treat provider fields and user edits as text, and preserve request limits and cancellation.
 LRCLIB access does not establish commercial lyric rights.
 Keep playback in platform adapters and practice decisions in common Kotlin.
 Do not add commercial lyrics, streaming integrations, accounts, or a backend without a scoped request.
