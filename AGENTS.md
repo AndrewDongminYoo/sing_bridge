@@ -13,6 +13,8 @@ Build an offline song-practice baseline with original demonstration content.
 The approved YouTube screen uses a visible official player with artist-title YouTube search, LRCLIB search, explicit lyric selection, and timing adjustment; it does not replace the local AudioPlayer contract.
 Read optional YOUTUBE_API_KEY only from ignored local.properties and generate its common configuration under shared/build.
 Never print credentials or commit generated configuration.
+The approved pronunciation prototype uses `server/` with a loopback-only Node server and native debug transports.
+Read `OPENAI_API_KEY` or `OPEN_AI_API_KEY` only on the server; never generate these values into the app.
 Keep direct links usable in builds without a search key.
 Keep provider lyrics in screen memory, treat provider fields as text, and preserve request limits and cancellation.
 LRCLIB access does not establish commercial lyric rights.
@@ -37,7 +39,7 @@ Keep automatic pre-commit formatting disabled unless its scope has been reviewed
 ## Checks
 
 - Shared behavior: `./gradlew :shared:jvmTest`
-- Shared YouTube page behavior: `node --test tools/test-youtube.mjs` (Node 22 or later).
+- Shared YouTube page behavior: `node --test tools/test-youtube.mjs server/pronunciation.test.mjs` (Node 22 or later).
 - Android: `./gradlew :androidApp:assembleDebug :androidApp:lintDebug`
 - iOS framework: `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
 - iOS host: generate with `xcodegen generate --spec iosApp/project.yml`, then use the simulator build command in `README.md`.

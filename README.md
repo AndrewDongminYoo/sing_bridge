@@ -267,3 +267,38 @@ Trunk configuration lives in `.trunk/`.
 
 See `docs/notes/2026-09-27-verification.md` for checks actually performed and remaining limits.
 See [YouTube player verification](docs/notes/2026-09-27-youtube-player-verification.md) for the embedded-player checks and runtime limits.
+
+## Development pronunciation server
+
+The YouTube lyric settings can request AI phrase identification and pronunciation in Korean or English.
+The initial target follows the native preferred language; other locales require an explicit choice.
+Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
+The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction, and leaves original lyrics usable on failure.
+Results are optional, memory-only, and may need correction for sung readings.
+Plain lyrics and production builds are not enabled in this prototype.
+
+Start the server with Node 22 or later:
+
+```sh
+node server/index.mjs
+```
+
+It reads `OPENAI_API_KEY` or `OPEN_AI_API_KEY` from the server environment, falling back to the ignored root `local.properties`.
+Never embed the provider key in Kotlin, Swift, HTML, or generated app configuration.
+The server binds only `127.0.0.1:18773`, allows one active request, and limits each process to 100 provider calls.
+Restarting resets that development cap.
+It does not log or cache lyric bodies and requests provider `store: false`; provider retention policies still apply.
+The fixed loopback port trusts processes on the development machine and is not a production authentication boundary.
+Do not expose it through a tunnel or bind it publicly.
+
+The iOS Debug simulator host reaches the same Mac loopback address.
+For an Android Debug build, use `adb reverse tcp:18773 tcp:18773` before testing.
+Only the Android debug variant permits cleartext to `127.0.0.1`; release networking remains unchanged.
+No browser CORS endpoint is provided; requests use origin-restricted native transports.
+Release support needs a separately approved authenticated HTTPS service and lyric-processing policy.
+
+Run contract and interaction tests without paid requests:
+
+```sh
+node --test tools/test-youtube.mjs server/pronunciation.test.mjs
+```
