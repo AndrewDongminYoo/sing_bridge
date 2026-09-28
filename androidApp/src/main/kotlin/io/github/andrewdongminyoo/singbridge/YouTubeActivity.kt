@@ -2,6 +2,7 @@ package io.github.andrewdongminyoo.singbridge
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -12,9 +13,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import org.json.JSONObject
 
 class YouTubeActivity : ComponentActivity() {
     private lateinit var webView: WebView
+    private val pronunciation = PronunciationBridge()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +30,17 @@ class YouTubeActivity : ComponentActivity() {
             settings.allowFileAccess = false
             settings.allowContentAccess = false
             webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView, url: String?) {
+                    if (url != "https://$packageName/") return
+                    val debug = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+                    if (debug) pronunciation.attach(view, "https://$packageName")
+                    val locale = resources.configuration.locales[0].toLanguageTag()
+                    view.evaluateJavascript(
+                        "window.singBridgeConfigurePronunciation(${JSONObject.quote(locale)}, $debug)",
+                        null,
+                    )
+                }
+
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                     if (!request.isForMainFrame) return false
                     if (request.hasGesture() && request.url.scheme == "https") {
@@ -69,6 +83,7 @@ class YouTubeActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        pronunciation.close()
         webView.stopLoading()
         webView.loadUrl("about:blank")
         webView.removeAllViews()

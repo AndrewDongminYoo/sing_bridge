@@ -36,6 +36,8 @@ const searchScript = [...searchHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)]
 const libraryPath = new URL("../shared/src/commonMain/kotlin/io/github/andrewdongminyoo/singbridge/YouTubeLibrary.kt", import.meta.url);
 const libraryHtml = readFileSync(libraryPath, "utf8").split('"""')[1];
 const libraryScript = [...libraryHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(match => match[1]).join("\n");
+const pronunciationHtml = readFileSync(new URL('../shared/src/commonMain/kotlin/io/github/andrewdongminyoo/singbridge/YouTubePronunciation.kt', import.meta.url), 'utf8').split('"""')[1];
+const pronunciationScript = [...pronunciationHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).join('\n');
 function memoryStorage() {
   const values = new Map();
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), values };
@@ -169,6 +171,7 @@ function fixture(respond = async () => new Response("[]"), apiKey = "fixture-key
   element("repeat-song").checked = true;
   // Match the script order in the shipped HTML, including deferred function references.
   vm.runInContext(searchScript.replace("__YOUTUBE_API_KEY__", apiKey), context);
+  vm.runInContext(pronunciationScript, context);
   vm.runInContext(lyricsScript, context);
   vm.runInContext(libraryScript, context);
   vm.runInContext(script, context);
@@ -1375,4 +1378,98 @@ test("Japanese kana and Han collapse into one display label while Latin stays vi
   const f = fixture(() => response([{ ...record, syncedLyrics: "[00:02.00]明日の青い空 Hello", plainLyrics: "" }]));
   f.ready(); await f.search(); f.select();
   assert.equal(f.element("lyrics-scripts").textContent, "표기: 일본어 · 라틴 문자");
+});
+
+
+test('pronunciation validates exact source and rejects stale completion after reset', () => {
+  const f = fixture();
+  assert.equal(vm.runInContext("initialPronunciationTarget('ja-JP')", f.context), '');
+  assert.equal(vm.runInContext("initialPronunciationTarget('ko-KR')", f.context), 'ko');
+  assert.equal(vm.runInContext("initialPronunciationTarget('en-US')", f.context), 'en');
+  vm.runInContext(`
+    const req = { target: 'ko', lines: [{ id: 'line-0', text: '오늘 Hello' }] };
+    const good = { target: 'ko', lines: [{ id: 'line-0', segments: [
+      {source:'오늘 ',language:'ko',reading:null,pronunciation:null,needsReview:false},
+      {source:'Hello',language:'en',reading:null,pronunciation:'헬로',needsReview:false}
+    ] }] };
+    validatePronunciation(req, good);
+  `, f.context);
+  assert.throws(() => vm.runInContext("good.lines[0].segments[0].source='변경'; validatePronunciation(req, good)", f.context));
+  vm.runInContext("resetPronunciation(); window.singBridgePronunciationResult({id:'stale',result:good})", f.context);
+  assert.equal(vm.runInContext('pronunciationResults.size', f.context), 0);
+});
+
+test('pronunciation keeps row identity, timing, offset and same-language text through hide/show', async () => {
+  const f = fixture(() => response([{...record, syncedLyrics:'[00:02.00]오늘 Hello\n[00:05.00]First'}]));
+  f.ready(); await f.search(); f.select();
+  vm.runInContext("window.singBridgeConfigurePronunciation('ko-KR', true)", f.context);
+  const sent = [];
+  f.context.window.webkit = { messageHandlers: { pronunciation: { postMessage(message) { sent.push(message); } } } };
+  f.element('lyrics-later').click();
+  const rows = [...f.element('lyrics-timing').children];
+  const pending = f.element('pronunciation-generate').click();
+  const message = sent[0];
+  assert.equal(message.request.target, 'ko');
+  const result = {target:'ko',lines:message.request.lines.map(line => ({id:line.id,segments:[
+    {source:line.text,language:line.text.startsWith('오늘')?'ko':'en',reading:null,pronunciation:line.text.startsWith('오늘')?null:'퍼스트',needsReview:false}
+  ]}))};
+  f.context.window.singBridgePronunciationResult({id:message.id,result}); await pending;
+  assert.equal(f.element('lyrics-timing').children[0], rows[0]);
+  assert.equal(f.element('lyrics-offset').value, '0.5');
+  assert.match(rows[1].textContent, /First퍼스트/);
+  f.element('pronunciation-toggle').click(); assert.equal(rows[1].textContent, 'First');
+  f.element('pronunciation-toggle').click(); assert.match(rows[1].textContent, /퍼스트/);
+  assert.equal(vm.runInContext('lyricLines[1].time',f.context),5);
+});
+
+test('target change cancels a pending conversion and ignores its late response', async () => {
+  const f = fixture(() => response()); f.ready(); await f.search(); f.select();
+  vm.runInContext("window.singBridgeConfigurePronunciation('ko', true)", f.context);
+  const sent=[]; f.context.window.webkit={messageHandlers:{pronunciation:{postMessage:m=>sent.push(m)}}};
+  const pending=f.element('pronunciation-generate').click();
+  f.element('pronunciation-target').value='en'; f.element('pronunciation-target').change();
+  f.context.window.singBridgePronunciationResult({id:sent[0].id,result:{}});
+  await pending;
+  assert.ok(sent.some(m=>m.cancel));
+  assert.equal(vm.runInContext('pronunciationResults.size',f.context),0);
+  assert.equal(f.element('pronunciation-generate').disabled,false);
+  assert.equal(f.element('lyrics-timing').children[0].textContent,'First');
+});
+
+test('Android pronunciation port rejects a forged iframe port without its native nonce', () => {
+  const f=fixture(); let started=0;
+  f.context.window.message({data:'fake',ports:[{start(){started++}}]});
+  assert.equal(started,0);
+  f.context.window.singBridgePreparePronunciationPort('nonce');
+  f.context.window.message({data:'wrong',ports:[{start(){started++}}]});
+  assert.equal(started,0);
+  f.context.window.message({data:'nonce',ports:[{start(){started++}}]});
+  assert.equal(started,1);
+});
+
+test('replacing lyrics clears partial pronunciation and cancels the next batch', async () => {
+  const large={...record,syncedLyrics:Array.from({length:13},(_,i)=>`[00:${String(i+1).padStart(2,'0')}.00]Hello ${i}`).join('\n')};
+  const f=fixture(()=>response([large,{...record,id:43}])); f.ready(); await f.search(); f.select();
+  vm.runInContext("window.singBridgeConfigurePronunciation('ko', true)",f.context);
+  const sent=[]; f.context.window.webkit={messageHandlers:{pronunciation:{postMessage:m=>sent.push(m)}}};
+  const pending=f.element('pronunciation-generate').click();
+  const complete=m=>({id:m.id,result:{target:'ko',lines:m.request.lines.map(line=>({id:line.id,segments:[{source:line.text,language:'en',reading:null,pronunciation:'헬로',needsReview:false}]}))}});
+  f.context.window.singBridgePronunciationResult(complete(sent[0]));
+  await Promise.resolve();
+  assert.equal(vm.runInContext('pronunciationResults.size',f.context),12);
+  assert.equal(sent.length,2);
+  f.select(1); f.context.window.singBridgePronunciationResult(complete(sent[1])); await pending;
+  assert.ok(sent.some(m=>m.cancel));
+  assert.equal(vm.runInContext('pronunciationResults.size',f.context),0);
+  assert.equal(vm.runInContext('selectedLyricRecord.id',f.context),43);
+  assert.equal(f.element('lyrics-timing').children[0].textContent,'First');
+  assert.equal(vm.runInContext('lyricLines[0].time',f.context),2);
+});
+
+test('video replacement disables pronunciation until new timed lyrics are selected', async () => {
+  const f=fixture(()=>response()); f.ready(); await f.search(); f.select();
+  vm.runInContext("window.singBridgeConfigurePronunciation('ko', true)",f.context);
+  assert.equal(f.element('pronunciation-generate').disabled,false);
+  f.submit('dQw4w9WgXcQ');
+  assert.equal(f.element('pronunciation-generate').disabled,true);
 });
