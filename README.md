@@ -20,7 +20,7 @@ Account scope: personal.
 
 The sample has no vocals.
 Its pronunciation and timing are authored demonstration data, not automatic transliteration or alignment.
-Practice state lasts for the current screen session.
+Unsaved practice state lasts for the current screen session.
 The last imported audio and source LRC are saved locally; returning to the sample removes that saved song.
 Commercial lyric licensing, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
 
@@ -46,6 +46,9 @@ Precise numeric entry remains under **시간 직접 입력** in the settings pan
 Plain lyrics are displayed without synchronization.
 The practice screen fits the WebView viewport with the official video, lyrics, and bottom controls visible together.
 Long lyrics scroll inside the reading area; the transport and timing controls stay in place.
+Visible **재생 이동** and **가사 싱크** captions distinguish seeking from timing adjustment; search and save actions use primary buttons.
+Timed lyrics form a stable list: the active row is emphasized and smoothly follows the actual playback position.
+Touch, wheel, or keyboard reading suspends automatic following until four seconds after the last interaction; reduced-motion settings disable animated scrolling.
 **가사 선택** or **가사·설정** opens a separate scrollable panel for lyric search, metadata, and precise timing entry.
 Opening that panel pauses playback; choosing lyrics, closing it, or pressing Escape does not resume automatically.
 In short landscape viewports, video and lyric controls sit side by side.
@@ -53,6 +56,16 @@ Search and link inputs disable automatic correction.
 The player stays visible while scrolling through lyrics.
 Changing videos clears the selected lyrics and adjustment; closing the screen discards the results.
 Lyrics stay in screen memory and are not saved in the imported-song library.
+Lyric candidates separate titles, artist/album metadata, script and sync badges, duration differences, and a two-line preview.
+Kana-bearing lyrics group Kana and Han characters under **일본어**; Han-only lyrics retain **한자**, and mixed Latin text stays visible.
+This is a display heuristic rather than language identification: Latin text can be English, romanized Japanese, or another language.
+Use **이 연습 저장** in lyric settings to save a video ID, chosen LRCLIB ID, title, and timing offset on this device.
+**저장한 연습** on discovery offers open and delete actions; up to 20 combinations are stored without automatic eviction.
+After changing a saved offset, use **변경 내용 저장** to update it.
+Reopening fetches the exact lyric ID and restores its offset without autoplay; internet access is required and changed or removed provider records can affect the result.
+No lyric body, credentials, playback position, or account data is stored by this feature.
+Invalid storage is preserved and reported; failed writes do not report success.
+See [saved practice scope](docs/specs/2026-09-28-saved-practice.md).
 API access and attribution do not establish rights to distribute commercial lyrics; release clearance remains unresolved.
 The original local song stays saved and paused, with line repeat turned off on entry.
 The app pauses the video on background or when less than half the player is visible; returning does not resume automatically.
