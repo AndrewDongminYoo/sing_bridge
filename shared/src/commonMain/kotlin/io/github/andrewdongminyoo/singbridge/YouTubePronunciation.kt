@@ -7,7 +7,7 @@ internal fun youtubePronunciationHtml(): String = """
     <select id="pronunciation-target">
     <option value="">언어를 선택하세요</option><option value="ko">한국어</option><option value="en">English</option>
     </select>
-    <p class="candidate-detail">선택한 가사를 서버와 OpenAI에 보내 발음을 만듭니다. 번역이 아니며, 노래에서 부르는 발음과 다를 수 있어요. 밑줄 친 구절은 발음이 불확실해 원문을 그대로 보여 줍니다.</p>
+    <p class="candidate-detail">선택한 가사를 서버와 OpenAI에 보내 발음을 만듭니다. 번역이 아니며, 노래에서 부르는 발음과 다를 수 있어요. 밑줄 친 구절은 발음 확인이 필요한 구절이에요. 만들어진 발음이 있으면 그 발음을, 없으면 원문을 보여 줘요.</p>
     <button id="pronunciation-generate" type="button" disabled>음차 만들기</button>
     <button id="pronunciation-toggle" type="button" aria-pressed="false" disabled>음차 숨기기</button>
     <button id="pronunciation-save" type="button" disabled>음차 저장</button>

@@ -1971,6 +1971,15 @@ test('a review-flagged phrase without pronunciation shows the source and the rev
   assert.match(row.textContent, /발음 확인 필요/);
 });
 
+test('the pronunciation help says an underlined phrase may show a pronunciation to check', () => {
+  const help = pronunciationHtml.match(
+    /<p class="candidate-detail">([^<]*)<\/p>/,
+  )[1];
+  assert.match(help, /밑줄/);
+  assert.match(help, /확인이 필요/);
+  assert.doesNotMatch(help, /원문을 그대로 보여 줍니다/);
+});
+
 test('a review-flagged pronunciation cannot be blank', () => {
   const f = fixture();
   f.context.candidate = {
