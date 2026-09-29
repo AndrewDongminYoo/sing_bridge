@@ -11,7 +11,7 @@ On 2026-09-29 at about 07:24 UTC, a one-off Node script on the development Mac f
 
 1. YouTube Data API search with the app's parameters (`maxResults=1`, embeddable, syndicated).
 2. LRCLIB `GET /api/search?q=<artist> <title>`, choosing the synced record closest to the video duration.
-3. Pronunciation through the local server (`node server/index.mjs`) in the page's batches of up to 12 lines and 3,000 characters, sent one after another.
+3. Korean-target (`ko`) pronunciation through the local server (`node server/index.mjs`) in the page's batches of up to 12 lines and 3,000 characters, sent one after another.
 
 The video duration came from an extra `videos.list` call that the app does not make; the app reads it from the player.
 Lyric lines were extracted by stripping timestamps and blank lines, which approximates `parseTimedLyrics`.
@@ -37,16 +37,22 @@ The larger problem is completion: 3 of 5 songs failed partway with HTTP 502, 3 o
 Rerunning the failed batches showed that the server rejects a whole batch when the model fills a pronunciation for a phrase it marked for review; this is tracked in #29.
 Until that is fixed, a user would see pronunciation stop after the first 12 lines on most of these songs.
 
-## Manual protocol for the device measurement
+## Manual protocol for the platform measurement
 
-Run this on one iPhone and one Android device with the development server reachable (see the README), after #29 is fixed:
+Run this after #29 is fixed, with the development server running as the README describes.
+Pronunciation currently works only in Debug builds on the iOS simulator, where `YouTubeScreen.swift` registers the handler under `DEBUG && targetEnvironment(simulator)`, and on an Android debug build with `adb reverse tcp:18773 tcp:18773`.
+A physical iPhone cannot generate pronunciation, so the iOS run uses a simulator until a supported transport exists (#16).
+
+Before each run, make sure no pronunciation is saved for the song: delete it under **저장한 연습** or clear the app's data.
+Selecting a saved video and lyric pair restores its pronunciation, which skips or shortens generation.
 
 1. Force-quit the app, start a stopwatch, and open it.
-2. Open the **YouTube** tab and search `<artist> - <title>`.
-3. Open **가사 선택**, choose the synced record whose duration matches the video, and close the panel.
-4. Tap **음차 만들기**, then start playback; stop the stopwatch when the first lyric line with pronunciation is highlighted.
-5. Record the total and the step where most time went.
+2. Open the **YouTube** tab, search `<artist> - <title>`, and confirm the video title and channel.
+3. Open **가사 선택** and choose the synced record whose title, artist, album, and duration match the video, after checking its preview; choosing it closes the panel.
+4. Open **가사·설정** again, confirm **읽을 언어** is 한국어, tap **음차 만들기**, and close the panel, because playback cannot start while it is open.
+5. Start playback and stop the stopwatch when the first lyric line with pronunciation is highlighted.
+6. Record the total and the step where most time went.
 
-Use the same five songs.
-Record device, OS version, network, and whether the video, lyrics, and pronunciation all loaded.
-The Gate A target is met when the median is under 60 seconds and no step fails.
+Use the same five songs on each platform.
+Record the device or simulator, OS version, network, and whether the video, lyrics, and pronunciation all loaded.
+Evaluate each platform separately: the Gate A target is met on a platform when its median is under 60 seconds and no step fails, and one platform's runs must not offset the other's.
