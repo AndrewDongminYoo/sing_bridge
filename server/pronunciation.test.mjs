@@ -590,4 +590,12 @@ test('the provider schema and instructions name Spanish', async () => {
   assert.match(sent.instructions, /ñ/);
   // Every sentence ends before the next one starts; "es.Keep" reads as an identifier.
   assert.doesNotMatch(sent.instructions, /[a-z]\.[A-Za-z]/);
+  // An uncertain Japanese reading gets the most likely pronunciation plus a review flag (#40).
+  assert.match(sent.instructions, /most likely reading/);
+  assert.match(sent.instructions, /per phrase, never for a whole batch/);
+  assert.doesNotMatch(
+    sent.instructions,
+    /ambiguous phrases use needsReview=true and pronunciation=null/,
+  );
+  assert.doesNotMatch(sent.instructions, /Do not invent/);
 });
