@@ -241,7 +241,7 @@ Linux ARM64 is not supported by this Android setup script.
 The workflow checks shared behavior and Android builds on Linux, builds the unsigned iOS simulator host on macOS, and runs Trunk separately.
 GitHub Actions execution is distinct from the local checks recorded in `docs/notes/2026-09-27-automation.md`.
 
-Trunk runs the linters pinned in `.trunk/trunk.yaml`, covering formatting, workflow syntax and action pins, shell scripts, Markdown, YAML, Python, TOML, Kotlin, and secret and dependency scanning.
+Trunk runs the linters pinned in `.trunk/trunk.yaml`, covering formatting, spelling (`cspell.config.yaml`), workflow syntax and action pins, shell scripts, Markdown, YAML, Python, TOML, Kotlin, and secret and dependency scanning.
 Ktlint uses managed Java, the Android Studio code style, Compose-aware function naming, and trailing commas from `.editorconfig`.
 A SARIF lint command supplements the pinned plugin formatter so non-fixable rules also fail the gate.
 Gradle remains responsible for Kotlin compilation and Android lint.

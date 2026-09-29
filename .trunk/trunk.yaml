@@ -36,6 +36,7 @@ lint:
     - bandit@1.9.4
     - black@26.5.1
     - checkov@3.3.20
+    - cspell@9.8.0 # 10.x requires Node >=22.18; the Trunk runtime is node@22.16.0
     - git-diff-check
     - grype@0.110.0
     - isort@9.0.2
