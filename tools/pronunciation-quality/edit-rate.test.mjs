@@ -95,17 +95,30 @@ test('totals cover only reviewed layers and count songs separately from layers',
   );
   const unselected = editRate(data);
   assert.equal(unselected.layers.length, 3);
-  assert.equal(unselected.total, null);
+  assert.equal(unselected.totals, null);
   const report = editRate(data, { reviewed: ['7:ko', '7:en'] });
-  assert.deepEqual(report.total, {
-    songs: 1,
-    layers: 2,
-    textLines: 8,
-    generatedLines: 6,
-    missingLines: 2,
-    editedLines: 2,
-    uneditedLines: 4,
-    uneditedRatio: 0.5,
+  // Each target is its own measurement; English layers never enter the Hangul total.
+  assert.deepEqual(report.totals, {
+    ko: {
+      songs: 1,
+      layers: 1,
+      textLines: 4,
+      generatedLines: 3,
+      missingLines: 1,
+      editedLines: 2,
+      uneditedLines: 1,
+      uneditedRatio: 0.25,
+    },
+    en: {
+      songs: 1,
+      layers: 1,
+      textLines: 4,
+      generatedLines: 3,
+      missingLines: 1,
+      editedLines: 0,
+      uneditedLines: 3,
+      uneditedRatio: 0.75,
+    },
   });
 });
 
@@ -181,7 +194,7 @@ test('the CLI reads UTF-8 and the UTF-16LE value WebKit stores', () => {
   ]) {
     const child = runCli(buffer, ['--reviewed', '7:ko']);
     assert.equal(child.status, 0, child.stderr);
-    assert.equal(JSON.parse(child.stdout).total.editedLines, 2);
+    assert.equal(JSON.parse(child.stdout).totals.ko.editedLines, 2);
     assert.ok(!child.stdout.includes(SECRET));
   }
 });
@@ -207,8 +220,8 @@ test('a reviewed key matching layers of two videos must name the video', () => {
   );
   assert.throws(() => editRate(data, { reviewed: ['7:ko'] }), /more than one/);
   const report = editRate(data, { reviewed: ['DDDDDDDDDDD:7:ko'] });
-  assert.equal(report.total.layers, 1);
-  assert.equal(report.total.editedLines, 0);
+  assert.equal(report.totals.ko.layers, 1);
+  assert.equal(report.totals.ko.editedLines, 0);
 });
 
 test('rejects segments that do not reproduce their source line', () => {
@@ -267,5 +280,5 @@ test('ratios are not rounded, so a cohort below a threshold cannot round up to i
     reviewed: ['7:ko'],
   });
   assert.equal(report.layers[0].uneditedRatio, 1 / 3);
-  assert.equal(report.total.uneditedRatio, 1 / 3);
+  assert.equal(report.totals.ko.uneditedRatio, 1 / 3);
 });

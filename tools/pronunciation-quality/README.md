@@ -130,7 +130,7 @@ The tool validates the fields the report reads: the version-1 envelope; each ent
 It does not validate fields that do not affect the counts, such as the timing offset, the preferred target, or the app's 20-entry limit, so it is not a full check of what the app would load.
 Invalid input, or a `--reviewed` key that matches no layer or more than one, exits 2 without echoing input.
 `layers` lists every saved layer with video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, whether generation completed, edited and unedited lines, lines with a review flag, and the unedited ratio.
-`total` covers only the `--reviewed` layers and is `null` without them, so unreviewed or stale layers never enter the measurement; it counts songs and layers separately.
+`totals` covers only the `--reviewed` layers, with one entry per target language, and is `null` without them, so unreviewed or stale layers never enter the measurement and English layers never offset the Hangul result; the Gate A measurement reads `totals.ko`. Each entry counts songs and layers separately.
 The unedited ratio divides unedited generated lines by lines with text, so lines that were never generated count against it; it is not rounded, and the counts beside it are exact.
 An edit identical to the generated text does not count as a change, and the report never prints lyric or pronunciation text.
 

@@ -182,26 +182,29 @@ export function editRate(library, { reviewed = [] } = {}) {
     }
     selected.add(found[0]);
   }
-  if (!reviewed.length) return { layers, total: null };
-  const sum = (field) =>
-    [...selected].reduce((total, layer) => total + layer[field], 0);
-  const textLines = sum('textLines');
-  const uneditedLines = sum('uneditedLines');
-  return {
-    layers,
-    total: {
-      songs: new Set(
-        [...selected].map((layer) => `${layer.videoId}:${layer.lyricId}`),
-      ).size,
-      layers: selected.size,
+  if (!reviewed.length) return { layers, totals: null };
+  // One total per target: a Hangul gate must not be offset by English layers, or the reverse.
+  const totals = {};
+  for (const target of TARGETS) {
+    const group = [...selected].filter((layer) => layer.target === target);
+    if (!group.length) continue;
+    const sum = (field) =>
+      group.reduce((total, layer) => total + layer[field], 0);
+    const textLines = sum('textLines');
+    const uneditedLines = sum('uneditedLines');
+    totals[target] = {
+      songs: new Set(group.map((layer) => `${layer.videoId}:${layer.lyricId}`))
+        .size,
+      layers: group.length,
       textLines,
       generatedLines: sum('generatedLines'),
       missingLines: sum('missingLines'),
       editedLines: sum('editedLines'),
       uneditedLines,
       uneditedRatio: ratio(uneditedLines, textLines),
-    },
-  };
+    };
+  }
+  return { layers, totals };
 }
 
 // WebKit stores localStorage values as UTF-16LE; exported files may be either encoding.
