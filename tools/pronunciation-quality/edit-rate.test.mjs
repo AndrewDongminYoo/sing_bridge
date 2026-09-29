@@ -248,3 +248,24 @@ test('schema errors never echo input text', () => {
   assert.equal(child.status, 2);
   assert.ok(!child.stderr.includes(SECRET), child.stderr);
 });
+
+test('ratios are not rounded, so a cohort below a threshold cannot round up to it', () => {
+  const thirds = layer('ko', {
+    source: [
+      { time: 1, text: '一' },
+      { time: 2, text: '二' },
+      { time: 3, text: '三' },
+    ],
+    lines: [
+      line('line-0', segment('一', '일')),
+      line('line-1', segment('二', '니')),
+      line('line-2', segment('三', '산')),
+    ],
+    edits: { 'line-0': '이치', 'line-1': '니이' },
+  });
+  const report = editRate(library(item({ ko: thirds })), {
+    reviewed: ['7:ko'],
+  });
+  assert.equal(report.layers[0].uneditedRatio, 1 / 3);
+  assert.equal(report.total.uneditedRatio, 1 / 3);
+});

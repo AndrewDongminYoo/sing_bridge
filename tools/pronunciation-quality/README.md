@@ -107,13 +107,14 @@ It supports the pronunciation-accuracy target in Gate A of the [competitive brie
 Protocol for a measurement:
 
 1. On the iOS Debug simulator, generate pronunciation for a song, have a fluent reviewer read every line and correct it with **음차 수정**, then save with **음차 저장**. Note the LRCLIB ID and target of each reviewed song.
-2. Extract the saved library into a fresh directory from a copy of the simulator's WebKit storage, and confirm the extraction wrote a file:
+2. Stop the app so WebKit is not writing, take a consistent read-only snapshot of its storage into a fresh directory, and confirm the extraction wrote a file:
 
    ```sh
    rm -rf build/edit-rate && mkdir -p build/edit-rate
+   xcrun simctl terminate booted io.github.andrewdongminyoo.singbridge || true
    container=$(xcrun simctl get_app_container booted io.github.andrewdongminyoo.singbridge data)
    store=$(find "$container/Library/WebKit" -name localstorage.sqlite3 | head -1)
-   cp "$store"* build/edit-rate/
+   sqlite3 -readonly "$store" ".backup build/edit-rate/localstorage.sqlite3"
    sqlite3 build/edit-rate/localstorage.sqlite3 "select writefile('build/edit-rate/library.bin', value) from ItemTable where key='singbridge.practice.v1';"
    test -s build/edit-rate/library.bin
    ```
@@ -130,7 +131,7 @@ It does not validate fields that do not affect the counts, such as the timing of
 Invalid input, or a `--reviewed` key that matches no layer or more than one, exits 2 without echoing input.
 `layers` lists every saved layer with video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, whether generation completed, edited and unedited lines, lines with a review flag, and the unedited ratio.
 `total` covers only the `--reviewed` layers and is `null` without them, so unreviewed or stale layers never enter the measurement; it counts songs and layers separately.
-The unedited ratio divides unedited generated lines by lines with text, so lines that were never generated count against it.
+The unedited ratio divides unedited generated lines by lines with text, so lines that were never generated count against it; it is not rounded, and the counts beside it are exact.
 An edit identical to the generated text does not count as a change, and the report never prints lyric or pronunciation text.
 
 The app does not record that a review happened, so naming a layer with `--reviewed` is the operator's statement that a reviewer finished it.

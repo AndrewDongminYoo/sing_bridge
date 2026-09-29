@@ -121,8 +121,8 @@ function generatedText(line) {
     .join('');
 }
 
-const ratio = (part, whole) =>
-  whole ? Number((part / whole).toFixed(3)) : null;
+// Unrounded, so a cohort just below a threshold is never reported at it; the counts stay beside it.
+const ratio = (part, whole) => (whole ? part / whole : null);
 
 function layerReport(item, target, data) {
   let editedLines = 0;
