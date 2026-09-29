@@ -436,7 +436,9 @@ internal fun youtubeLyricsHtml(): String = """
         const artist = textParts(record.artistName), artistKey = titleKey(record.artistName);
         const { whole, segments } = titleVariants(record.trackName);
         // A title equal to the artist counts only when it appears apart from the artist's own name.
-        const inQuery = part => contains(part === artistKey ? withoutFirst(text, part) : text, part);
+        // Remove the full name when the query has it ("The The"), otherwise the name without its article.
+        const withoutArtist = () => withoutFirst(text, contains(text, artist.joined) ? artist.joined : artistKey);
+        const inQuery = part => contains(part === artistKey ? withoutArtist() : text, part);
         // Only a dashed segment can be an artist prefix, including a collaborator field such as "A & B".
         const artistPart = part => part === artistKey || (noWordSpaces.test(part) ? part.length >= 3 && artist.joined.includes(part) : !!wordRun(artist, part));
         return whole.some(inQuery) || segments.some(part => !artistPart(part) && contains(text, part));

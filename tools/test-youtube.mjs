@@ -2564,6 +2564,21 @@ for (const [label, trackName, artistName, query, hint] of [
     'A Perfect Circle Mer de Noms',
     true,
   ],
+  // PR #35 review round 2.
+  [
+    'the whole artist name is removed before the title is retested',
+    'The The',
+    'The The',
+    'The The Soul Mining',
+    true,
+  ],
+  [
+    'an artist name searched without its article is still removed',
+    'A Perfect Circle',
+    'A Perfect Circle',
+    'Perfect Circle Mer de Noms',
+    true,
+  ],
 ]) {
   test(`song-title hint: ${label}`, async () => {
     const f = fixture(() =>
