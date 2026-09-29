@@ -41,6 +41,7 @@ Trunk pre-commit formatting is enabled; stage with `git add` and commit the inde
 
 - Shared behavior: `./gradlew :shared:jvmTest`
 - Shared YouTube page behavior: `node --test tools/test-youtube.mjs server/pronunciation.test.mjs` (Node 22 or later).
+- LRCLIB coverage tool: `node --test tools/lyrics-coverage/coverage.test.mjs` (no network).
 - Android: `./gradlew :androidApp:assembleDebug :androidApp:lintDebug`
 - iOS framework: `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
 - iOS host: generate with `xcodegen generate --spec iosApp/project.yml`, then use the simulator build command in `README.md`.

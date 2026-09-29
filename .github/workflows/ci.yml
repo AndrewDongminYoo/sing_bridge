@@ -72,6 +72,9 @@ jobs:
       - name: Test shared YouTube player JavaScript
         run: node --test tools/test-youtube.mjs server/pronunciation.test.mjs
 
+      - name: Test LRCLIB coverage tool
+        run: node --test tools/lyrics-coverage/coverage.test.mjs
+
       - name: Upload Android lint reports
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
