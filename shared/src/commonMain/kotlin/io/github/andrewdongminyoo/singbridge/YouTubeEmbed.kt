@@ -73,6 +73,9 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         .transport-controls, .sync-controls { display: grid; gap: 6px; }
         .transport-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .sync-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        #lyrics-sync { border-top: 1px solid var(--control-border); }
+        #lyrics-sync summary { min-height: 44px; padding: 12px 4px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+        #lyrics-sync p { margin: 0 0 8px; color: var(--control-muted); font-size: 0.75rem; }
         .practice-controls button { min-width: 0; padding: 8px 4px; font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
         .transport-controls button { background: var(--control-tint); }
         .practice-controls button:disabled { background: transparent; }
