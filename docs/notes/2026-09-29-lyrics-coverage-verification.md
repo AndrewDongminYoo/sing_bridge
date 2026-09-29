@@ -1,0 +1,27 @@
+# LRCLIB coverage check verification
+
+Scope: [LRCLIB coverage check](../specs/2026-09-29-lyrics-coverage.md), issue #19.
+
+## Tests
+
+`node --test tools/lyrics-coverage/coverage.test.mjs` passes 14 tests with fixture responses and no network access.
+Against an inert stub that exported the same functions, all 14 failed; one test first passed against the stub and was strengthened to require that malformed records are dropped while a valid one is kept.
+The tests cover the app's query and client header, duration-tolerance classification, the 20-candidate display limit, malformed-record filtering, the absence of lyric text in the report, the summary denominator, one `Retry-After` wait on HTTP 429, sequential requests, the 4 MiB response limit, list validation, and the CLI exiting with status 2 on invalid input.
+Scoped `trunk check --no-fix` passed for the tool, spec, AGENTS.md, and CI workflow.
+
+## Live smoke run
+
+One run on 2026-09-29 at 06:33 UTC queried two songs; this is a smoke check of the live path, not the Gate A measurement.
+
+| Song                 | Duration given | Status   | Top candidate                                               |
+| -------------------- | -------------- | -------- | ----------------------------------------------------------- |
+| Vaundy - 踊り子      | 246 s          | `synced` | LRCLIB `35902952`, 246 s, difference 0 s                    |
+| YOASOBI - 夜に駆ける | none           | `synced` | LRCLIB `35766443`, titled `YOASOBI 夜に駆ける(inst)`, 262 s |
+
+The second row is a false match by title: without a duration, the first synced record in provider order counted, and it was named as an instrumental version.
+The README now asks for a duration on every song in a gate run.
+The report file contained no `syncedLyrics` or `plainLyrics` field; it was kept outside the repository.
+
+## Remaining
+
+The Gate A run needs the operator-approved 30-song list with a duration for each song, followed by a person confirming each `synced` match.
