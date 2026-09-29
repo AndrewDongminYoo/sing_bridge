@@ -2535,6 +2535,35 @@ for (const [label, trackName, artistName, query, hint] of [
   ],
   ['kana voicing marks are kept', 'がらす', 'Artist', 'Artist からす', true],
   ['Devanagari vowel signs are kept', 'कोई', 'Artist', 'Artist कई', true],
+  // PR #35 review round 1.
+  [
+    'an emoji variation selector is not part of the title',
+    'Love ❤️',
+    'Artist',
+    'Artist Love',
+    false,
+  ],
+  [
+    'a qualified MV label is not an alias',
+    'Song (Official MV)',
+    'Artist',
+    'Artist Official MV',
+    true,
+  ],
+  [
+    'a qualified lyrics label is not an alias',
+    'Song (Official Lyrics)',
+    'Artist',
+    'Artist Official Lyrics',
+    true,
+  ],
+  [
+    'an artist-titled song with an article needs its own occurrence',
+    'A Perfect Circle',
+    'A Perfect Circle',
+    'A Perfect Circle Mer de Noms',
+    true,
+  ],
 ]) {
   test(`song-title hint: ${label}`, async () => {
     const f = fixture(() =>

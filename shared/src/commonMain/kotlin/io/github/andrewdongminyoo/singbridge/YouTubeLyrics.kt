@@ -389,7 +389,11 @@ internal fun youtubeLyricsHtml(): String = """
 
     // An album or video title as the query returns other tracks; detect that from the candidate titles.
     // Width, case, Latin diacritics, punctuation, and spacing do not distinguish titles; other scripts keep their marks.
-    function foldText(value) { return value.normalize('NFKD').replace(/(\p{Script=Latin})\p{M}+/gu, '$1').normalize('NFKC').toLowerCase(); }
+    // Invisible formatting and marks not attached to a letter, such as an emoji variation selector, are dropped.
+    function foldText(value) {
+      return value.normalize('NFKD').replace(/\p{Default_Ignorable_Code_Point}/gu, '').replace(/(\p{Script=Latin})\p{M}+/gu, '$1')
+        .replace(/(^|[^\p{L}\p{M}])\p{M}+/gu, '$1').normalize('NFKC').toLowerCase();
+    }
     // joined drops punctuation, symbols, and spaces; tokens are the words between them.
     function textParts(value) {
       const folded = foldText(value);
@@ -415,25 +419,26 @@ internal fun youtubeLyricsHtml(): String = """
       return run ? { joined: text.joined, tokens: [...text.tokens.slice(0, run[0]), ...text.tokens.slice(run[1])] } : text;
     }
     const bracketed = /[(\[{（［【]([^)\]}）］】]*)[)\]}）］】]/g;
-    const presentation = /^(official)?(music|lyrics?)?(video|audio|visualizer)$|^(mv|lyrics?)$/;
+    const presentation = /^(official)?((music|lyrics?)?(video|audio|visualizer)|mv|lyrics?)$/;
+    // A title or artist name without a leading English article, joined for comparison.
+    function titleKey(value) { return textParts(foldText(value).trim().replace(/^(the|an?)\s+/, '')).joined; }
     // Whole-title variants: the full title, the title without brackets, and each bracketed alias that is not a presentation label.
     // Segments: the parts of those variants around a spaced dash, where an artist prefix may appear.
     function titleVariants(title) {
-      const clean = value => textParts(foldText(value).trim().replace(/^(the|an?)\s+/, '')).joined;
       const aliases = [...title.matchAll(bracketed)].map(match => match[1]).filter(alias => !presentation.test(textParts(alias).joined));
       const whole = [title, title.replace(bracketed, ' '), ...aliases];
       const segments = whole.flatMap(value => { const parts = value.split(/\s[-–—]\s/); return parts.length > 1 ? parts : []; });
-      return { whole: whole.map(clean), segments: segments.map(clean) };
+      return { whole: whole.map(titleKey), segments: segments.map(titleKey) };
     }
     function titleInQuery(query, records) {
       const text = textParts(query);
       return records.some(record => {
-        const artist = textParts(record.artistName);
+        const artist = textParts(record.artistName), artistKey = titleKey(record.artistName);
         const { whole, segments } = titleVariants(record.trackName);
         // A title equal to the artist counts only when it appears apart from the artist's own name.
-        const inQuery = part => contains(part === artist.joined ? withoutFirst(text, part) : text, part);
+        const inQuery = part => contains(part === artistKey ? withoutFirst(text, part) : text, part);
         // Only a dashed segment can be an artist prefix, including a collaborator field such as "A & B".
-        const artistPart = part => part === artist.joined || (noWordSpaces.test(part) ? part.length >= 3 && artist.joined.includes(part) : !!wordRun(artist, part));
+        const artistPart = part => part === artistKey || (noWordSpaces.test(part) ? part.length >= 3 && artist.joined.includes(part) : !!wordRun(artist, part));
         return whole.some(inQuery) || segments.some(part => !artistPart(part) && contains(text, part));
       });
     }
