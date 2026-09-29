@@ -7,7 +7,9 @@ struct YouTubeScreen: View {
     var active = true
 
     var body: some View {
+        // The page stays inside the safe area; its paper color fills the strip behind the status bar.
         YouTubeWebView(active: active && scenePhase == .active)
+            .background(Color(red: 250 / 255, green: 247 / 255, blue: 240 / 255).ignoresSafeArea())
     }
 }
 
