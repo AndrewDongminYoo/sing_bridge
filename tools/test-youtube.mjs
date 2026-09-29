@@ -842,6 +842,16 @@ test("unknown video duration preserves provider order then sorts once metadata a
   assert.equal(f.element("lyrics-results").children.length, 0);
 });
 
+test("replacing a video collapses sync controls while invalid links preserve the current practice", () => {
+  const f = fixture();
+  f.ready();
+  f.element("lyrics-sync").open = true;
+  f.submit("invalid");
+  assert.equal(f.element("lyrics-sync").open, true);
+  f.submit("dQw4w9WgXcQ");
+  assert.equal(f.element("lyrics-sync").open, false);
+});
+
 test("offset buttons adjust lyric timing without seeking and reset to the original timestamps", async () => {
   const f = fixture(() => response());
   f.ready();

@@ -117,6 +117,7 @@ internal fun youtubeLyricsHtml(): String = """
     let lyricFinished = Promise.resolve(), selectedLyricRecord = null;
 
     function resetLyrics() {
+      document.getElementById('lyrics-sync').open = false;
       if (lyricsPanel.open) lyricsPanel.close();
       document.getElementById('lyric-window').scrollTop = 0;
       if (lyricRequest) lyricRequest.abort();

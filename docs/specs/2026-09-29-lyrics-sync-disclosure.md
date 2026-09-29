@@ -3,7 +3,10 @@
 ## Contract
 
 Separate playback seeking from lyric timing adjustments, following the operator's deferred request about confusing adjacent controls.
-Keep five-second transport controls visible and collapse the lyric timing controls by default behind an explicit Korean summary.
+Keep five-second transport controls visible by default and collapse the lyric timing controls behind an explicit Korean summary.
+Reset the disclosure when starting a new video, while an invalid link preserves the current practice.
+In portrait viewports at most 599 pixels wide and 620 pixels high, expanded calibration temporarily replaces transport controls and omits the explanatory paragraph to preserve lyric space.
+Collapsing restores the transport controls.
 Opening or closing this inline disclosure must not pause, play, seek, clear an adjustment, or save anything.
 Keep the current timing summary visible when collapsed.
 Use native HTML details/summary so keyboard and accessibility behavior do not require a custom state machine.

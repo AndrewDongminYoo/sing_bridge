@@ -20,7 +20,7 @@ The named browser session and local fixture server were closed after verificatio
 
 ## Automated checks and review
 
-The existing shipped-script and server suite passed 94 tests, including offset-only adjustment, clamping, reset, plain-lyric restrictions, and storage behavior.
+The final shipped-script and server suite passed 95 tests, including offset-only adjustment, clamping, reset, plain-lyric restrictions, and storage behavior.
 Shared JVM tests passed.
 Scoped Trunk checks and `git diff --check` passed.
 No new mirrored markup unit test was added; the observable disclosure regression was checked in the rendered DOM.
@@ -36,3 +36,15 @@ The browser fixture verifies layout and commands sent by the app, not real YouTu
 No new simulator build was installed in this pass; the device retains the merged navigation build.
 Hosted native build results belong to the PR checks.
 Operator visual approval is pending for this change.
+
+## Hosted review repairs
+
+The 320 × 568 portrait regression reproduced a 10-pixel lyric viewport before the compact-layout repair, failing the 80-pixel minimum check.
+After repair, the expanded lyric area measured 86 pixels and the footer ended at y=556 within the 568-pixel viewport.
+On short portrait screens, opening calibration hides transport buttons and explanatory copy; closing it restores transport without changing the offset.
+Real browser clicks verified +0.5 seconds with unchanged position 10 and zero play/pause/seek commands.
+Evidence: `build/qa/sync-small-expanded.png` and `build/qa/sync-small-collapsed.png`.
+
+A new shipped-script regression failed with `true !== false` because replacing a video left the disclosure open.
+It now passes after resetting details.open in resetLyrics; invalid links retain the current disclosure state.
+The repair was reviewed inline for DOM availability, reset call sites, media-query scope, and unchanged adjustment handlers.
