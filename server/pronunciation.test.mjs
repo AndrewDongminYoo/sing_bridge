@@ -95,6 +95,65 @@ test('rejects unsupported targets, extra fields, duplicated IDs and unbounded in
   ])
     assert.throws(() => validateRequest(bad));
 });
+// Issue #42: a batch may carry up to two read-only neighbor lines on each side, which are never returned.
+test('accepts read-only context lines outside the batch limits and rejects malformed context', () => {
+  const context = { before: ['앞줄', 'before'], after: ['after'] };
+  assert.deepEqual(validateRequest({ ...request, context }).context, context);
+  assert.ok(
+    validateRequest({ ...request, context: { before: [], after: [] } }),
+  );
+  const full = {
+    target: 'ko',
+    lines: Array.from({ length: 6 }, (_, i) => ({
+      id: `line-${i}`,
+      text: 'x'.repeat(500),
+    })),
+    context: { before: ['y'.repeat(500)], after: ['z'.repeat(500)] },
+  };
+  assert.ok(validateRequest(full));
+  for (const bad of [
+    null,
+    [],
+    'context',
+    { before: [] },
+    { before: [], after: [], lines: [] },
+    { before: ['a', 'b', 'c'], after: [] },
+    { before: [], after: ['a', 'b', 'c'] },
+    { before: [''], after: [] },
+    { before: [], after: [1] },
+    { before: [], after: ['x'.repeat(501)] },
+    { before: 'a', after: [] },
+  ])
+    assert.throws(() => validateRequest({ ...request, context: bad }));
+});
+test('context reaches the provider input but only request lines are returned', async () => {
+  let sent;
+  const withContext = {
+    ...request,
+    context: { before: ['앞줄'], after: ['뒷줄', 'next'] },
+  };
+  const response = await generatePronunciation(withContext, 'fixture-key', {
+    fetcher: async (_, options) => {
+      sent = JSON.parse(options.body);
+      return Response.json({
+        status: 'completed',
+        output: [
+          {
+            type: 'message',
+            content: [{ type: 'output_text', text: JSON.stringify(result()) }],
+          },
+        ],
+      });
+    },
+  });
+  assert.deepEqual(JSON.parse(sent.input).context, withContext.context);
+  assert.deepEqual(response.result, result());
+  assert.match(sent.instructions, /context object, its before and after lists/);
+  assert.match(sent.instructions, /never return them/);
+  const extra = result();
+  extra.lines.push({ ...extra.lines[0], id: 'line-1' });
+  assert.throws(() => validateResult(withContext, extra));
+});
 // Issue #37: the model often flags a phrase while supplying a pronunciation; keep it so the page can show it for review.
 test('a review-flagged foreign phrase keeps the model pronunciation in both modes', async () => {
   const flagged = () => {
@@ -590,4 +649,17 @@ test('the provider schema and instructions name Spanish', async () => {
   assert.match(sent.instructions, /ñ/);
   // Every sentence ends before the next one starts; "es.Keep" reads as an identifier.
   assert.doesNotMatch(sent.instructions, /[a-z]\.[A-Za-z]/);
+  // An uncertain Japanese reading gets the most likely pronunciation plus a review flag (#40).
+  assert.match(sent.instructions, /most likely reading/);
+  assert.match(sent.instructions, /per phrase, never for a whole batch/);
+  // Korean is foreign for the en target, so it needs a pronunciation too.
+  assert.match(
+    sent.instructions,
+    /Every ja, ko, en, or es phrase outside the target language needs a pronunciation/,
+  );
+  assert.doesNotMatch(
+    sent.instructions,
+    /ambiguous phrases use needsReview=true and pronunciation=null/,
+  );
+  assert.doesNotMatch(sent.instructions, /Do not invent/);
 });

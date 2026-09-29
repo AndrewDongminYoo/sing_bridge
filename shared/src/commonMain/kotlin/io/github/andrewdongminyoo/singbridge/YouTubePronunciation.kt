@@ -156,6 +156,15 @@ internal fun youtubePronunciationHtml(): String = """
         catch (error) { pronunciationPending = null; clearTimeout(timeout); reject(error); }
       });
     }
+    // Up to two non-blank lyric lines on each side of a batch, read-only context for the model (#42).
+    function pronunciationContext(batch) {
+      const first = Number(batch[0].id.slice(5)), last = Number(batch[batch.length - 1].id.slice(5));
+      const usable = index => lyricLines[index].text && lyricLines[index].text.length <= 500;
+      const before = [], after = [];
+      for (let i = first - 1; i >= 0 && before.length < 2; i--) if (usable(i)) before.unshift(lyricLines[i].text);
+      for (let i = last + 1; i < lyricLines.length && after.length < 2; i++) if (usable(i)) after.push(lyricLines[i].text);
+      return { before, after };
+    }
     function pronunciationText(result) {
       return result.segments.map(segment => segment.pronunciation === null ? segment.source :
         segment.source.match(/^\s*/)[0] + segment.pronunciation.trim() + segment.source.match(/\s*$/)[0]).join('');
@@ -264,7 +273,7 @@ internal fun youtubePronunciationHtml(): String = """
             length += lines[start].text.length; batch.push(lines[start++]);
           }
           pronunciationStatus.textContent = '음차를 만들고 있어요… ' + pronunciationResults.size + '/' + lines.length;
-          const result = await requestPronunciation({ target, lines: batch }, version + '-' + start);
+          const result = await requestPronunciation({ target, lines: batch, context: pronunciationContext(batch) }, version + '-' + start);
           if (version !== pronunciationVersion) return;
           result.lines.forEach(line => pronunciationResults.set(line.id, line));
           renderPronunciation();

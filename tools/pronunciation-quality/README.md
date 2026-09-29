@@ -91,7 +91,7 @@ It retains the server bounds of 12 lines, 40 segments per line, and 3,000 total 
 Unlike the synthetic fixture mode, it accepts up to 480 segments and does not accept `--check`.
 Exit 0 means a report was produced, not that the model passed a quality gate.
 
-Each result carries `lineId`, zero-based `segmentIndex`, final `pronunciation`, and the model's original `needsReview` flag; its stable ID combines line ID and segment index.
+Each result carries `lineId`, zero-based `segmentIndex`, final `pronunciation`, and the result's `needsReview` flag, which the server may have set (see below); its stable ID combines line ID and segment index.
 The report includes `inputKind: "response"`, `target`, and `modelReviewRequired`, the number of flagged segments.
 A dictionary match never clears that flag or validates final target-script pronunciation.
 Whitespace-only segments are retained as `unassessable` with reason `non_lexical_source`.

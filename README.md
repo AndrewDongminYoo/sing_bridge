@@ -289,6 +289,7 @@ The YouTube lyric settings can request AI phrase identification and pronunciatio
 Source phrases can be Japanese, Korean, English, or Spanish; Spanish is experimental and shown as `스페인어(실험)` because it has no Gate A accuracy measurement yet.
 The initial target follows the native preferred language; other locales require an explicit choice.
 Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
+The page sends batches of up to 12 lines and 3,000 characters, each with up to two non-blank neighbor lines on each side as read-only context; context lines are never returned or saved from that request.
 The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction, and leaves original lyrics usable on failure.
 Results are optional and may need correction for sung readings.
 A phrase the model marks for review keeps its pronunciation with a dotted underline, or its original text when the model gave none, and its row shows `음차 확인 필요`.

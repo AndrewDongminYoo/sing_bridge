@@ -45,6 +45,6 @@ The issue's first completion condition, no fully flagged batch, is not met; the 
 
 ## Limits
 
-The remaining batches come from the model returning whole batches as flagged with no pronunciation, which the prompt's rule for ambiguous phrases allows; changing that rule is a separate product decision.
+The remaining batches come from the model returning whole batches as flagged with no pronunciation, which the prompt's rule for ambiguous phrases allowed; the operator decided in #40 to replace that rule with a flagged most-likely pronunciation.
 Model output varies between calls, so these counts describe one run each.
 No native WebView run was made; the page behavior is covered by the Node tests.
