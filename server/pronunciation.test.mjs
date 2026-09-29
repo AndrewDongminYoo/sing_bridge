@@ -95,12 +95,21 @@ test('rejects unsupported targets, extra fields, duplicated IDs and unbounded in
   ])
     assert.throws(() => validateRequest(bad));
 });
-test('rejects source mutation, IDs, unknown fields, unsupported language and malformed fields', () => {
+test('rejects source mutation, IDs, unknown fields, unsupported language, same-language rewriting and malformed fields', () => {
   for (const mutate of [
     (r) => (r.lines[0].segments[0].source = '오늘 '),
     (r) => (r.lines[0].id = 'wrong'),
     (r) => (r.lines[0].segments[0].extra = true),
     (r) => (r.lines[0].segments[0].language = 'fr'),
+    (r) => (r.lines[0].segments[0].pronunciation = 'rewritten'),
+    (r) => (r.lines[0].segments[1].needsReview = true),
+    (r) => (r.lines[0].segments[1].pronunciation = null),
+    (r) => (r.lines[0].segments[1].pronunciation = '   '),
+    (r) => (r.lines[0].segments[1].pronunciation = ''),
+    (r) => {
+      r.lines[0].segments[0].language = 'und';
+      r.lines[0].segments[0].pronunciation = null;
+    },
     (r) => (r.lines[0].segments[1].needsReview = 'yes'),
     (r) => (r.lines[0].segments[1].pronunciation = 42),
     (r) => (r.lines[0].segments[1].pronunciation = 'x'.repeat(1001)),
