@@ -7,7 +7,7 @@ The README section "Development pronunciation server" owns the log location, the
 
 ## Checks performed
 
-`node --test tools/test-youtube.mjs server/pronunciation.test.mjs` on Node 22.22.2 passed 99 of 99 tests, 5 of them new.
+`node --test tools/test-youtube.mjs server/pronunciation.test.mjs` on Node 22.22.2 passed 99 of 99 tests, 4 of them new (`server/pronunciation.test.mjs` went from 6 to 10 tests).
 Every provider response in these tests comes from a fake fetcher; no paid request was made.
 The new tests cover:
 
