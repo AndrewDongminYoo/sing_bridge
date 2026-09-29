@@ -36,6 +36,7 @@ Machine time alone does not threaten the 60-second target.
 The larger problem is completion: 3 of 5 songs failed partway with HTTP 502, 3 of 16 requests in total.
 Rerunning the failed batches showed that the server rejects a whole batch when the model fills a pronunciation for a phrase it marked for review; this is tracked in #29.
 Until that is fixed, a user would see pronunciation stop after the first 12 lines on most of these songs.
+After the fix, a [rerun of the same five songs](2026-09-29-pronunciation-batch-rerun.md) completed every batch.
 
 ## Manual protocol for the platform measurement
 
