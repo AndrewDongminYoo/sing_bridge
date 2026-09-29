@@ -4,6 +4,101 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const MAX_BYTES = 4 * 1048576;
+const TARGETS = ['ko', 'en'];
+const isObject = (value) =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+
+function invalid(what) {
+  throw new Error(`Invalid saved pronunciation: ${what}.`);
+}
+
+// Follows validSavedEntry and validStoredPronunciation in the page script for the fields this report reads.
+function validateLayer(target, data) {
+  if (!TARGETS.includes(target))
+    invalid(`unsupported target ${JSON.stringify(target)}`);
+  if (!isObject(data) || data.version !== 1 || data.target !== target) {
+    invalid('layer version or target');
+  }
+  if (
+    !Array.isArray(data.source) ||
+    !data.source.length ||
+    !data.source.every(
+      (entry) =>
+        isObject(entry) &&
+        Number.isFinite(entry.time) &&
+        entry.time >= 0 &&
+        typeof entry.text === 'string',
+    )
+  ) {
+    invalid('source lines');
+  }
+  if (
+    !Array.isArray(data.lines) ||
+    !data.lines.length ||
+    data.lines.length > data.source.length
+  ) {
+    invalid('generated lines');
+  }
+  const ids = new Set();
+  for (const line of data.lines) {
+    const match = /^line-(0|[1-9][0-9]*)$/.exec(line?.id ?? '');
+    if (!match || ids.has(line.id) || !data.source[Number(match[1])]?.text) {
+      invalid('line id');
+    }
+    ids.add(line.id);
+    if (
+      !Array.isArray(line.segments) ||
+      !line.segments.length ||
+      !line.segments.every(
+        (segment) =>
+          isObject(segment) &&
+          typeof segment.source === 'string' &&
+          (segment.pronunciation === null ||
+            typeof segment.pronunciation === 'string') &&
+          typeof segment.needsReview === 'boolean',
+      )
+    ) {
+      invalid('line segments');
+    }
+  }
+  if (
+    !isObject(data.edits) ||
+    !Object.entries(data.edits).every(
+      ([id, text]) => ids.has(id) && typeof text === 'string',
+    )
+  ) {
+    invalid('edits');
+  }
+}
+
+function validateLibrary(library) {
+  if (
+    !isObject(library) ||
+    library.version !== 1 ||
+    !Array.isArray(library.items)
+  ) {
+    throw new Error(
+      'Input must be a version 1 saved library ({ version: 1, items: [...] }).',
+    );
+  }
+  for (const item of library.items) {
+    if (
+      !isObject(item) ||
+      typeof item.videoId !== 'string' ||
+      !/^[A-Za-z0-9_-]{11}$/.test(item.videoId) ||
+      !Number.isSafeInteger(item.lyricId) ||
+      item.lyricId <= 0 ||
+      typeof item.title !== 'string'
+    ) {
+      throw new Error('Invalid saved library entry.');
+    }
+    if (item.pronunciations === undefined) continue;
+    if (!isObject(item.pronunciations)) invalid('pronunciations');
+    for (const [target, data] of Object.entries(item.pronunciations)) {
+      validateLayer(target, data);
+    }
+  }
+}
 
 // Mirrors pronunciationText in YouTubePronunciation.kt: the text a line shows before any edit.
 function generatedText(line) {
@@ -21,36 +116,19 @@ function generatedText(line) {
 const ratio = (part, whole) =>
   whole ? Number((part / whole).toFixed(3)) : null;
 
-function songReport(item, target, data) {
-  if (!Array.isArray(data?.source) || !Array.isArray(data?.lines)) {
-    throw new Error('Saved pronunciation needs source and lines arrays.');
-  }
-  const edits =
-    data.edits && typeof data.edits === 'object' && !Array.isArray(data.edits)
-      ? data.edits
-      : {};
+function layerReport(item, target, data) {
   let editedLines = 0;
   let reviewFlaggedLines = 0;
   for (const line of data.lines) {
-    if (
-      typeof line?.id !== 'string' ||
-      !/^line-(0|[1-9][0-9]*)$/.test(line.id)
-    ) {
-      throw new Error('Saved pronunciation has an invalid line id.');
-    }
-    if (!Array.isArray(line.segments)) {
-      throw new Error('Saved pronunciation line has no segments.');
-    }
-    const edit = edits[line.id];
+    const edit = data.edits[line.id];
     if (typeof edit === 'string' && edit !== generatedText(line)) editedLines++;
-    if (line.segments.some((segment) => segment.needsReview === true)) {
+    if (line.segments.some((segment) => segment.needsReview))
       reviewFlaggedLines++;
-    }
   }
-  const textLines = data.source.filter(
-    (entry) => typeof entry?.text === 'string' && entry.text.length > 0,
-  ).length;
+  const textLines = data.source.filter((entry) => entry.text.length > 0).length;
   const generatedLines = data.lines.length;
+  const missingLines = textLines - generatedLines;
+  const uneditedLines = generatedLines - editedLines;
   return {
     videoId: item.videoId,
     lyricId: item.lyricId,
@@ -58,38 +136,55 @@ function songReport(item, target, data) {
     target,
     textLines,
     generatedLines,
-    missingLines: Math.max(0, textLines - generatedLines),
+    missingLines,
+    complete: missingLines === 0,
     editedLines,
-    uneditedLines: generatedLines - editedLines,
+    uneditedLines,
     reviewFlaggedLines,
-    uneditedRatio: ratio(generatedLines - editedLines, generatedLines),
+    // Missing lines were never assessable, so they count against the ratio.
+    uneditedRatio: ratio(uneditedLines, textLines),
   };
 }
 
-export function editRate(library) {
-  if (library?.version !== 1 || !Array.isArray(library.items)) {
-    throw new Error(
-      'Input must be a version 1 saved library ({ version: 1, items: [...] }).',
-    );
-  }
-  const songs = library.items.flatMap((item) =>
-    Object.entries(item?.pronunciations ?? {}).map(([target, data]) =>
-      songReport(item, target, data),
+// `reviewed` names the layers a reviewer finished, as "<lyricId>:<target>"; only they enter the totals.
+export function editRate(library, { reviewed = [] } = {}) {
+  validateLibrary(library);
+  const layers = library.items.flatMap((item) =>
+    Object.entries(item.pronunciations ?? {}).map(([target, data]) =>
+      layerReport(item, target, data),
     ),
   );
-  const generatedLines = songs.reduce(
-    (sum, song) => sum + song.generatedLines,
-    0,
+  const keys = new Set(
+    layers.map((layer) => `${layer.lyricId}:${layer.target}`),
   );
-  const editedLines = songs.reduce((sum, song) => sum + song.editedLines, 0);
+  for (const key of reviewed) {
+    if (!keys.has(key)) {
+      throw new Error(
+        `The reviewed layer ${JSON.stringify(key)} is not in the saved library.`,
+      );
+    }
+  }
+  if (!reviewed.length) return { layers, total: null };
+  const selected = layers.filter((layer) =>
+    reviewed.includes(`${layer.lyricId}:${layer.target}`),
+  );
+  const sum = (field) =>
+    selected.reduce((total, layer) => total + layer[field], 0);
+  const textLines = sum('textLines');
+  const uneditedLines = sum('uneditedLines');
   return {
-    songs,
+    layers,
     total: {
-      songs: songs.length,
-      generatedLines,
-      editedLines,
-      uneditedLines: generatedLines - editedLines,
-      uneditedRatio: ratio(generatedLines - editedLines, generatedLines),
+      songs: new Set(
+        selected.map((layer) => `${layer.videoId}:${layer.lyricId}`),
+      ).size,
+      layers: selected.length,
+      textLines,
+      generatedLines: sum('generatedLines'),
+      missingLines: sum('missingLines'),
+      editedLines: sum('editedLines'),
+      uneditedLines,
+      uneditedRatio: ratio(uneditedLines, textLines),
     },
   };
 }
@@ -103,11 +198,18 @@ function decode(buffer) {
   return buffer.toString('utf8').replace(/^﻿/, '');
 }
 
-function main([file, ...rest]) {
-  if (!file || rest.length) {
-    throw new Error(
-      'Usage: node tools/pronunciation-quality/edit-rate.mjs <saved library file>',
-    );
+function main([file, ...options]) {
+  const usage =
+    'Usage: node tools/pronunciation-quality/edit-rate.mjs <saved library file> [--reviewed <lyricId>:<target>]...';
+  if (!file) throw new Error(usage);
+  const reviewed = [];
+  for (let index = 0; index < options.length; index += 2) {
+    const [option, value] = [options[index], options[index + 1]];
+    if (option !== '--reviewed') throw new Error(usage);
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error('--reviewed needs a <lyricId>:<target> value.');
+    }
+    reviewed.push(value);
   }
   const buffer = readFileSync(file);
   if (buffer.length > MAX_BYTES) throw new Error('Input is larger than 4 MiB.');
@@ -118,7 +220,9 @@ function main([file, ...rest]) {
     // Parser messages can quote the input, which contains lyrics.
     throw new Error('Input is not valid JSON.');
   }
-  process.stdout.write(JSON.stringify(editRate(library), null, 2) + '\n');
+  process.stdout.write(
+    JSON.stringify(editRate(library, { reviewed }), null, 2) + '\n',
+  );
 }
 
 if (

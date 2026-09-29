@@ -106,30 +106,33 @@ It supports the pronunciation-accuracy target in Gate A of the [competitive brie
 
 Protocol for a measurement:
 
-1. On the iOS Debug simulator, generate pronunciation for a song, have a fluent reviewer read every line and correct it with **음차 수정**, then save with **음차 저장**.
-2. Extract the saved library from a copy of the simulator's WebKit storage:
+1. On the iOS Debug simulator, generate pronunciation for a song, have a fluent reviewer read every line and correct it with **음차 수정**, then save with **음차 저장**. Note the LRCLIB ID and target of each reviewed song.
+2. Extract the saved library into a fresh directory from a copy of the simulator's WebKit storage, and confirm the extraction wrote a file:
 
    ```sh
+   rm -rf build/edit-rate && mkdir -p build/edit-rate
    container=$(xcrun simctl get_app_container booted io.github.andrewdongminyoo.singbridge data)
    store=$(find "$container/Library/WebKit" -name localstorage.sqlite3 | head -1)
-   mkdir -p build/edit-rate && cp "$store"* build/edit-rate/
+   cp "$store"* build/edit-rate/
    sqlite3 build/edit-rate/localstorage.sqlite3 "select writefile('build/edit-rate/library.bin', value) from ItemTable where key='singbridge.practice.v1';"
+   test -s build/edit-rate/library.bin
    ```
 
-3. Run the report:
+3. Run the report, naming each reviewed layer as `<lyricId>:<target>`:
 
    ```sh
-   node tools/pronunciation-quality/edit-rate.mjs build/edit-rate/library.bin
+   node tools/pronunciation-quality/edit-rate.mjs build/edit-rate/library.bin --reviewed 35923881:ko
    ```
 
-The input can be UTF-8 or the UTF-16LE value WebKit stores, up to 4 MiB.
-The report lists video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, edited and unedited lines, lines with a review flag, and the unedited ratio, plus totals.
-It never prints lyric or pronunciation text; invalid input exits 2 without echoing it.
-An edit identical to the generated text does not count as a change.
+The input can be UTF-8 or the UTF-16LE value WebKit stores, up to 4 MiB, and must pass the app's version-1 saved-library checks; invalid input or an unknown `--reviewed` layer exits 2 without echoing input.
+`layers` lists every saved layer with video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, whether generation completed, edited and unedited lines, lines with a review flag, and the unedited ratio.
+`total` covers only the `--reviewed` layers and is `null` without them, so unreviewed or stale layers never enter the measurement; it counts songs and layers separately.
+The unedited ratio divides unedited generated lines by lines with text, so lines that were never generated count against it.
+An edit identical to the generated text does not count as a change, and the report never prints lyric or pronunciation text.
 
-The app does not record that a review happened, so an unreviewed song reports every line unedited; the protocol, not the tool, guarantees review.
+The app does not record that a review happened, so naming a layer with `--reviewed` is the operator's statement that a reviewer finished it.
 Since #29, the server marks a segment for review when its language is unknown or its pronunciation is empty, so a review flag no longer shows whether the model or the server set it.
-Keep extracted libraries under the ignored `build/` directory; they contain lyrics.
+Keep extracted libraries under the ignored `build/` directory, and delete them after measuring; they contain lyrics.
 
 ## Report
 
