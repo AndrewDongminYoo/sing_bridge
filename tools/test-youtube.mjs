@@ -1926,6 +1926,69 @@ test('replacing lyrics clears partial pronunciation and cancels the next batch',
   assert.equal(vm.runInContext('lyricLines[0].time', f.context), 2);
 });
 
+test('each pronunciation batch carries two read-only neighbor lines per side, skipping blank lines', async () => {
+  const text = (i) => (i === 12 ? '' : `Hello ${i}`);
+  const large = {
+    ...record,
+    syncedLyrics: Array.from(
+      { length: 16 },
+      (_, i) => `[00:${String(i + 1).padStart(2, '0')}.00]${text(i)}`,
+    ).join('\n'),
+  };
+  const f = fixture(() => response([large]));
+  f.ready();
+  await f.search();
+  f.select();
+  vm.runInContext(
+    "window.singBridgeConfigurePronunciation('ko', true)",
+    f.context,
+  );
+  const sent = [];
+  f.context.window.webkit = {
+    messageHandlers: { pronunciation: { postMessage: (m) => sent.push(m) } },
+  };
+  const pending = f.element('pronunciation-generate').click();
+  const complete = (m) => ({
+    id: m.id,
+    result: {
+      target: 'ko',
+      lines: m.request.lines.map((line) => ({
+        id: line.id,
+        segments: [
+          {
+            source: line.text,
+            language: 'en',
+            reading: null,
+            pronunciation: '헬로',
+            needsReview: false,
+          },
+        ],
+      })),
+    },
+  });
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(sent[0].request.lines.map((line) => line.id))),
+    Array.from({ length: 12 }, (_, i) => `line-${i}`),
+  );
+  assert.deepEqual(JSON.parse(JSON.stringify(sent[0].request.context)), {
+    before: [],
+    after: ['Hello 13', 'Hello 14'],
+  });
+  f.context.window.singBridgePronunciationResult(complete(sent[0]));
+  await Promise.resolve();
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(sent[1].request.lines.map((line) => line.id))),
+    ['line-13', 'line-14', 'line-15'],
+  );
+  assert.deepEqual(JSON.parse(JSON.stringify(sent[1].request.context)), {
+    before: ['Hello 10', 'Hello 11'],
+    after: [],
+  });
+  f.context.window.singBridgePronunciationResult(complete(sent[1]));
+  await pending;
+  assert.equal(vm.runInContext('pronunciationResults.size', f.context), 15);
+});
+
 test('video replacement disables pronunciation until new timed lyrics are selected', async () => {
   const f = fixture(() => response());
   f.ready();

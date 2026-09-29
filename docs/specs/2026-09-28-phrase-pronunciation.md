@@ -31,7 +31,7 @@ Existing research recommends separating source reading/G2P from target rendering
 - Display pronunciation as an optional secondary layer; a failure must leave original practice usable.
 - Keep source-language decisions separate from script badges and target locale.
 - Leave same-language phrases unchanged, including Korean parts in a Korean-target K-pop line; convert its English parts phonetically rather than translating their meaning.
-- Mark uncertain readings for review while still giving the most likely pronunciation from the phrase and neighboring lines, because Japanese kanji readings depend on meaning (operator decision in #40, 2026-09-29); keep unsupported phrases as original text, also marked for review.
+- Mark uncertain readings for review while still giving the most likely pronunciation from the phrase and neighboring lines (including up to two read-only context lines on each side of a batch, #42), because Japanese kanji readings depend on meaning (operator decision in #40, 2026-09-29); keep unsupported phrases as original text, also marked for review.
 - Preserve the approved fixed player/control layout and current-row scrolling.
 
 ## Response boundary
