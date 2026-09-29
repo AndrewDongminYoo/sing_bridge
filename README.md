@@ -312,6 +312,20 @@ Never embed the provider key in Kotlin, Swift, HTML, or generated app configurat
 The server binds only `127.0.0.1:18773`, allows one active request, and limits each process to 100 provider calls.
 Restarting resets that development cap.
 It does not log or cache lyric bodies and requests provider `store: false`; provider retention policies still apply.
+
+Each provider response adds one JSON line to `server/build/pronunciation-usage/<start time>.jsonl`, which Git ignores and the server creates on the first response.
+A record holds a per-process sequence number, the page request ID forwarded by the native bridge, the model, the target language, the line count, the provider token counts (input, cached input, output, reasoning), and whether the result was accepted; it never holds lyric text, credentials, or video IDs.
+Incomplete, refused, and invalid provider results are billed, so they are recorded with `ok: false`.
+Requests that end before a provider response, including cancellations, timeouts, and provider HTTP errors, have no usage to record and leave a gap in the sequence.
+Sum one server run per song and in total, as a Markdown table:
+
+```sh
+node server/usage.mjs [usage log]
+```
+
+Without an argument it reads the newest log.
+A song is one page generation run: adjacent records that share the request ID prefix (the page counter before `-`) and the target language.
+The page counter restarts when the WebView reloads, so equal prefixes count as one song only when adjacent.
 The fixed loopback port trusts processes on the development machine and is not a production authentication boundary.
 Do not expose it through a tunnel or bind it publicly.
 

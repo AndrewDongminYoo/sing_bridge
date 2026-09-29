@@ -1,12 +1,14 @@
 import { createServer } from 'node:http';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { apiKey } from './config.mjs';
 import { generatePronunciation, validateRequest } from './pronunciation.mjs';
+import { usageDirectory, usageLog, usageRecord } from './usage.mjs';
 
 // Development only: loopback binding, native clients, no browser CORS access.
 export function createPronunciationServer(
   key,
   generate = generatePronunciation,
+  record = () => {},
 ) {
   let active = false,
     calls = 0;
@@ -58,10 +60,27 @@ export function createPronunciationServer(
           return;
         }
         calls++;
-        const { result } = await generate(input, key, {
-          signal: controller.signal,
-        });
-        send(200, result);
+        let usage = null,
+          ok = false;
+        try {
+          const { result } = await generate(input, key, {
+            signal: controller.signal,
+            onUsage: (value) => (usage = value),
+          });
+          ok = true;
+          send(200, result);
+        } finally {
+          if (usage)
+            record(
+              usageRecord(
+                calls,
+                req.headers['x-singbridge-request-id'],
+                input,
+                usage,
+                ok,
+              ),
+            );
+        }
       } catch {
         if (!res.destroyed) send(502, { error: 'pronunciation_unavailable' });
       } finally {
@@ -75,9 +94,17 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   try {
-    createPronunciationServer(apiKey()).listen(18773, '127.0.0.1', () =>
+    const usageFile = new URL(
+      `${new Date().toISOString().replace(/[:.]/g, '-')}.jsonl`,
+      usageDirectory,
+    );
+    createPronunciationServer(
+      apiKey(),
+      generatePronunciation,
+      usageLog(usageFile),
+    ).listen(18773, '127.0.0.1', () =>
       console.log(
-        'SingBridge pronunciation server: http://127.0.0.1:18773 (development only)',
+        `SingBridge pronunciation server: http://127.0.0.1:18773 (development only)\nToken usage log: ${fileURLToPath(usageFile)}`,
       ),
     );
   } catch {
