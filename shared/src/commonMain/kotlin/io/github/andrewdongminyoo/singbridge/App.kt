@@ -80,6 +80,7 @@ fun LibraryApp(
     onPickLyrics: () -> Unit,
     onSample: () -> Unit,
     onYouTube: (() -> Unit)? = null,
+    onImport: (() -> Unit)? = library::openImport,
 ) {
     val song = library.song
     App(
@@ -87,8 +88,8 @@ fun LibraryApp(
         song.track,
         song.title,
         song.imported,
-        library.importOpen || library.busy || !library.foreground,
-        library::openImport,
+        library.importOpen || library.busy || !library.practiceActive,
+        onImport,
         onSample,
         if (library.importOpen) null else library.error,
         onYouTube,

@@ -16,6 +16,7 @@ fun MainViewController(
     onPickLyrics: () -> Unit,
     onSample: () -> Unit,
     onYouTube: () -> Unit = {},
+    tabbed: Boolean = false,
 ) = ComposeUIViewController {
     DisposableEffect(library) {
         val center = NSNotificationCenter.defaultCenter
@@ -35,5 +36,22 @@ fun MainViewController(
             library.release()
         }
     }
-    LibraryApp(library, onPickAudio, onPickLyrics, onSample, onYouTube)
+    LibraryApp(
+        library,
+        onPickAudio,
+        onPickLyrics,
+        onSample,
+        if (tabbed) null else onYouTube,
+        if (tabbed) null else library::openImport,
+    )
+}
+
+@Suppress("ktlint:standard:function-naming")
+fun ImportViewController(
+    library: SongLibrary,
+    onPickAudio: () -> Unit,
+    onPickLyrics: () -> Unit,
+    onPractice: () -> Unit,
+) = ComposeUIViewController {
+    ImportScreen(library, onPickAudio, onPickLyrics, onPractice)
 }

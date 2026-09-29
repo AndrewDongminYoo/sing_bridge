@@ -10,6 +10,35 @@ import kotlin.test.assertTrue
 
 class SongLibraryTest {
     @Test
+    fun leavingPracticePausesWithoutReleasingOrResettingTheSong() {
+        val player = ImportTestPlayer()
+        val library = SongLibrary(player)
+        player.play()
+        library.setPracticeVisible(false)
+        assertFalse(player.playing)
+        assertFalse(player.released)
+        assertFalse(library.practiceActive)
+        library.setPracticeVisible(true)
+        assertTrue(library.practiceActive)
+        assertFalse(player.playing)
+        assertSame(player, library.song.player)
+    }
+
+    @Test
+    fun foregroundingAnotherTabDoesNotEnableHiddenPractice() {
+        val library = SongLibrary(ImportTestPlayer())
+        library.setPracticeVisible(false)
+        library.setActive(false)
+        library.setActive(true)
+        assertFalse(library.practiceActive)
+        library.setActive(false)
+        library.setPracticeVisible(true)
+        assertFalse(library.practiceActive)
+        library.setActive(true)
+        assertTrue(library.practiceActive)
+    }
+
+    @Test
     fun unreadyPlayerDoesNotCommitOrReplaceThePreviousSong() {
         assertRejectedPlayer(PlaybackSnapshot(isReady = false))
     }

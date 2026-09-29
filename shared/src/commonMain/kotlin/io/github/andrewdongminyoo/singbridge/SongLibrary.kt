@@ -9,6 +9,14 @@ class ImportedAudio(val name: String, val uri: String, val durationMs: Long, val
 data class PracticeSong(val title: String, val track: PracticeTrack, val player: AudioPlayer, val imported: Boolean)
 
 class SongLibrary(initialPlayer: AudioPlayer) {
+    private var practiceDisplayed by mutableStateOf(true)
+    val practiceActive get() = foreground && practiceDisplayed
+
+    fun setPracticeVisible(visible: Boolean) {
+        practiceDisplayed = visible
+        if (!visible) song.player.pause()
+    }
+
     var song by mutableStateOf(PracticeSong("아침의 리듬", sampleTrack, initialPlayer, false))
         private set
     var importOpen by mutableStateOf(false)
