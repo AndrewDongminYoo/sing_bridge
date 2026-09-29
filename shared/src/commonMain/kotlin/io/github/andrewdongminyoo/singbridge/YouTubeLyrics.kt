@@ -382,7 +382,8 @@ internal fun youtubeLyricsHtml(): String = """
     }
 
     // An album or video title as the query returns other tracks; detect that from the candidate titles.
-    function comparableText(value) { return value.normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu, ''); }
+    // Width, case, diacritics, punctuation, and spacing do not distinguish titles.
+    function comparableText(value) { return value.normalize('NFKD').replace(/\p{M}/gu, '').normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu, ''); }
     const bracketed = /[(\[{（［【]([^)\]}）］】]*)[)\]}）］】]/g;
     // Whole-title variants: the full title, the title without brackets, and each bracketed alias.
     // Segments: the parts of those variants around a spaced dash, where an artist prefix may appear.
@@ -401,7 +402,7 @@ internal fun youtubeLyricsHtml(): String = """
         const artist = comparableText(record.artistName);
         const { whole, segments } = titleVariants(record.trackName);
         // Only a dashed segment can be an artist prefix, including a collaborator field such as "A & B".
-        return whole.some(found) || segments.some(part => !(part.length >= 3 && artist.includes(part)) && found(part));
+        return whole.some(found) || segments.some(part => part !== artist && !(part.length >= 3 && artist.includes(part)) && found(part));
       });
     }
 

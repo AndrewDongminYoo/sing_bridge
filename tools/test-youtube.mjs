@@ -2465,6 +2465,12 @@ test('a candidate title found in the query does not trigger the song-title hint'
     ['白日', 'King Gnu', 'King Gnu 白日'],
     // A title made of letters from the artist name is still a title.
     ['i', 'Kendrick Lamar', 'Kendrick Lamar i'],
+    // Users often omit diacritics.
+    [
+      'Escape (The Piña Colada Song)',
+      'Rupert Holmes',
+      'Rupert Holmes Pina Colada Song',
+    ],
     ['Kendrick Lamar - i', 'Kendrick Lamar', 'Kendrick Lamar i'],
   ]) {
     const f = fixture(() =>
@@ -2479,4 +2485,13 @@ test('a candidate title found in the query does not trigger the song-title hint'
     );
     assert.match(f.element('lyrics-status').textContent, /같은 곡·버전/, query);
   }
+});
+
+test('an exact short artist prefix does not count as the song title', async () => {
+  const f = fixture(() =>
+    response([{ ...record, id: 1, trackName: 'U2 - One', artistName: 'U2' }]),
+  );
+  f.ready();
+  await f.search('U2 Achtung Baby');
+  assert.match(f.element('lyrics-status').textContent, /노래 제목으로/);
 });
