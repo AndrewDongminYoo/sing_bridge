@@ -57,8 +57,9 @@ lint:
       paths:
         - gradlew
 actions:
-  enabled:
+  disabled:
     - trunk-announce
     - trunk-fmt-pre-commit
+  enabled:
     - trunk-check-pre-push
     - trunk-upgrade-available
