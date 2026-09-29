@@ -124,7 +124,10 @@ Protocol for a measurement:
    node tools/pronunciation-quality/edit-rate.mjs build/edit-rate/library.bin --reviewed 35923881:ko
    ```
 
-The input can be UTF-8 or the UTF-16LE value WebKit stores, up to 4 MiB, and must pass the app's version-1 saved-library checks: generated lines are checked with the server's `validateResult`, as the app does, and edits follow the app's edit limits; invalid input, or a `--reviewed` key that matches no layer or more than one, exits 2 without echoing input.
+The input can be UTF-8 or the UTF-16LE value WebKit stores, up to 4 MiB.
+The tool validates the fields the report reads: the version-1 envelope; each entry's video ID, LRCLIB ID, and title type; each layer's target and source lines; generated lines, with the server's `validateResult` as the app uses; and edits, with the app's edit limits.
+It does not validate fields that do not affect the counts, such as the timing offset, the preferred target, or the app's 20-entry limit, so it is not a full check of what the app would load.
+Invalid input, or a `--reviewed` key that matches no layer or more than one, exits 2 without echoing input.
 `layers` lists every saved layer with video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, whether generation completed, edited and unedited lines, lines with a review flag, and the unedited ratio.
 `total` covers only the `--reviewed` layers and is `null` without them, so unreviewed or stale layers never enter the measurement; it counts songs and layers separately.
 The unedited ratio divides unedited generated lines by lines with text, so lines that were never generated count against it.
