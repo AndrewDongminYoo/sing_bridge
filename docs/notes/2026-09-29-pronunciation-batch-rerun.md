@@ -65,11 +65,11 @@ The fully flagged second batches of 夜に駆ける and 白日 are the batches t
 The server returns only the normalized result, so this output cannot show where a flag came from.
 Under the #31 normalization, `validateResult` in `server/pronunciation.mjs` sets `needsReview` when the model flagged the segment, when the language is `und`, or when a foreign-language segment has an empty or missing pronunciation, and then removes the pronunciation of every flagged segment.
 Any of the 85 segments may therefore have been flagged by the server rather than the model, and a flagged segment may or may not have had a pronunciation from the model; only a raw provider capture can separate these cases.
-The follow-up is tracked in #37.
+The follow-up is tracked in #37; #39 found that most of these pronunciations were removed by the normalization, and #40 changed the prompt so that uncertain readings get a flagged pronunciation.
 
 ## Reading the numbers
 
 Machine time until the first batch returned was about 4.2 to 6.6 seconds (search, lyrics, and first batch), and a full song took 12.5 to 18.8 seconds, which is consistent with the earlier run.
 For マリーゴールド the first batch carried no pronunciation, so its first pronounced line arrived with batch 2, about 7.6 seconds after the search, and sits after the first 12 lyric lines.
 The batch failures from #29 no longer occur on these songs, so the device protocol in the earlier note can now be run for #24.
-Step 5 of that protocol stops when the first line with pronunciation is highlighted, so while #37 is open a song like マリーゴールド adds playback through its unpronounced opening lines to the measured time; record the affected songs separately.
+Step 5 of that protocol stops when the first line with pronunciation is highlighted, so while batches without any pronunciation remain (#37, then #40) a song like マリーゴールド adds playback through its unpronounced opening lines to the measured time; record the affected songs separately.
