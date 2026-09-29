@@ -62,6 +62,7 @@ test('reports each saved layer, counting missing lines against the ratio', () =>
       editedLines: 2,
       uneditedLines: 1,
       reviewFlaggedLines: 2,
+      unpronouncedSegments: 2,
       uneditedRatio: 0.25,
     },
   ]);
@@ -107,6 +108,7 @@ test('totals cover only reviewed layers and count songs separately from layers',
       missingLines: 1,
       editedLines: 2,
       uneditedLines: 1,
+      unpronouncedSegments: 2,
       uneditedRatio: 0.25,
     },
     en: {
@@ -117,6 +119,7 @@ test('totals cover only reviewed layers and count songs separately from layers',
       missingLines: 1,
       editedLines: 0,
       uneditedLines: 3,
+      unpronouncedSegments: 2,
       uneditedRatio: 0.75,
     },
   });
@@ -246,6 +249,38 @@ test('a review-flagged phrase may keep the model pronunciation, as the app saves
   const report = editRate(library(item({ ko: flagged })));
   assert.equal(report.layers[0].generatedLines, 3);
   assert.equal(report.layers[0].reviewFlaggedLines, 2);
+});
+
+// #43: the server keeps a supported foreign phrase without pronunciation, flagged for review.
+test('counts supported foreign phrases saved without pronunciation, and nothing else (#43)', () => {
+  const as = (language, source, pronunciation, needsReview) => ({
+    ...segment(source, pronunciation, needsReview),
+    language,
+  });
+  const mixed = layer('ko', {
+    source: [
+      { time: 1, text: '안녕 二!' },
+      { time: 2, text: '?? 三' },
+      { time: 3, text: SECRET + ' one' },
+    ],
+    lines: [
+      line(
+        'line-0',
+        as('ko', '안녕 ', null, false),
+        as('ja', '二', null, true),
+        as('ja', '!', null, true),
+      ),
+      line('line-1', as('und', '?? ', null, true), as('ja', '三', '산', true)),
+      line('line-2', as('en', SECRET + ' one', null, true)),
+    ],
+    edits: {},
+  });
+  const report = editRate(library(item({ ko: mixed })), { reviewed: ['7:ko'] });
+  // Counted: 二 and the English line. Not counted: the target-language phrase, the
+  // punctuation-only phrase, the und phrase, and the flagged phrase that kept a pronunciation.
+  assert.equal(report.layers[0].unpronouncedSegments, 2);
+  assert.equal(report.totals.ko.unpronouncedSegments, 2);
+  assert.equal(JSON.stringify(report).includes(SECRET), false);
 });
 
 test('rejects layers and edits the app itself would reject', () => {

@@ -124,14 +124,27 @@ function generatedText(line) {
 // Unrounded, so a cohort just below a threshold is never reported at it; the counts stay beside it.
 const ratio = (part, whole) => (whole ? part / whole : null);
 
+// #43: a supported phrase outside the target that the model returned without pronunciation.
+// The server keeps it with a review flag, and the page shows its source; punctuation-only
+// phrases are excluded, as the page's review label excludes them.
+const unpronounced = (segment, target) =>
+  segment.language !== target &&
+  segment.language !== 'und' &&
+  segment.pronunciation === null &&
+  /\p{L}/u.test(segment.source);
+
 function layerReport(item, target, data) {
   let editedLines = 0;
   let reviewFlaggedLines = 0;
+  let unpronouncedSegments = 0;
   for (const line of data.lines) {
     const edit = data.edits[line.id];
     if (typeof edit === 'string' && edit !== generatedText(line)) editedLines++;
     if (line.segments.some((segment) => segment.needsReview))
       reviewFlaggedLines++;
+    unpronouncedSegments += line.segments.filter((segment) =>
+      unpronounced(segment, target),
+    ).length;
   }
   const textLines = data.source.filter((entry) => entry.text.length > 0).length;
   const generatedLines = data.lines.length;
@@ -149,6 +162,7 @@ function layerReport(item, target, data) {
     editedLines,
     uneditedLines,
     reviewFlaggedLines,
+    unpronouncedSegments,
     // Missing lines were never assessable, so they count against the ratio.
     uneditedRatio: ratio(uneditedLines, textLines),
   };
@@ -201,6 +215,7 @@ export function editRate(library, { reviewed = [] } = {}) {
       missingLines: sum('missingLines'),
       editedLines: sum('editedLines'),
       uneditedLines,
+      unpronouncedSegments: sum('unpronouncedSegments'),
       uneditedRatio: ratio(uneditedLines, textLines),
     };
   }
