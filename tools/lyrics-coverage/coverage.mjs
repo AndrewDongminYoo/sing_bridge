@@ -159,6 +159,9 @@ function retryDelay(response) {
   return Number.isFinite(delay) && delay > 0 ? delay : 60000;
 }
 
+// LRCLIB rate limits the client, not one song, so this ends the whole run.
+class RateLimitError extends Error {}
+
 async function search(song, fetcher, sleep) {
   const url = new URL(SEARCH_URL);
   url.searchParams.set('q', song.artist + ' ' + song.title);
@@ -172,7 +175,7 @@ async function search(song, fetcher, sleep) {
       const delay = retryDelay(response);
       // Never retry before the provider allows it; give up when that is longer than we wait.
       if (delay > MAX_RETRY_WAIT_MS) {
-        throw new Error(
+        throw new RateLimitError(
           `LRCLIB rate limited the request; Retry-After ${Math.ceil(delay / 1000)} s exceeds the ${MAX_RETRY_WAIT_MS / 1000} s local wait`,
         );
       }
@@ -180,7 +183,7 @@ async function search(song, fetcher, sleep) {
         await sleep(delay);
         continue;
       }
-      throw new Error('LRCLIB rate limited the request twice');
+      throw new RateLimitError('LRCLIB rate limited the request twice');
     }
     if (!response.ok) {
       await response.body?.cancel();
@@ -203,7 +206,22 @@ export async function measure(
   } = {},
 ) {
   const results = [];
+  const failed = (song, message) => ({
+    ...song,
+    status: 'error',
+    error: message,
+    match: null,
+    candidateCount: 0,
+    candidates: [],
+  });
+  let rateLimited = null;
   for (const [index, song] of songs.entries()) {
+    if (rateLimited) {
+      results.push(
+        failed(song, `not requested after rate limit: ${rateLimited}`),
+      );
+      continue;
+    }
     if (index > 0 && delayMs > 0) await sleep(delayMs);
     try {
       results.push({
@@ -211,14 +229,8 @@ export async function measure(
         ...classify(await search(song, fetcher, sleep), song.durationSeconds),
       });
     } catch (error) {
-      results.push({
-        ...song,
-        status: 'error',
-        error: error.message,
-        match: null,
-        candidateCount: 0,
-        candidates: [],
-      });
+      if (error instanceof RateLimitError) rateLimited = error.message;
+      results.push(failed(song, error.message));
     }
   }
   const summary = { total: results.length };

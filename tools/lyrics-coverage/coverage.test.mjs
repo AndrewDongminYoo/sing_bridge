@@ -338,3 +338,30 @@ test('the CLI rejects an option without a value before any request', () => {
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test('stops requesting later songs once LRCLIB rate limits the run', async () => {
+  for (const retryAfter of ['600', '3']) {
+    let calls = 0;
+    const fetcher = async () => {
+      calls += 1;
+      return new Response('', {
+        status: 429,
+        headers: { 'Retry-After': retryAfter },
+      });
+    };
+    const report = await measure(
+      [
+        { artist: 'A', title: 'One', durationSeconds: 200 },
+        { artist: 'A', title: 'Two', durationSeconds: 200 },
+      ],
+      { fetcher, delayMs: 1000, sleep: async () => {} },
+    );
+    assert.equal(calls, retryAfter === '600' ? 1 : 2, retryAfter);
+    assert.deepEqual(
+      report.songs.map((song) => song.status),
+      ['error', 'error'],
+    );
+    assert.match(report.songs[1].error, /not requested/);
+    assert.equal(report.summary.error, 2);
+  }
+});

@@ -13,6 +13,7 @@ Scoped `trunk check --no-fix` passed for the tool, spec, AGENTS.md, and CI workf
 
 Hosted review on PR #27 reported five P2 findings, all confirmed against the code: the tolerance compared a rounded difference, JSON parser messages could quote response text into the report, `--out` into a missing directory failed after every request, a long `Retry-After` was cut to two minutes and retried early, and an option without a value was ignored.
 Five regression tests failed before the fixes (14 passing), and all 19 pass afterwards.
+A local `codex exec review --base origin/main` then found that a rate limit on one song did not stop the next request one second later; a run-wide stop was added, its regression failed first, and all 20 tests pass.
 
 ## Live smoke run
 
