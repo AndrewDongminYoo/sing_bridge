@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { classify, measure, parseSongs } from './coverage.mjs';
+import { classify, main, measure, parseSongs } from './coverage.mjs';
 
 const LYRIC_SENTINEL = 'private-lyric-sentinel';
 const record = (id, fields = {}) => ({
@@ -252,6 +252,88 @@ test('the CLI reports invalid input without a network request', () => {
     assert.equal(child.status, 2);
     assert.match(child.stderr, /song list/i);
     assert.equal(child.stdout, '');
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('compares the unrounded difference with the tolerance', () => {
+  const result = classify(
+    [record(1, { duration: 202.04, syncedLyrics: synced })],
+    200,
+  );
+  assert.equal(result.status, 'synced-other-duration');
+  assert.equal(result.candidates[0].durationDifference, 2);
+});
+
+test('reports malformed JSON without quoting the response', async () => {
+  const fetcher = async () =>
+    new Response('[{"syncedLyrics": "' + LYRIC_SENTINEL + '" oops');
+  const report = await measure(
+    [{ artist: 'A', title: 'B', durationSeconds: 200 }],
+    { fetcher, delayMs: 0 },
+  );
+  assert.equal(report.songs[0].status, 'error');
+  assert.equal(report.songs[0].error, 'LRCLIB returned invalid JSON');
+  assert.ok(!JSON.stringify(report).includes(LYRIC_SENTINEL));
+});
+
+test('records an error instead of retrying early after a long Retry-After', async () => {
+  const waits = [];
+  let calls = 0;
+  const fetcher = async () => {
+    calls += 1;
+    return new Response('', { status: 429, headers: { 'Retry-After': '600' } });
+  };
+  const report = await measure(
+    [{ artist: 'A', title: 'B', durationSeconds: 200 }],
+    { fetcher, delayMs: 0, sleep: async (ms) => waits.push(ms) },
+  );
+  assert.equal(calls, 1);
+  assert.deepEqual(waits, []);
+  assert.match(report.songs[0].error, /Retry-After 600 s exceeds/);
+});
+
+test('creates the output directory for the report', async () => {
+  const directory = mkdtempSync(join(tmpdir(), 'singbridge-coverage-'));
+  try {
+    const list = join(directory, 'songs.json');
+    const out = join(directory, 'build', 'nested', 'report.json');
+    writeFileSync(
+      list,
+      JSON.stringify([{ artist: 'A', title: 'B', durationSeconds: 200 }]),
+    );
+    await main([list, '--delay-ms', '0', '--out', out], {
+      fetcher: async () => jsonResponse([record(1, { syncedLyrics: synced })]),
+    });
+    assert.equal(JSON.parse(readFileSync(out, 'utf8')).summary.synced, 1);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('the CLI rejects an option without a value before any request', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'singbridge-coverage-'));
+  try {
+    const list = join(directory, 'songs.json');
+    writeFileSync(
+      list,
+      JSON.stringify([{ artist: 'A', title: 'B', durationSeconds: 200 }]),
+    );
+    for (const options of [
+      ['--out'],
+      ['--delay-ms'],
+      ['--out', '--delay-ms', '0'],
+    ]) {
+      const child = spawnSync(
+        process.execPath,
+        [new URL('./coverage.mjs', import.meta.url).pathname, list, ...options],
+        { encoding: 'utf8' },
+      );
+      assert.equal(child.status, 2, options.join(' '));
+      assert.match(child.stderr, /needs a value/);
+      assert.equal(child.stdout, '');
+    }
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

@@ -1,6 +1,7 @@
 // Measures LRCLIB synced-lyric coverage for a curated song list the way the app searches.
 // The report keeps provider metadata only; lyric text is read to classify a record and never written out.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const SEARCH_URL = 'https://lrclib.net/api/search';
@@ -103,10 +104,11 @@ export function classify(records, expectedDuration) {
   const syncedCandidates = displayed.filter(
     (candidate) => candidate.type === 'synced',
   );
+  // Compare the raw difference; durationDifference is rounded for the report only.
   const match = syncedCandidates.find((candidate) =>
-    candidate.durationDifference === null
+    difference(candidate) === null
       ? !expectedDuration
-      : candidate.durationDifference <= DURATION_TOLERANCE_SECONDS,
+      : difference(candidate) <= DURATION_TOLERANCE_SECONDS,
   );
   const status = match
     ? 'synced'
@@ -137,7 +139,12 @@ async function readBoundedJson(response) {
         throw new Error('LRCLIB response too large');
       text += decoder.decode(chunk.value, { stream: true });
     }
-    return JSON.parse(text + decoder.decode());
+    try {
+      return JSON.parse(text + decoder.decode());
+    } catch {
+      // Parser messages can quote the input, which may contain lyrics.
+      throw new Error('LRCLIB returned invalid JSON');
+    }
   } finally {
     await reader.cancel();
   }
@@ -149,10 +156,7 @@ function retryDelay(response) {
     value && /^\d+$/.test(value)
       ? Number(value) * 1000
       : Date.parse(value) - Date.now();
-  return Math.min(
-    MAX_RETRY_WAIT_MS,
-    Number.isFinite(delay) && delay > 0 ? delay : 60000,
-  );
+  return Number.isFinite(delay) && delay > 0 ? delay : 60000;
 }
 
 async function search(song, fetcher, sleep) {
@@ -165,8 +169,15 @@ async function search(song, fetcher, sleep) {
     });
     if (response.status === 429) {
       await response.body?.cancel();
+      const delay = retryDelay(response);
+      // Never retry before the provider allows it; give up when that is longer than we wait.
+      if (delay > MAX_RETRY_WAIT_MS) {
+        throw new Error(
+          `LRCLIB rate limited the request; Retry-After ${Math.ceil(delay / 1000)} s exceeds the ${MAX_RETRY_WAIT_MS / 1000} s local wait`,
+        );
+      }
       if (attempt === 0) {
-        await sleep(retryDelay(response));
+        await sleep(delay);
         continue;
       }
       throw new Error('LRCLIB rate limited the request twice');
@@ -229,14 +240,20 @@ export async function measure(
   };
 }
 
-async function main(argv) {
+export async function main(argv, { fetcher = fetch } = {}) {
   const [listPath, ...options] = argv;
   let delayMs = 1000;
   let outPath = null;
   for (let index = 0; index < options.length; index += 2) {
-    if (options[index] === '--delay-ms') delayMs = Number(options[index + 1]);
-    else if (options[index] === '--out') outPath = options[index + 1];
-    else throw new Error(`Unknown option ${options[index]}`);
+    const [option, value] = [options[index], options[index + 1]];
+    if (option !== '--delay-ms' && option !== '--out') {
+      throw new Error(`Unknown option ${option}`);
+    }
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error(`${option} needs a value`);
+    }
+    if (option === '--delay-ms') delayMs = Number(value);
+    else outPath = value;
   }
   if (!listPath)
     throw new Error(
@@ -245,9 +262,11 @@ async function main(argv) {
   if (!Number.isFinite(delayMs) || delayMs < 0)
     throw new Error('--delay-ms must be a non-negative number');
   const songs = parseSongs(JSON.parse(readFileSync(listPath, 'utf8')));
+  // Create the output directory before any request so a bad path fails early.
+  if (outPath) mkdirSync(dirname(outPath), { recursive: true });
   const report = {
     measuredAt: new Date().toISOString(),
-    ...(await measure(songs, { delayMs })),
+    ...(await measure(songs, { fetcher, delayMs })),
   };
   const text = JSON.stringify(report, null, 2) + '\n';
   if (outPath) writeFileSync(outPath, text);

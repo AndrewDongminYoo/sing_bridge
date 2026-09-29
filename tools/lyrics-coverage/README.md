@@ -26,7 +26,7 @@ The artist and title must fit the app's 120-character `가수 - 제목` limit.
 
 ## What it measures
 
-Each song is searched the way the app searches after a YouTube match: one `GET /api/search?q=<artist> <title>` request with the app's `Lrclib-Client` header, a 4 MiB response limit, and one wait for `Retry-After` on HTTP 429.
+Each song is searched the way the app searches after a YouTube match: one `GET /api/search?q=<artist> <title>` request with the app's `Lrclib-Client` header, a 4 MiB response limit, and one wait for `Retry-After` on HTTP 429; a song whose `Retry-After` exceeds two minutes is recorded as an error without retrying early.
 Songs are requested one at a time.
 Candidates are ranked by duration difference and limited to the 20 the app displays.
 

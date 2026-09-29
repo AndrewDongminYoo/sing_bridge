@@ -9,6 +9,11 @@ Against an inert stub that exported the same functions, all 14 failed; one test 
 The tests cover the app's query and client header, duration-tolerance classification, the 20-candidate display limit, malformed-record filtering, the absence of lyric text in the report, the summary denominator, one `Retry-After` wait on HTTP 429, sequential requests, the 4 MiB response limit, list validation, and the CLI exiting with status 2 on invalid input.
 Scoped `trunk check --no-fix` passed for the tool, spec, AGENTS.md, and CI workflow.
 
+## Review fixes
+
+Hosted review on PR #27 reported five P2 findings, all confirmed against the code: the tolerance compared a rounded difference, JSON parser messages could quote response text into the report, `--out` into a missing directory failed after every request, a long `Retry-After` was cut to two minutes and retried early, and an option without a value was ignored.
+Five regression tests failed before the fixes (14 passing), and all 19 pass afterwards.
+
 ## Live smoke run
 
 One run on 2026-09-29 at 06:33 UTC queried two songs; this is a smoke check of the live path, not the Gate A measurement.
