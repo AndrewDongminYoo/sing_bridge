@@ -36,6 +36,7 @@ final class PronunciationBridge: NSObject, WKScriptMessageHandler, URLSessionTas
         request.timeoutInterval = 50
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("native-dev", forHTTPHeaderField: "X-SingBridge-Client")
+        request.setValue(id, forHTTPHeaderField: "X-SingBridge-Request-Id")
         weak var webView = message.webView
         task = session.dataTask(with: request) { [weak self] data, response, error in
             var reply: [String: Any] = ["id": id, "error": "unavailable"]

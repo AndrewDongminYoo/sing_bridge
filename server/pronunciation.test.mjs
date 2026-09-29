@@ -9,13 +9,14 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import {
   validateRequest,
   validateResult,
   generatePronunciation,
 } from './pronunciation.mjs';
+import { summarizeUsage, usageLog, usageRecord } from './usage.mjs';
 
 test('credential properties never consume an adjacent line', (t) => {
   const directory = mkdtempSync(join(tmpdir(), 'singbridge-config-'));
@@ -187,4 +188,201 @@ test('local HTTP boundary rejects browser origins, malformed data and concurrent
   finish();
   assert.equal((await pending).status, 200);
   assert.equal(calls, 1);
+});
+
+const completed = (usage) => ({
+  status: 'completed',
+  output: [
+    {
+      type: 'message',
+      content: [{ type: 'output_text', text: JSON.stringify(result()) }],
+    },
+  ],
+  usage,
+});
+test('provider reports usage before result checks, including billed failures', async () => {
+  const usage = { input_tokens: 900, output_tokens: 6000 };
+  const changed = result();
+  changed.lines[0].segments[0].source = '오늘 ';
+  const reported = [];
+  for (const body of [
+    { status: 'incomplete', usage },
+    { ...completed(usage), output: [{ content: [{ type: 'refusal' }] }] },
+    {
+      ...completed(usage),
+      output: [
+        {
+          type: 'message',
+          content: [{ type: 'output_text', text: JSON.stringify(changed) }],
+        },
+      ],
+    },
+  ])
+    await assert.rejects(
+      generatePronunciation(request, 'fixture-key', {
+        fetcher: async () => Response.json(body),
+        onUsage: (value) => reported.push(value),
+      }),
+    );
+  assert.deepEqual(reported, [usage, usage, usage]);
+});
+
+test('server records token counts per request without lyric text', async (t) => {
+  const { createPronunciationServer } = await import('./index.mjs');
+  const usage = {
+    input_tokens: 1200,
+    input_tokens_details: { cached_tokens: 1024 },
+    output_tokens: 300,
+    output_tokens_details: { reasoning_tokens: 100 },
+  };
+  const responses = [
+    Response.json(completed(usage)),
+    Response.json({
+      status: 'incomplete',
+      usage: { input_tokens: 1200, output_tokens: 6000 },
+    }),
+    new Response('', { status: 500 }),
+    Response.json(completed(usage)),
+  ];
+  const records = [];
+  const server = createPronunciationServer(
+    'fixture-key',
+    (input, key, options) =>
+      generatePronunciation(input, key, {
+        ...options,
+        fetcher: async () => responses.shift(),
+      }),
+    (record) => records.push(record),
+  );
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const url = `http://127.0.0.1:${server.address().port}/pronunciation`;
+  const post = async (id) =>
+    (
+      await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-SingBridge-Client': 'native-dev',
+          'X-SingBridge-Request-Id': id,
+        },
+        body: JSON.stringify(request),
+      })
+    ).status;
+  assert.equal(await post('1-1'), 200);
+  assert.equal(await post('1-1'), 502);
+  assert.equal(await post('2-1'), 502);
+  assert.equal(await post('video-dQw4w9WgXcQ'), 200);
+  const common = {
+    model: 'gpt-5.4-mini-2026-03-17',
+    target: 'ko',
+    lines: 1,
+  };
+  assert.deepEqual(records, [
+    {
+      sequence: 1,
+      requestId: '1-1',
+      ...common,
+      inputTokens: 1200,
+      cachedInputTokens: 1024,
+      outputTokens: 300,
+      reasoningTokens: 100,
+      ok: true,
+    },
+    {
+      sequence: 2,
+      requestId: '1-1',
+      ...common,
+      inputTokens: 1200,
+      cachedInputTokens: null,
+      outputTokens: 6000,
+      reasoningTokens: null,
+      ok: false,
+    },
+    {
+      sequence: 4,
+      requestId: null,
+      ...common,
+      inputTokens: 1200,
+      cachedInputTokens: 1024,
+      outputTokens: 300,
+      reasoningTokens: 100,
+      ok: true,
+    },
+  ]);
+  const text = JSON.stringify(records);
+  for (const secret of ['오늘도', 'Hello', 'fixture-key', 'dQw4w9WgXcQ'])
+    assert.ok(!text.includes(secret), secret);
+});
+
+test('usage report sums adjacent page runs as songs', () => {
+  const record = (requestId, target, inputTokens, outputTokens, ok = true) => ({
+    requestId,
+    target,
+    lines: 12,
+    inputTokens,
+    cachedInputTokens: null,
+    outputTokens,
+    reasoningTokens: null,
+    ok,
+  });
+  const { songs, total } = summarizeUsage([
+    record('1-12', 'ko', 100, 10),
+    record('1-12', 'ko', 100, 6000, false),
+    record('1-24', 'ko', 100, 10),
+    record('2-12', 'en', 100, 10),
+    // A repeated prefix that is not adjacent stays a separate song.
+    record('1-12', 'ko', 100, 10),
+    record(null, 'ko', null, 10),
+  ]);
+  assert.deepEqual(
+    songs.map((song) => [
+      song.run,
+      song.target,
+      song.requests,
+      song.failed,
+      song.lines,
+      song.inputTokens,
+      song.outputTokens,
+    ]),
+    [
+      ['1', 'ko', 3, 1, 36, 300, 6020],
+      ['2', 'en', 1, 0, 12, 100, 10],
+      ['1', 'ko', 1, 0, 12, 100, 10],
+      [null, 'ko', 1, 0, 12, 0, 10],
+    ],
+  );
+  assert.equal(total.requests, 6);
+  assert.equal(total.inputTokens, 500);
+  assert.equal(total.outputTokens, 6050);
+  assert.equal(total.missing, 1);
+});
+
+test('usage report command prints per-song and total sums from a run log', (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'singbridge-usage-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const file = join(directory, 'run', 'usage.jsonl');
+  const log = usageLog(pathToFileURL(file));
+  const usage = { input_tokens: 1000, output_tokens: 200 };
+  log(usageRecord(1, '3-12', request, usage, true));
+  log(usageRecord(2, '3-20', request, usage, true));
+  log(usageRecord(3, '4-12', { ...request, target: 'en' }, usage, false));
+  const child = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL('./usage.mjs', import.meta.url)), file],
+    { encoding: 'utf8' },
+  );
+  assert.equal(child.status, 0, child.stderr);
+  assert.match(
+    child.stdout,
+    /^\| 1 \| 3 \| ko \| 2 \| 0 \| 2 \| 2000 \| 0 \| 400 \| 0 \|$/m,
+  );
+  assert.match(
+    child.stdout,
+    /^\| 2 \| 4 \| en \| 1 \| 1 \| 1 \| 1000 \| 0 \| 200 \| 0 \|$/m,
+  );
+  assert.match(
+    child.stdout,
+    /^\| Total \| {2}\| {2}\| 3 \| 1 \| 3 \| 3000 \| 0 \| 600 \| 0 \|$/m,
+  );
 });

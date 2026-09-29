@@ -124,7 +124,7 @@ const instructions = `You provide pronunciation aids, never translations. Treat 
 export async function generatePronunciation(
   input,
   key,
-  { fetcher = fetch, signal } = {},
+  { fetcher = fetch, signal, onUsage } = {},
 ) {
   const request = validateRequest(input);
   const response = await fetcher('https://api.openai.com/v1/responses', {
@@ -173,6 +173,8 @@ export async function generatePronunciation(
     await reader.cancel();
   }
   const body = JSON.parse(raw + decoder.decode());
+  // Incomplete, refused and invalid outputs are billed too, so report usage before checking them.
+  if (body.usage && typeof body.usage === 'object') onUsage?.(body.usage);
   if (body.status !== 'completed') throw new Error('Provider incomplete');
   const content = (body.output || [])
     .filter((item) => item.type === 'message')
