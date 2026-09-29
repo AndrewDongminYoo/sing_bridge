@@ -2,6 +2,7 @@
 // The report holds counts and IDs only; lyric and pronunciation text never leave the process.
 import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { validateResult } from '../../server/pronunciation.mjs';
 
 const MAX_BYTES = 4 * 1048576;
 const TARGETS = ['ko', 'en'];
@@ -12,23 +13,33 @@ function invalid(what) {
   throw new Error(`Invalid saved pronunciation: ${what}.`);
 }
 
-// Follows validSavedEntry and validStoredPronunciation in the page script for the fields this report reads.
+// Mirrors validEditedPronunciation in YouTubePronunciation.kt.
+const validEdit = (text) =>
+  typeof text === 'string' &&
+  text.trim().length > 0 &&
+  text.length <= 2000 &&
+  !/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/u.test(text);
+
+// Follows validStoredPronunciation in the page script, which checks generated lines with the
+// same contract as the server's validateResult; errors use fixed messages and never echo input.
 function validateLayer(target, data) {
-  if (!TARGETS.includes(target))
-    invalid(`unsupported target ${JSON.stringify(target)}`);
+  if (!TARGETS.includes(target)) invalid('unsupported target language');
   if (!isObject(data) || data.version !== 1 || data.target !== target) {
     invalid('layer version or target');
   }
   if (
     !Array.isArray(data.source) ||
     !data.source.length ||
+    data.source.length > 240 ||
     !data.source.every(
       (entry) =>
         isObject(entry) &&
         Number.isFinite(entry.time) &&
         entry.time >= 0 &&
-        typeof entry.text === 'string',
-    )
+        typeof entry.text === 'string' &&
+        entry.text.length <= 500,
+    ) ||
+    data.source.reduce((sum, entry) => sum + entry.text.length, 0) > 30000
   ) {
     invalid('source lines');
   }
@@ -40,39 +51,29 @@ function validateLayer(target, data) {
     invalid('generated lines');
   }
   const ids = new Set();
-  for (const line of data.lines) {
-    const match = /^line-(0|[1-9][0-9]*)$/.exec(line?.id ?? '');
-    if (!match || ids.has(line.id) || !data.source[Number(match[1])]?.text) {
-      invalid('line id');
-    }
-    ids.add(line.id);
-    if (
-      !Array.isArray(line.segments) ||
-      !line.segments.length ||
-      !line.segments.every(
-        (segment) =>
-          isObject(segment) &&
-          typeof segment.source === 'string' &&
-          (segment.pronunciation === null ||
-            typeof segment.pronunciation === 'string') &&
-          typeof segment.needsReview === 'boolean',
-      )
-    ) {
-      invalid('line segments');
-    }
-    // Like validatePronunciation: the segments must reproduce their source line exactly.
-    if (
-      line.segments.map((segment) => segment.source).join('') !==
-      data.source[Number(match[1])].text
-    ) {
-      invalid('segments do not reproduce the source line');
-    }
+  const request = {
+    target,
+    lines: data.lines.map((line) => {
+      const match = /^line-(0|[1-9][0-9]*)$/.exec(line?.id ?? '');
+      if (!match || ids.has(line.id) || !data.source[Number(match[1])]?.text) {
+        invalid('line id');
+      }
+      ids.add(line.id);
+      return { id: line.id, text: data.source[Number(match[1])].text };
+    }),
+  };
+  try {
+    validateResult(request, { target, lines: data.lines });
+  } catch {
+    invalid('generated lines do not satisfy the pronunciation contract');
   }
   if (
     !isObject(data.edits) ||
     !Object.entries(data.edits).every(
-      ([id, text]) => ids.has(id) && typeof text === 'string',
-    )
+      ([id, text]) => ids.has(id) && validEdit(text),
+    ) ||
+    Object.values(data.edits).reduce((sum, text) => sum + text.length, 0) >
+      30000
   ) {
     invalid('edits');
   }

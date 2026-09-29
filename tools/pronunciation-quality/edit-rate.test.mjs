@@ -30,7 +30,7 @@ const layer = (target = 'ko', overrides = {}) => ({
   ],
   lines: [
     line('line-0', segment(SECRET + ' one', '원')),
-    line('line-1', segment('二', '니', true)),
+    line('line-1', segment('二', null, true)),
     line('line-2', segment('三', null, true)),
   ],
   edits: { 'line-0': '원 ' + SECRET, 'line-2': '산' },
@@ -220,4 +220,31 @@ test('rejects segments that do not reproduce their source line', () => {
     () => editRate(library(item({ ko: mismatched }))),
     /saved pronunciation/,
   );
+});
+
+test('rejects layers and edits the app itself would reject', () => {
+  const invalid = [
+    // A foreign phrase that is not flagged for review needs a pronunciation.
+    layer('ko', { lines: [line('line-1', segment('二', ''))], edits: {} }),
+    // A review-flagged phrase must keep its source instead of a pronunciation.
+    layer('ko', {
+      lines: [line('line-1', segment('二', '니', true))],
+      edits: {},
+    }),
+    layer('ko', { edits: { 'line-0': '   ' } }),
+    layer('ko', { edits: { 'line-0': 'a\u0000b' } }),
+  ];
+  for (const data of invalid) {
+    assert.throws(
+      () => editRate(library(item({ ko: data }))),
+      /saved pronunciation/,
+    );
+  }
+});
+
+test('schema errors never echo input text', () => {
+  const json = JSON.stringify(library(item({ [SECRET]: layer() })));
+  const child = runCli(Buffer.from(json));
+  assert.equal(child.status, 2);
+  assert.ok(!child.stderr.includes(SECRET), child.stderr);
 });

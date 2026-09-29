@@ -16,6 +16,7 @@ Hosted review on PR #34 reported five findings, all confirmed against the code: 
 Totals now cover only layers named with `--reviewed <lyricId>:<target>` and are `null` otherwise, the ratio divides by lines with text, songs and layers are counted separately, input must pass the app's version-1 saved-library checks, and the README protocol recreates the extraction directory and checks that a file was written.
 The eight rewritten tests failed on the first version except the CLI error test, which guards existing behavior, and all eight pass; a query for a missing key left no file and `test -s` failed as intended.
 A local review then found that `<lyricId>:<target>` could select layers of two videos saved with the same lyrics, and that segments were not checked against their source line; ambiguous keys now fail unless written as `<videoId>:<lyricId>:<target>`, segments must reproduce the source like the app's `validatePronunciation`, both regressions failed first, and all ten tests pass.
+A further local review found that hand-written checks still accepted data the app rejects, such as an empty pronunciation, and that an unsupported target key was echoed in the error. Generated lines are now checked with the server's `validateResult`, which `capture.mjs` already reuses, edits follow the app's `validEditedPronunciation` limits, and schema errors use fixed messages; the synthetic fixture was corrected to the contract, both regressions failed first, and all twelve tests pass. The real saved library above also passed these checks.
 
 ## Real-data smoke run
 
