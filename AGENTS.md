@@ -35,7 +35,7 @@ Do not commit generated build output or machine-specific SDK paths.
 For hosted Linux x86_64 containers, run `bash ./setup.sh` and source `.singbridge-env` before invoking Gradle in a later shell.
 Keep `.singbridge-env` and `.android-sdk/` out of Git.
 Use `trunk check --no-fix` for routine quality checks.
-Keep automatic pre-commit formatting disabled unless its scope has been reviewed and accepted.
+Trunk pre-commit formatting is enabled; stage with `git add` and commit the index, and review what the formatter rewrote before pushing.
 
 ## Checks
 
