@@ -1,5 +1,7 @@
 # Pronunciation token usage verification
 
+<!-- cspell:words dism -->
+
 Date: 2026-09-29.
 Issue: [AndrewDongminYoo/sing_bridge#20](https://github.com/AndrewDongminYoo/sing_bridge/issues/20).
 Purpose: measure server-side token counts per song for the Gate A cost row in the [competitive brief](2026-09-29-competitive-brief.md#gate-a-before-inviting-testers).
@@ -37,19 +39,25 @@ The Swift bridge change (one `setValue` line next to the existing client header)
 As a substitute, the Trunk-pinned versions ran directly from npm on the changed files: `prettier@3.9.9 --check`, `cspell@9.8.0`, and `markdownlint-cli@0.49.1` with `.trunk/configs/.markdownlint.yaml` passed after Prettier reformatted the new test code, and `git diff --check` passed.
 ktlint and the security scanners did not run.
 
-## Development run: not performed
+## Development run
 
-Tokens per song for a real run are `[UNKNOWN]`.
-This hosted container has no `OPENAI_API_KEY`, so no provider request was made, and no fixture numbers are reported as measurements.
-The issue stays open until this section holds real numbers.
+One server run on the development Mac on 2026-09-29 at about 07:24 UTC recorded 16 billed requests for five songs, sent by the [time-to-first-sing measurement](2026-09-29-first-sing-timing.md) rather than a Debug build.
+That script used the page's batching (up to 12 lines and 3,000 characters, sequential) and request ID format, so records grouped per song as they would from the app.
+`node server/usage.mjs` printed:
 
-Procedure for the development machine:
+| Song                         | Lines in song | Requests | Failed | Lines sent | Input tokens | Cached input tokens | Output tokens | Reasoning tokens |
+| ---------------------------- | ------------- | -------- | ------ | ---------- | ------------ | ------------------- | ------------- | ---------------- |
+| Vaundy - 踊り子              | 50            | 5        | 0      | 50         | 3,074        | 0                   | 3,237         | 0                |
+| YOASOBI - 夜に駆ける         | 56            | 2        | 1      | 24         | 1,256        | 0                   | 1,335         | 0                |
+| Official髭男dism - Pretender | 52            | 5        | 0      | 52         | 2,981        | 0                   | 3,161         | 0                |
+| King Gnu - 白日              | 82            | 2        | 1      | 24         | 1,174        | 0                   | 1,148         | 0                |
+| あいみょん - マリーゴールド  | 47            | 2        | 1      | 24         | 1,239        | 0                   | 1,286         | 0                |
+| Total                        |               | 16       | 3      | 174        | 9,724        | 0                   | 10,167        | 0                |
 
-1. Start the server as the README describes and note the usage log path it prints.
-2. With a Debug build, choose synced lyrics for a few songs and tap **음차 만들기** once per song, recording the song order.
-3. Stop the server and run `node server/usage.mjs`.
-4. Paste the printed table here, with the song order from step 2 and the lyric line count of each song.
-5. For cost, multiply the token sums by the pinned model's prices from OpenAI's pricing page and cite its access date; this note records no price.
+The two completed songs used about 3,000 input and 3,200 output tokens for 50 to 52 lines, or roughly 60 input and 63 output tokens per line.
+The three failed requests were billed and then rejected by result validation, which stopped those songs after 24 lines; that defect is #29.
+Three later diagnostic reruns of the failed batches called the provider directly and are not in this log.
+The price per song is `[UNKNOWN]`: no price was looked up; multiply these sums by the pinned model's prices from OpenAI's pricing page and cite its access date.
 
 ## Limits
 
