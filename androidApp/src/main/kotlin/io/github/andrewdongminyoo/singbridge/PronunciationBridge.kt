@@ -52,6 +52,7 @@ internal class PronunciationBridge {
                         request.readTimeout = 50000
                         request.setRequestProperty("Content-Type", "application/json")
                         request.setRequestProperty("X-SingBridge-Client", "native-dev")
+                        request.setRequestProperty("X-SingBridge-Request-Id", id)
                         request.doOutput = true
                         if (requestId != id) return@execute
                         request.outputStream.use { it.write(input.toString().toByteArray(Charsets.UTF_8)) }
