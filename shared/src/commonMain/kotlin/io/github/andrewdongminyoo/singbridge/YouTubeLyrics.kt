@@ -384,20 +384,24 @@ internal fun youtubeLyricsHtml(): String = """
     // An album or video title as the query returns other tracks; detect that from the candidate titles.
     function comparableText(value) { return value.normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu, ''); }
     const bracketed = /[(\[{（［【]([^)\]}）］】]*)[)\]}）］】]/g;
-    // The full title, the title without brackets, bracketed aliases, and each part around a spaced dash.
+    // Whole-title variants: the full title, the title without brackets, and each bracketed alias.
+    // Segments: the parts of those variants around a spaced dash, where an artist prefix may appear.
     function titleVariants(title) {
-      const variants = [title, title.replace(bracketed, ' '), ...[...title.matchAll(bracketed)].map(match => match[1])];
-      return variants.flatMap(value => [value, ...value.split(/\s[-–—]\s/)])
-        .map(value => comparableText(value.trim().replace(/^(the|an?)\s+/i, '')));
+      const clean = value => comparableText(value.trim().replace(/^(the|an?)\s+/i, ''));
+      const whole = [title, title.replace(bracketed, ' '), ...[...title.matchAll(bracketed)].map(match => match[1])];
+      const segments = whole.flatMap(value => { const parts = value.split(/\s[-–—]\s/); return parts.length > 1 ? parts : []; });
+      return { whole: whole.map(clean), segments: segments.map(clean) };
     }
     function titleInQuery(query) {
       const target = comparableText(query);
       const words = query.split(/\s+/).map(comparableText);
+      // A short Latin title such as "I" must be a whole word, not a substring.
+      const found = part => part && (/^[a-z0-9]{1,2}$/.test(part) ? words.includes(part) : target.includes(part));
       return lyricCandidates.some(record => {
         const artist = comparableText(record.artistName);
-        return titleVariants(record.trackName).some(part => part && !artist.includes(part) &&
-          // A short Latin title such as "I" must be a whole word, not a substring.
-          (/^[a-z0-9]{1,2}$/.test(part) ? words.includes(part) : target.includes(part)));
+        const { whole, segments } = titleVariants(record.trackName);
+        // Only a dashed segment can be an artist prefix, including a collaborator field such as "A & B".
+        return whole.some(found) || segments.some(part => !(part.length >= 3 && artist.includes(part)) && found(part));
       });
     }
 

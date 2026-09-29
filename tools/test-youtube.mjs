@@ -2463,6 +2463,9 @@ test('a candidate title found in the query does not trigger the song-title hint'
       'Rupert Holmes Piña Colada Song',
     ],
     ['白日', 'King Gnu', 'King Gnu 白日'],
+    // A title made of letters from the artist name is still a title.
+    ['i', 'Kendrick Lamar', 'Kendrick Lamar i'],
+    ['Kendrick Lamar - i', 'Kendrick Lamar', 'Kendrick Lamar i'],
   ]) {
     const f = fixture(() =>
       response([{ ...record, id: 1, trackName, artistName }]),
