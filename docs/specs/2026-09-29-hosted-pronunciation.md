@@ -42,12 +42,14 @@ There are no user accounts; the function trusts the app build, not a person.
 
 ## Request limits
 
-App Check proves the app, not the person or the install, so quotas are the cost boundary.
+App Check proves the app, not the person or the install, so quotas are the boundary on provider cost.
 
 - **Per request:** the current server limits stay: 12 lines, 3,000 characters, two context lines per side at 500 characters each, a 32 KiB body, and `max_output_tokens: 6000`.
 - **Per install:** the bridge sends the Firebase installation ID; the function keeps a daily request count per ID in Firestore and rejects requests above the cap.
-  The ID is client-supplied, so this cap limits an ordinary client, not an attacker who passes App Check with many IDs; the global cap below is the real bound.
-- **Global:** a daily request cap for the whole project, counted in a Firestore transaction; this cap is the enforceable cost bound.
+  The ID is client-supplied, so this cap limits an ordinary client, not an attacker who passes App Check with many IDs; the global cap below is the real bound on provider calls.
+- **Global:** a daily request cap for the whole project, counted in a Firestore transaction; this cap is the enforceable bound on OpenAI calls and their cost.
+  It does not bound Firebase-side charges: a request rejected at the cap still invokes the function, consumes its App Check token, and reads Firestore.
+  The function implementation issue must choose a platform-level limit for those charges, such as a maximum instance count or an ingress rate limit, and record what it bounds.
   An OpenAI spend limit is an extra backstop only if the console confirms that it blocks requests: a [Help Center](https://help.openai.com/en/articles/6614457-why-am-i-getting-an-error-message-stating-that-ive-reached-my-usage-limit) search result on 2026-09-29 describes project-level hard limits, but the page itself returned HTTP 403, and a budget that only notifies does not bound cost.
 - **Deadline:** the native bridges give up after 50 seconds (Android `readTimeout`, iOS `timeoutInterval`) and the page after 55, while the development server allows the provider 45 seconds.
   The hosted function also spends time on token consumption, the Firestore transaction, and cold starts, so it must answer before the bridges' 50-second cutoff with a measured margin: it passes a shorter provider deadline, set at implementation from measured overhead, or the bridge and page deadlines move together with tests.
@@ -94,7 +96,7 @@ These rules are necessary but do not by themselves settle the rights question; #
 Filed when this spec merges, each blocked by #17 and #21:
 
 1. Firebase project, Blaze plan, App Check registration for both apps, and a dedicated OpenAI project, with its spend-limit behavior confirmed in the console (operator-owned setup).
-2. The Cloud Function that reuses `server/pronunciation.mjs`, with App Check verification that rejects consumed tokens, transactional Firestore quotas, a deadline inside the bridges' 50-second cutoff, cancellation on disconnect, usage logging without text, and tests with fake App Check (including a replayed token) and fake provider responses (including a cancelled request).
+2. The Cloud Function that reuses `server/pronunciation.mjs`, with App Check verification that rejects consumed tokens, transactional Firestore quotas, a platform-level limit for requests rejected at the cap, a deadline inside the bridges' 50-second cutoff, cancellation on disconnect, usage logging without text, and tests with fake App Check (including a replayed token) and fake provider responses (including a cancelled request).
 3. Native bridges: App Check limited-use tokens, the installation ID, and an HTTPS endpoint in release builds, with the loopback path kept for debug builds.
 4. A dated note measuring the added latency against #24 and the cost per song on the hosted path.
 
