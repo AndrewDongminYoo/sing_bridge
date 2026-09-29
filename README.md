@@ -252,7 +252,7 @@ trunk check --no-fix
 ```
 
 The pre-push Trunk check is enabled.
-Automatic pre-commit formatting is disabled.
+Automatic pre-commit formatting is enabled.
 Use `trunk actions list` to inspect local hook installation.
 
 ## Sample provenance

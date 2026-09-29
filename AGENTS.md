@@ -35,12 +35,13 @@ Do not commit generated build output or machine-specific SDK paths.
 For hosted Linux x86_64 containers, run `bash ./setup.sh` and source `.singbridge-env` before invoking Gradle in a later shell.
 Keep `.singbridge-env` and `.android-sdk/` out of Git.
 Use `trunk check --no-fix` for routine quality checks.
-Keep automatic pre-commit formatting disabled unless its scope has been reviewed and accepted.
+Trunk pre-commit formatting is enabled; stage with `git add` and commit the index, and review what the formatter rewrote before pushing.
 
 ## Checks
 
 - Shared behavior: `./gradlew :shared:jvmTest`
 - Shared YouTube page behavior: `node --test tools/test-youtube.mjs server/pronunciation.test.mjs` (Node 22 or later).
+- LRCLIB coverage tool: `node --test tools/lyrics-coverage/coverage.test.mjs` (no network).
 - Android: `./gradlew :androidApp:assembleDebug :androidApp:lintDebug`
 - iOS framework: `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
 - iOS host: generate with `xcodegen generate --spec iosApp/project.yml`, then use the simulator build command in `README.md`.

@@ -76,6 +76,7 @@ tensification
 Tirtho
 unassessable
 unreviewed
+unwritable
 Utakoto
 Vaundy
 viewports
@@ -87,5 +88,6 @@ xcodeproj
 xcrun
 xcuserdata
 xcuserstate
+YOASOBI
 youtu
 zlibjs
