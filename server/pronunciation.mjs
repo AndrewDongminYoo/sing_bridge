@@ -39,7 +39,7 @@ export function validateRequest(value) {
   if (length > 3000) throw new Error('Request too large');
   return value;
 }
-export function validateResult(request, value) {
+export function validateResult(request, value, { normalize = false } = {}) {
   object(value, ['target', 'lines']);
   if (
     value.target !== request.target ||
@@ -71,7 +71,20 @@ export function validateResult(request, value) {
       )
         throw new Error('Invalid phrase');
       for (const key of ['reading', 'pronunciation'])
-        if (segment[key] !== null) string(segment[key], 1000);
+        if (segment[key] !== null)
+          string(segment[key], 1000, normalize && key === 'pronunciation');
+      if (normalize) {
+        // The server repairs review rules so one segment cannot fail the whole batch.
+        if (segment.language === 'und') segment.needsReview = true;
+        if (
+          segment.language !== request.target &&
+          !segment.needsReview &&
+          !segment.pronunciation?.trim()
+        )
+          segment.needsReview = true;
+        if (segment.language === request.target || segment.needsReview)
+          segment.pronunciation = null;
+      }
       if (
         (segment.language === request.target ||
           segment.language === 'und' ||
@@ -182,7 +195,9 @@ export async function generatePronunciation(
   if (content.length !== 1 || content[0].type !== 'output_text')
     throw new Error('Provider refused');
   return {
-    result: validateResult(request, JSON.parse(content[0].text)),
+    result: validateResult(request, JSON.parse(content[0].text), {
+      normalize: true,
+    }),
     usage: body.usage,
   };
 }
