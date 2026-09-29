@@ -23,7 +23,7 @@ The validator is unchanged.
 
 ## Paid rerun
 
-From 11:49 to 11:51 UTC, the one-off script from the [#29 batch rerun](2026-09-29-pronunciation-batch-rerun.md) sent the same three songs as the review-flag rerun through `server/index.mjs` on this branch, based on `35dfa11`, with the `ko` target.
+From 11:49 to 11:50 UTC, the one-off script from the [#29 batch rerun](2026-09-29-pronunciation-batch-rerun.md) sent the same three songs as the review-flag rerun through `server/index.mjs` on this branch, based on `35dfa11`, with the `ko` target.
 It used the same method: YouTube search `<artist> <title>`, the synced LRCLIB record closest to the video duration, a copy of the page's `parseTimedLyrics`, and the page's batches of up to 12 lines and 3,000 characters, sent one after another.
 It printed timings, record IDs, and counts only; no lyric text or key was printed or stored.
 
@@ -56,3 +56,10 @@ Full songs took 21.9 to 30.2 seconds instead of 12.5 to 18.8 seconds; this run d
 Model output varies between calls, so these counts describe one run.
 The run shows that pronunciations are present, not that they are correct; the reviewer edit rate in #21 measures that.
 No native WebView run was made.
+
+Two wording limits remain, left unchanged because the paid run above tested this exact prompt:
+
+- "never for a whole batch" also forbids flagging every line of a batch when each one is uncertain, and the model did not follow it for マリーゴールド batch 2.
+- The most-likely-reading rule names Japanese kanji; an uncertain `en` or `es` phrase has no explicit instruction to flag, whereas the previous prompt flagged ambiguous phrases in any language.
+
+Changing either needs another paid rerun.

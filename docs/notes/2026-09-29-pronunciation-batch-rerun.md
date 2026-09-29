@@ -65,7 +65,7 @@ The fully flagged second batches of 夜に駆ける and 白日 are the batches t
 The server returns only the normalized result, so this output cannot show where a flag came from.
 Under the #31 normalization, `validateResult` in `server/pronunciation.mjs` sets `needsReview` when the model flagged the segment, when the language is `und`, or when a foreign-language segment has an empty or missing pronunciation, and then removes the pronunciation of every flagged segment.
 Any of the 85 segments may therefore have been flagged by the server rather than the model, and a flagged segment may or may not have had a pronunciation from the model; only a raw provider capture can separate these cases.
-The follow-up is tracked in #37; #39 found that most of these pronunciations were removed by the normalization, and #40 changed the prompt so that uncertain readings get a flagged pronunciation.
+The follow-up is tracked in #37; when #39 re-sent the six fully flagged batches, 40 of 51 flagged segments had a model pronunciation that the normalization removed, and #40 changed the prompt so that uncertain readings get a flagged pronunciation.
 
 ## Reading the numbers
 
