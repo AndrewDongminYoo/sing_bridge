@@ -13,6 +13,7 @@ node tools/lyrics-coverage/coverage.mjs songs.json --out build/lyrics-coverage.j
 
 `--delay-ms` sets the pause between songs (default 1000).
 Without `--out`, the report is printed to standard output.
+The `--out` file is created, or emptied if it exists, before the first request, so an unwritable path fails without spending requests.
 Invalid input exits with status 2 before any request is sent.
 
 The song list is a JSON array of up to 100 entries:

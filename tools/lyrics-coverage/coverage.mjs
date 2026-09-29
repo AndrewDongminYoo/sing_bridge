@@ -1,6 +1,12 @@
 // Measures LRCLIB synced-lyric coverage for a curated song list the way the app searches.
 // The report keeps provider metadata only; lyric text is read to classify a record and never written out.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  closeSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -251,15 +257,23 @@ export async function main(argv, { fetcher = fetch } = {}) {
   if (!Number.isFinite(delayMs) || delayMs < 0)
     throw new Error('--delay-ms must be a non-negative number');
   const songs = parseSongs(JSON.parse(readFileSync(listPath, 'utf8')));
-  // Create the output directory before any request so a bad path fails early.
-  if (outPath) mkdirSync(dirname(outPath), { recursive: true });
-  const report = {
-    measuredAt: new Date().toISOString(),
-    ...(await measure(songs, { fetcher, delayMs })),
-  };
-  const text = JSON.stringify(report, null, 2) + '\n';
-  if (outPath) writeFileSync(outPath, text);
-  else process.stdout.write(text);
+  // Open the report before any request, so an unwritable path fails without spending requests.
+  let out = null;
+  if (outPath) {
+    mkdirSync(dirname(outPath), { recursive: true });
+    out = openSync(outPath, 'w');
+  }
+  try {
+    const report = {
+      measuredAt: new Date().toISOString(),
+      ...(await measure(songs, { fetcher, delayMs })),
+    };
+    const text = JSON.stringify(report, null, 2) + '\n';
+    if (out !== null) writeFileSync(out, text);
+    else process.stdout.write(text);
+  } finally {
+    if (out !== null) closeSync(out);
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

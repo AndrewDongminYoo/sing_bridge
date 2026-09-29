@@ -330,3 +330,27 @@ test('ends the run on the first 429 without waiting or retrying', async () => {
     assert.match(report.songs[1].error, /not requested/);
   }
 });
+
+test('fails on an unwritable --out before any request', async () => {
+  const directory = mkdtempSync(join(tmpdir(), 'singbridge-coverage-'));
+  try {
+    const list = join(directory, 'songs.json');
+    writeFileSync(
+      list,
+      JSON.stringify([{ artist: 'A', title: 'B', durationSeconds: 200 }]),
+    );
+    let calls = 0;
+    await assert.rejects(
+      main([list, '--delay-ms', '0', '--out', directory], {
+        fetcher: async () => {
+          calls += 1;
+          return jsonResponse([]);
+        },
+      }),
+      /EISDIR/,
+    );
+    assert.equal(calls, 0);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
