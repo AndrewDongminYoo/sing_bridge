@@ -44,11 +44,13 @@ There are no user accounts; the function trusts the app build, not a person.
 
 App Check proves the app, not the person or the install, so quotas are the cost boundary.
 
-- **Per request:** the current server limits stay: 12 lines, 3,000 characters, two context lines per side at 500 characters each, a 32 KiB body, 45-second provider timeout, and `max_output_tokens: 6000`.
+- **Per request:** the current server limits stay: 12 lines, 3,000 characters, two context lines per side at 500 characters each, a 32 KiB body, and `max_output_tokens: 6000`.
 - **Per install:** the bridge sends the Firebase installation ID; the function keeps a daily request count per ID in Firestore and rejects requests above the cap.
   The ID is client-supplied, so this cap limits an ordinary client, not an attacker who passes App Check with many IDs; the global cap below is the real bound.
 - **Global:** a daily request cap for the whole project, counted in a Firestore transaction; this cap is the enforceable cost bound.
   An OpenAI spend limit is an extra backstop only if the console confirms that it blocks requests: a [Help Center](https://help.openai.com/en/articles/6614457-why-am-i-getting-an-error-message-stating-that-ive-reached-my-usage-limit) search result on 2026-09-29 describes project-level hard limits, but the page itself returned HTTP 403, and a budget that only notifies does not bound cost.
+- **Deadline:** the native bridges give up after 50 seconds (Android `readTimeout`, iOS `timeoutInterval`) and the page after 55, while the development server allows the provider 45 seconds.
+  The hosted function also spends time on token consumption, the Firestore transaction, and cold starts, so it must answer before the bridges' 50-second cutoff with a measured margin: it passes a shorter provider deadline, set at implementation from measured overhead, or the bridge and page deadlines move together with tests.
 - **Concurrency:** one active request per installation ID, as the page already sends batches one after another.
 - **Cancellation:** when the native bridge disconnects (the page sends `cancel` on a lyric or target change), the function aborts `generatePronunciation` through its `signal`, as `server/index.mjs` does on request close, so a discarded request stops consuming the provider call.
 
@@ -60,9 +62,10 @@ Measured usage is recorded in the [#29 batch rerun](../notes/2026-09-29-pronunci
 The worst case follows from the page limits in `YouTubePronunciation.kt`: at most 240 lines of at most 500 characters and 30,000 characters in total, split into batches of at most 12 lines and 3,000 characters.
 A batch that closes on the character limit holds at least 2,501 characters in at least six lines, so at most 11 such batches fit in 30,000 characters; every other batch except the last holds 12 lines, so the at most 240 − 6 × 11 = 174 remaining lines need at most 15 more, and one song needs at most 26 requests.
 That bound is reached: 11 groups of five 500-character lines and one 1-character line, one more 500-character line, and 1-character lines up to 240 make 26 batches under the page's batching loop.
-Each response is capped at 6,000 output tokens, so one song in one target language can bill at most 26 requests and 156,000 output tokens plus input.
+Each response is capped at 6,000 output tokens, so one generation pass of one song in one target language can bill at most 26 requests and 156,000 output tokens plus input.
 The page can generate and save separate `ko` and `en` layers for one practice, so one song in both targets can bill at most 52 requests and 312,000 output tokens plus input.
-The per-install daily cap must be at least one worst-case song in both targets, and the global cap bounds the rest.
+These bounds cover passes without retries: a billed failure (incomplete, refused, or invalid output) leaves its batch missing, and generating again sends that batch again, so each retry adds up to one request and 6,000 output tokens.
+The caps count requests, so retries spend the same quota; the per-install daily cap must cover one worst-case pass in both targets plus a retry allowance chosen at implementation, and the global cap bounds the rest.
 Prices are not recorded here; convert token counts with OpenAI's pricing page for the pinned model at implementation time and cite its access date.
 
 ## Lyric processing
@@ -91,7 +94,7 @@ These rules are necessary but do not by themselves settle the rights question; #
 Filed when this spec merges, each blocked by #17 and #21:
 
 1. Firebase project, Blaze plan, App Check registration for both apps, and a dedicated OpenAI project, with its spend-limit behavior confirmed in the console (operator-owned setup).
-2. The Cloud Function that reuses `server/pronunciation.mjs`, with App Check verification that rejects consumed tokens, transactional Firestore quotas, cancellation on disconnect, usage logging without text, and tests with fake App Check (including a replayed token) and fake provider responses (including a cancelled request).
+2. The Cloud Function that reuses `server/pronunciation.mjs`, with App Check verification that rejects consumed tokens, transactional Firestore quotas, a deadline inside the bridges' 50-second cutoff, cancellation on disconnect, usage logging without text, and tests with fake App Check (including a replayed token) and fake provider responses (including a cancelled request).
 3. Native bridges: App Check limited-use tokens, the installation ID, and an HTTPS endpoint in release builds, with the loopback path kept for debug builds.
 4. A dated note measuring the added latency against #24 and the cost per song on the hosted path.
 
