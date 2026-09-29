@@ -1969,7 +1969,7 @@ test('confident foreign pronunciation cannot be missing or blank', () => {
   }
 });
 
-async function generatedPractice(storage = memoryStorage()) {
+async function generatedPractice(storage = memoryStorage(), language = 'en') {
   const f = fixture(() => response(), 'fixture-key', storage);
   f.ready();
   await f.search();
@@ -1990,7 +1990,7 @@ async function generatedPractice(storage = memoryStorage()) {
         segments: [
           {
             source: line.text,
-            language: 'en',
+            language,
             reading: null,
             pronunciation: '테스트 발음',
             needsReview: false,
@@ -2013,6 +2013,24 @@ async function reopenPronunciation(storage, restoredRecord = record) {
   await vm.runInContext('lyricFinished', f.context);
   return f;
 }
+
+test('Spanish pronunciation renders as experimental and restores from a saved layer', async () => {
+  const titles = (node) => [
+    ...(node.title ? [node.title] : []),
+    ...node.children.flatMap(titles),
+  ];
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage, 'es');
+  const row = first.element('lyrics-timing').children[0];
+  assert.match(row.textContent, /테스트 발음/);
+  assert.ok(titles(row).includes('스페인어(실험)'), titles(row).join());
+  first.element('pronunciation-save').click();
+  const second = await reopenPronunciation(storage);
+  assert.match(
+    second.element('lyrics-timing').children[0].textContent,
+    /테스트 발음/,
+  );
+});
 
 test('generic practice saves never persist unsaved pronunciation or edits', async () => {
   const storage = memoryStorage();

@@ -82,6 +82,8 @@ internal fun youtubePronunciationHtml(): String = """
       pronunciationStatus.textContent = pronunciationAvailable ? '싱크 가사를 선택한 뒤 음차를 만들 수 있어요. 만든 음차는 이 기기에 저장하고 수정할 수 있어요.' : '개발용 서버 연결이 있는 빌드에서 사용할 수 있어요.';
       renderPronunciation(); updatePronunciationControl();
     }
+    // Source phrase languages and their names; Spanish is experimental until it passes the Gate A measurement.
+    const pronunciationLanguages = { ja: '일본어', ko: '한국어', en: '영어', es: '스페인어(실험)', und: '언어 미확인' };
     function validatePronunciation(request, result) {
       function fields(value, keys) {
         if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join() !== keys.sort().join()) throw new Error('invalid_response');
@@ -93,7 +95,7 @@ internal fun youtubePronunciationHtml(): String = """
         if (line.id !== request.lines[index].id || !Array.isArray(line.segments) || !line.segments.length || line.segments.length > 40) throw new Error('invalid_response');
         for (const s of line.segments) {
           fields(s, ['source', 'language', 'reading', 'pronunciation', 'needsReview']);
-          if (typeof s.source !== 'string' || !s.source.length || s.source.length > 500 || !['ja','ko','en','und'].includes(s.language) || typeof s.needsReview !== 'boolean') throw new Error('invalid_response');
+          if (typeof s.source !== 'string' || !s.source.length || s.source.length > 500 || !Object.keys(pronunciationLanguages).includes(s.language) || typeof s.needsReview !== 'boolean') throw new Error('invalid_response');
           for (const key of ['reading','pronunciation']) if (s[key] !== null && (typeof s[key] !== 'string' || !s[key].length || s[key].length > 1000)) throw new Error('invalid_response');
           if ((s.language === request.target || s.language === 'und' || s.needsReview) && s.pronunciation !== null) throw new Error('invalid_response');
           if (s.language === 'und' && !s.needsReview) throw new Error('invalid_response');
@@ -104,7 +106,7 @@ internal fun youtubePronunciationHtml(): String = """
       return result;
     }
     function renderPronunciation() {
-      const names = { ja: '일본어', ko: '한국어', en: '영어', und: '언어 미확인' };
+      const names = pronunciationLanguages;
       lyricRows.forEach((row, index) => {
         row.textContent = lyricLines[index].text;
         const result = pronunciationResults.get('line-' + index);

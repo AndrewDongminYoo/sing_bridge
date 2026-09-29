@@ -38,3 +38,16 @@ overrides:
       - ＰＲＥＴＥＮＤＥＲ # full-width title fixture
       - Feid # collaborator artist fixture
       - Achtung # album-title query fixture
+  - filename:
+      - server/pronunciation.mjs
+      - server/pronunciation.test.mjs
+      - docs/notes/2026-09-29-spanish-pronunciation-verification.md
+      - cspell.config.yaml # names the same words below
+    ignoreWords:
+      - corazón # Spanish prompt examples and original test phrases (#23)
+      - gente
+      - llora
+      - llorar
+      - pero
+      - quiero
+      - NYAH # English-target pronunciation aid fixture

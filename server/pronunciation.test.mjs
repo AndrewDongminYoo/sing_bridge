@@ -458,3 +458,100 @@ test('usage report command prints per-song and total sums from a run log', (t) =
     /^\| Total \| {2}\| {2}\| 3 \| 1 \| 3 \| 3000 \| 0 \| 600 \| 0 \|$/m,
   );
 });
+
+// Issue #23: Spanish is an experimental source language for both targets.
+test('Spanish phrases are accepted for the Korean and English targets', () => {
+  for (const [target, pronunciation] of [
+    ['ko', '마냐나 세 요라'],
+    ['en', 'mah-NYAH-nah seh YOH-rah'],
+  ]) {
+    const spanishRequest = validateRequest({
+      target,
+      lines: [{ id: 'line-0', text: '¿Mañana se llora?' }],
+    });
+    const value = {
+      target,
+      lines: [
+        {
+          id: 'line-0',
+          segments: [
+            {
+              source: '¿Mañana se llora?',
+              language: 'es',
+              reading: null,
+              pronunciation,
+              needsReview: false,
+            },
+          ],
+        },
+      ],
+    };
+    assert.deepEqual(
+      validateResult(spanishRequest, structuredClone(value)),
+      value,
+      target,
+    );
+  }
+});
+test('Spanish review rules match the other foreign languages', () => {
+  const spanishRequest = validateRequest({
+    target: 'ko',
+    lines: [{ id: 'line-0', text: 'Tu corazón' }],
+  });
+  const segment = (fields) => ({
+    target: 'ko',
+    lines: [
+      {
+        id: 'line-0',
+        segments: [
+          {
+            source: 'Tu corazón',
+            language: 'es',
+            reading: null,
+            pronunciation: '투 코라손',
+            needsReview: false,
+            ...fields,
+          },
+        ],
+      },
+    ],
+  });
+  assert.throws(() =>
+    validateResult(spanishRequest, segment({ pronunciation: null })),
+  );
+  assert.deepEqual(
+    validateResult(spanishRequest, segment({ needsReview: true }), {
+      normalize: true,
+    }).lines[0].segments[0],
+    {
+      source: 'Tu corazón',
+      language: 'es',
+      reading: null,
+      pronunciation: null,
+      needsReview: true,
+    },
+  );
+});
+test('the provider schema and instructions name Spanish', async () => {
+  let sent;
+  await generatePronunciation(request, 'fixture-key', {
+    fetcher: async (_, options) => {
+      sent = JSON.parse(options.body);
+      return Response.json({
+        status: 'completed',
+        output: [
+          {
+            type: 'message',
+            content: [{ type: 'output_text', text: JSON.stringify(result()) }],
+          },
+        ],
+      });
+    },
+  });
+  const language =
+    sent.text.format.schema.properties.lines.items.properties.segments.items
+      .properties.language;
+  assert.deepEqual(language.enum, ['ja', 'ko', 'en', 'es', 'und']);
+  assert.match(sent.instructions, /\bes\b.*Spanish/);
+  assert.match(sent.instructions, /ñ/);
+});
