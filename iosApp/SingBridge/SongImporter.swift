@@ -9,6 +9,7 @@ final class SongImporter: ObservableObject {
     private(set) var selectingAudio = true
     private var readTask: Task<Void, Never>?
     private let store = LastSongStore()
+    var onImported: (() -> Void)?
 
     init() {
         library.startReading()
@@ -42,6 +43,7 @@ final class SongImporter: ObservableObject {
                     handedToLibrary = true
                     return player
                 }
+                if save && library.error == nil && library.pendingAudio == nil { onImported?() }
                 return
             }
             try await Task.sleep(nanoseconds: 50_000_000)

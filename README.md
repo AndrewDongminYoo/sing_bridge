@@ -20,21 +20,23 @@ Account scope: personal.
 
 The sample has no vocals.
 Its pronunciation and timing are authored demonstration data, not automatic transliteration or alignment.
-Unsaved practice state lasts for the current screen session.
+Unsaved practice state lasts for the current app session, including switches between tabs.
 The last imported audio and source LRC are saved locally; returning to the sample removes that saved song.
 Commercial lyric licensing, accounts, recording, speed adjustment, and persistent progress are outside this baseline.
 
 ## YouTube playback and lyrics
 
-Choose **YouTube 영상 열기**, search with **가수 - 제목**, or paste an HTTPS YouTube link or video ID.
+Choose the **YouTube** bottom tab, search with **가수 - 제목**, or paste an HTTPS YouTube link or video ID.
+The **홈** tab keeps the current local practice, and **내 노래** contains audio/LRC importing.
+Switching tabs pauses the hidden player and retains the existing view state; returning does not start playback automatically.
 Search opens the highest-ranked embedded-video candidate and searches LRCLIB with the original artist and title after player readiness.
 Search and link entry are on a separate discovery screen.
 Opening a video moves to the practice screen; **곡 찾기** pauses playback and returns to discovery.
 **연습으로 돌아가기** preserves the current video and lyrics without resuming playback automatically.
 Check the displayed video title and channel; relevance does not guarantee the intended recording.
 Tap the official player to start; search never autoplays.
-Single-song repeat is enabled by default and can be disabled with **한 곡 반복**; it resets to enabled when the YouTube screen is reopened.
-This separate screen requires internet access and does not generate pronunciation.
+Single-song repeat is enabled by default and can be disabled with **한 곡 반복**; it is retained between tab switches and resets when the app starts a new screen session.
+The YouTube tab requires internet access.
 Search by song and artist, then choose the matching LRCLIB result after checking its title, artist, album, duration, and lyric type.
 Candidates are ranked by absolute duration difference from the player before limiting the display to 20 results.
 Unknown candidate lengths follow known lengths; ties preserve provider order.
@@ -58,7 +60,7 @@ Opening that panel pauses playback; choosing lyrics, closing it, or pressing Esc
 In short landscape viewports, video and lyric controls sit side by side.
 Search and link inputs disable automatic correction.
 The player stays visible while scrolling through lyrics.
-Changing videos clears the selected lyrics and adjustment; closing the screen discards the results.
+Changing videos clears the selected lyrics and adjustment; switching tabs retains them for the current app session.
 Lyrics stay in screen memory and are not saved in the imported-song library.
 Lyric candidates separate titles, artist/album metadata, script and sync badges, duration differences, and a two-line preview.
 Kana-bearing lyrics group Kana and Han characters under **일본어**; Han-only lyrics retain **한자**, and mixed Latin text stays visible.
@@ -98,7 +100,8 @@ See [song-search scope](docs/specs/2026-09-28-song-search.md) and [verification]
 
 ## Import a song
 
-Choose **내 노래 불러오기**, select an audio file, then select the matching LRC.
+Choose the **내 노래** bottom tab, select an audio file, then select the matching LRC.
+Successful importing returns to **홈** without autoplay.
 Audio must be decodable by the native platform and at most 256 MiB; LRC must be UTF-8 and at most 1 MiB.
 The app copies audio into private storage and uses its measured duration.
 The original files are not modified, and broad storage permissions are not requested.
@@ -286,7 +289,8 @@ Use **음차 저장** to save the current practice, generated pronunciation, and
 The ordinary practice save button updates video, lyric selection, and timing only; it preserves previously saved pronunciation without storing unsaved generated text or edits.
 Use **음차 수정** to edit one existing pronunciation line or restore its generated text; original lyrics and timestamps remain unchanged.
 Edits reject blank text, line breaks, control characters, and more than 2,000 characters per line or 30,000 edited characters overall.
-Saving is explicit; leaving the screen or switching lyrics or target languages discards unsaved edits.
+Saving is explicit; ending the app session or switching lyrics or target languages discards unsaved edits.
+Switching bottom tabs retains the current unsaved pronunciation state.
 Reopening a saved practice restores the selected language and pronunciation without an AI request when the fetched source text and timestamps match exactly.
 YouTube playback and LRCLIB retrieval still need internet access.
 Changed source lyrics leave the saved pronunciation untouched and report why it was not applied.

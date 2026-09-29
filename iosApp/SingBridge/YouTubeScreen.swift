@@ -3,19 +3,14 @@ import WebKit
 import Shared
 
 struct YouTubeScreen: View {
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    var active = true
 
     var body: some View {
         NavigationStack {
-            YouTubeWebView(active: scenePhase == .active)
+            YouTubeWebView(active: active && scenePhase == .active)
                 .navigationTitle("YouTube")
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("닫기") { dismiss() }
-                    }
-                }
         }
     }
 }
@@ -44,14 +39,8 @@ private struct YouTubeWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ webView: WKWebView, context: Context) {
-        if active {
-            webView.setAllMediaPlaybackSuspended(false)
-            webView.evaluateJavaScript("window.singBridgeResume && window.singBridgeResume()", completionHandler: nil)
-        } else {
-            webView.evaluateJavaScript("window.singBridgePause && window.singBridgePause()", completionHandler: nil)
-            webView.pauseAllMediaPlayback()
-            webView.setAllMediaPlaybackSuspended(true)
-        }
+        context.coordinator.active = active
+        context.coordinator.updatePlayback(webView)
     }
 
     static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
@@ -66,6 +55,18 @@ private struct YouTubeWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         let pronunciation = PronunciationBridge()
+        var active = false
+
+        func updatePlayback(_ webView: WKWebView) {
+            if active {
+                webView.setAllMediaPlaybackSuspended(false)
+                webView.evaluateJavaScript("window.singBridgeResume && window.singBridgeResume()", completionHandler: nil)
+            } else {
+                webView.evaluateJavaScript("window.singBridgePause && window.singBridgePause()", completionHandler: nil)
+                webView.pauseAllMediaPlayback()
+                webView.setAllMediaPlaybackSuspended(true)
+            }
+        }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             guard webView.url?.host == Bundle.main.bundleIdentifier else { return }
@@ -77,6 +78,7 @@ private struct YouTubeWebView: UIViewRepresentable {
             webView.callAsyncJavaScript("window.singBridgeConfigurePronunciation(locale, available)",
                 arguments: ["locale": Locale.preferredLanguages.first ?? "", "available": available],
                 in: nil, in: .page, completionHandler: nil)
+            updatePlayback(webView)
         }
 
         func webView(
