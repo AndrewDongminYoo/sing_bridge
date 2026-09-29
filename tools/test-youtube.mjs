@@ -2418,3 +2418,47 @@ test('lyric seek following waits for the real player position', async () => {
   f.tick();
   assert.equal(f.currentLyric().textContent, 'Second');
 });
+
+test('an album-title search suggests searching by song title and keeps the candidates', async () => {
+  const f = fixture(() =>
+    response([
+      {
+        ...record,
+        id: 1,
+        trackName: 'BAD BUNNY - TURiSTA (Visualizer)',
+        artistName: 'Bad Bunny',
+      },
+      {
+        ...record,
+        id: 2,
+        trackName: 'BAD BUNNY - DtMF (Visualizer)',
+        artistName: 'Bad Bunny',
+      },
+    ]),
+  );
+  f.ready();
+  await f.search('BAD BUNNY DeBÍ TiRAR MáS FOToS');
+  assert.equal(f.element('lyrics-results').children.length, 2);
+  assert.match(f.element('lyrics-status').textContent, /노래 제목으로/);
+});
+
+test('a candidate title found in the query does not trigger the song-title hint', async () => {
+  for (const [trackName, artistName, query] of [
+    ['踊り子 - odoriko', 'Vaundy', 'Vaundy 踊り子'],
+    ['YOASOBI 夜に駆ける(inst)', 'YOASOBI', 'YOASOBI 夜に駆ける'],
+    ['ＰＲＥＴＥＮＤＥＲ', 'Official髭男dism', 'Official髭男dism pretender'],
+    ['DtMF', 'Bad Bunny', 'Bad Bunny - DtMF'],
+  ]) {
+    const f = fixture(() =>
+      response([{ ...record, id: 1, trackName, artistName }]),
+    );
+    f.ready();
+    await f.search(query);
+    assert.doesNotMatch(
+      f.element('lyrics-status').textContent,
+      /노래 제목으로/,
+      query,
+    );
+    assert.match(f.element('lyrics-status').textContent, /같은 곡·버전/, query);
+  }
+});

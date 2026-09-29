@@ -381,6 +381,17 @@ internal fun youtubeLyricsHtml(): String = """
       }
     }
 
+    // An album or video title as the query returns other tracks; detect that from the candidate titles.
+    function comparableText(value) { return value.normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu, ''); }
+    function titleInQuery(query) {
+      const target = comparableText(query);
+      return lyricCandidates.some(record => {
+        const artist = comparableText(record.artistName);
+        return record.trackName.replace(/[(\[{（［【][^)\]}）］】]*[)\]}）］】]/g, ' ').split(/\s[-–—]\s/)
+          .map(comparableText).some(part => part && part !== artist && target.includes(part));
+      });
+    }
+
     async function searchLyrics(query, saved = null) {
       if (lyricBusy) return;
       if (!ready) { lyricsStatus.textContent = '먼저 YouTube 영상을 열어 주세요.'; return; }
@@ -425,7 +436,9 @@ internal fun youtubeLyricsHtml(): String = """
         lyricCandidates = records.map(normalizeLyricRecord).filter(Boolean);
         renderLyricCandidates(videoGeneration);
         const count = lyricsResults.children.length;
-        lyricsStatus.textContent = count ? '영상과 같은 곡·버전을 골라 주세요. 길이가 같아도 가사 시간이 다를 수 있어요.' : '검색 결과가 없어요. 노래 제목이나 가수를 바꿔 검색해 주세요.';
+        lyricsStatus.textContent = !count ? '검색 결과가 없어요. 노래 제목이나 가수를 바꿔 검색해 주세요.'
+          : titleInQuery(query) ? '영상과 같은 곡·버전을 골라 주세요. 길이가 같아도 가사 시간이 다를 수 있어요.'
+          : '검색어와 제목이 같은 가사를 찾지 못했어요. 앨범이나 영상 제목이 아닌 노래 제목으로 다시 검색해 보세요. 아래 결과도 고를 수 있어요.';
       } catch (error) {
         if (videoGeneration === generation) lyricsStatus.textContent = controller.signal.aborted ? '검색 시간이 초과됐어요. 다시 검색해 주세요.' : error instanceof SyntaxError ? '가사 응답을 읽지 못했어요.' : error.message;
       } finally {

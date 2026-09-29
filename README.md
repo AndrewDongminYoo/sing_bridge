@@ -38,6 +38,7 @@ Tap the official player to start; search never autoplays.
 Single-song repeat is enabled by default and can be disabled with **한 곡 반복**; it is retained between tab switches and resets when the app starts a new screen session.
 The YouTube tab requires internet access.
 Search by song and artist, then choose the matching LRCLIB result after checking its title, artist, album, duration, and lyric type.
+When no candidate's title appears in the search terms, as after searching an album title, the status suggests searching by song title; the candidates stay selectable.
 Candidates are ranked by absolute duration difference from the player before limiting the display to 20 results.
 Unknown candidate lengths follow known lengths; ties preserve provider order.
 Until video metadata arrives, provider order is preserved.

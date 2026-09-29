@@ -35,3 +35,4 @@ overrides:
     ignoreWords:
       - écho # accented and non-Latin fixture text
       - مرحبا
+      - ＰＲＥＴＥＮＤＥＲ # full-width title fixture
