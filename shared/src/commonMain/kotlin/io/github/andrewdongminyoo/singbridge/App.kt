@@ -284,7 +284,7 @@ fun App(
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
                         )
-                        Text(if (imported) "내 가사 · 원문" else "일본어 → 한글 발음", Modifier.padding(top = 8.dp), color = Pine)
+                        Text(if (imported) "내 가사 · 원문" else "일본어 → 한글 음차", Modifier.padding(top = 8.dp), color = Pine)
                         Text(
                             if (imported) "내 오디오와 LRC · 기기에 저장됨" else "연습용 샘플 · 보컬 없는 28초 반주",
                             Modifier.padding(top = 8.dp),
@@ -336,9 +336,9 @@ fun App(
                     item {
                         Text(
                             if (imported) {
-                                "가져온 가사를 그대로 표시해요. 자동 발음 변환은 아직 지원하지 않아요."
+                                "가져온 가사를 그대로 표시해요. 자동 음차 변환은 아직 지원하지 않아요."
                             } else {
-                                "한글 발음은 따라 부르기를 돕는 참고 표기예요."
+                                "한글 음차는 따라 부르기를 돕는 참고 표기예요."
                             },
                             Modifier.padding(top = 8.dp),
                             color = Color(0xFF63716A),

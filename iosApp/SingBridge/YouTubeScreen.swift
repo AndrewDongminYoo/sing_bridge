@@ -7,11 +7,7 @@ struct YouTubeScreen: View {
     var active = true
 
     var body: some View {
-        NavigationStack {
-            YouTubeWebView(active: active && scenePhase == .active)
-                .navigationTitle("YouTube")
-                .navigationBarTitleDisplayMode(.inline)
-        }
+        YouTubeWebView(active: active && scenePhase == .active)
     }
 }
 

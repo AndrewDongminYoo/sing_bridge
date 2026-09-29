@@ -2008,7 +2008,7 @@ test('a review-flagged phrase shows its pronunciation with a visible review labe
   const storage = memoryStorage();
   const first = await generatedPractice(storage, 'ja', { needsReview: true });
   const row = first.element('lyrics-timing').children[0];
-  assert.match(row.textContent, /테스트 발음.*발음 확인 필요/);
+  assert.match(row.textContent, /테스트 발음.*음차 확인 필요/);
   assert.ok(
     row.children.some((child) =>
       child.children?.some(
@@ -2020,7 +2020,7 @@ test('a review-flagged phrase shows its pronunciation with a visible review labe
   const second = await reopenPronunciation(storage);
   assert.match(
     second.element('lyrics-timing').children[0].textContent,
-    /테스트 발음.*발음 확인 필요/,
+    /테스트 발음.*음차 확인 필요/,
   );
 });
 
@@ -2031,7 +2031,7 @@ test('a review-flagged phrase without pronunciation shows the source and the rev
   });
   const row = f.element('lyrics-timing').children[0];
   assert.doesNotMatch(row.textContent, /테스트 발음/);
-  assert.match(row.textContent, /발음 확인 필요/);
+  assert.match(row.textContent, /음차 확인 필요/);
 });
 
 test('the pronunciation help says an underlined phrase may show a pronunciation to check', () => {
@@ -2823,4 +2823,96 @@ test('a selected lyric keeps its status when a refined duration re-ranks the can
   f.players[0].duration = 245.4;
   f.tick();
   assert.equal(f.element('lyrics-status').textContent, status);
+});
+
+// UI review of 2026-09-29: docs/notes/2026-09-29-ui-review.md.
+test('the lyric panel follows the task order: status, search, results, 음차, save', () => {
+  const at = (needle, from = 0) => {
+    const index = lyricsHtml.indexOf(needle, from);
+    assert.notEqual(index, -1, needle);
+    return index;
+  };
+  assert.ok(at('id="lyrics-status"') < at('id="lyrics-search"'));
+  assert.ok(at('id="lyrics-search"') < at('id="lyrics-results"'));
+  assert.ok(at('id="lyrics-results"') < at('__PRONUNCIATION__'));
+  assert.ok(at('__PRONUNCIATION__') < at('id="save-practice"'));
+  // The search section collapses after a lyric is chosen, so the status stays outside it.
+  const start = at('<details id="lyrics-settings"');
+  const settings = lyricsHtml.slice(start, at('</details>', start));
+  assert.doesNotMatch(settings, /id="lyrics-status"/);
+});
+
+test('lyric rows are dimmed by color, not opacity, and row labels are at least 0.75rem', () => {
+  const rule = (selector) =>
+    html.match(
+      new RegExp(selector.replace(/[.]/g, '\\.') + '\\s*\\{([^}]*)\\}'),
+    )[1];
+  assert.doesNotMatch(rule('.lyric-row'), /opacity/);
+  assert.doesNotMatch(rule('.lyric-row.is-current'), /opacity/);
+  const size = rule('.pronunciation-languages').match(
+    /font-size:\s*([\d.]+)rem/,
+  )[1];
+  assert.ok(Number(size) >= 0.75, size);
+});
+
+test('the page root font follows iOS Dynamic Type where WebKit supports it', () => {
+  assert.match(
+    html,
+    /@supports \(font: -apple-system-body\) \{\s*html \{ font: -apple-system-body; \}/,
+  );
+  assert.doesNotMatch(html, /body \{[^}]*font: 16px/);
+});
+
+test('user-facing strings call the feature 음차 and keep 발음 only for the sung sound', () => {
+  const text = pronunciationHtml
+    .replace('노래에서 부르는 발음과', '')
+    .replace('구절 언어와 발음을', '');
+  assert.doesNotMatch(text, /발음/);
+});
+
+test('opening a video link is a secondary action beside the primary song search', () => {
+  assert.match(
+    html,
+    /<form id="open">[\s\S]*?<button type="submit">영상 열기<\/button>/,
+  );
+  assert.match(searchHtml, /class="button-primary" type="submit">노래 검색/);
+});
+
+test('saving a reopened practice does not report its saved 음차 as unsaved', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('pronunciation-save').click();
+  const f = await reopenPronunciation(storage);
+  assert.match(
+    f.element('lyrics-timing').children[0].textContent,
+    /테스트 발음/,
+  );
+  f.element('lyrics-offset').value = '2';
+  f.element('lyrics-offset').change();
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /저장했어요/);
+  assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
+});
+
+test('saving the practice still says 음차 is unsaved while a 음차 edit is invalid', async () => {
+  const f = await generatedPractice(memoryStorage());
+  f.element('pronunciation-edit-line').value = 'line-0';
+  f.element('pronunciation-edit-line').change();
+  f.element('pronunciation-edit-text').value = 'one\ntwo';
+  f.element('pronunciation-edit-text').input();
+  assert.equal(f.element('save-practice').disabled, false);
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /저장했어요/);
+  assert.match(f.element('save-status').textContent, /음차 저장/);
+});
+
+test('saving the practice says when generated 음차 is not saved yet', async () => {
+  const f = await generatedPractice(memoryStorage());
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /음차 저장/);
+  f.element('pronunciation-save').click();
+  f.element('lyrics-later').click();
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /저장했어요/);
+  assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
 });
