@@ -202,6 +202,17 @@ test('response mode compares real segment boundaries and retains provenance and 
   });
 });
 
+test('a captured review flag keeps the model pronunciation beside it (#37)', () => {
+  const data = capture();
+  data.result.lines[1].segments[0].pronunciation = '쿄';
+  const result = run(data, ['--response']);
+  assert.equal(result.status, 0, result.stderr);
+  const report = JSON.parse(result.stdout);
+  assert.equal(report.modelReviewRequired, 1);
+  assert.equal(report.results[3].needsReview, true);
+  assert.equal(report.results[3].pronunciation, '쿄');
+});
+
 test('a dictionary match does not clear the model review flag or invent final pronunciation', () => {
   const data = capture();
   Object.assign(data.result.lines[0].segments[0], {
@@ -232,6 +243,8 @@ test('capture validation rejects source changes, IDs, targets, invalid reviews, 
       data.result.target = 'en';
     },
     (data) => {
+      // An unknown-language phrase must keep its source.
+      data.result.lines[1].segments[0].language = 'und';
       data.result.lines[1].segments[0].pronunciation = 'きょう';
     },
     (data) => {

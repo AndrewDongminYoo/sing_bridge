@@ -95,6 +95,28 @@ test('rejects unsupported targets, extra fields, duplicated IDs and unbounded in
   ])
     assert.throws(() => validateRequest(bad));
 });
+// Issue #37: the model often flags a phrase while supplying a pronunciation; keep it so the page can show it for review.
+test('a review-flagged foreign phrase keeps the model pronunciation in both modes', async () => {
+  const flagged = () => {
+    const value = result();
+    value.lines[0].segments[1].needsReview = true;
+    return value;
+  };
+  assert.deepEqual(validateResult(request, flagged()), flagged());
+  const response = await generatePronunciation(request, 'fixture-key', {
+    fetcher: async () =>
+      Response.json({
+        status: 'completed',
+        output: [
+          {
+            type: 'message',
+            content: [{ type: 'output_text', text: JSON.stringify(flagged()) }],
+          },
+        ],
+      }),
+  });
+  assert.deepEqual(response.result, flagged());
+});
 test('rejects source mutation, IDs, unknown fields, unsupported language, same-language rewriting and malformed fields', () => {
   for (const mutate of [
     (r) => (r.lines[0].segments[0].source = '오늘 '),
@@ -102,7 +124,10 @@ test('rejects source mutation, IDs, unknown fields, unsupported language, same-l
     (r) => (r.lines[0].segments[0].extra = true),
     (r) => (r.lines[0].segments[0].language = 'fr'),
     (r) => (r.lines[0].segments[0].pronunciation = 'rewritten'),
-    (r) => (r.lines[0].segments[1].needsReview = true),
+    (r) => {
+      r.lines[0].segments[1].needsReview = true;
+      r.lines[0].segments[1].pronunciation = '   ';
+    },
     (r) => (r.lines[0].segments[1].pronunciation = null),
     (r) => (r.lines[0].segments[1].pronunciation = '   '),
     (r) => (r.lines[0].segments[1].pronunciation = ''),
@@ -129,7 +154,10 @@ test('provider results that break review rules are normalized instead of failing
       { language: 'ko', pronunciation: null, needsReview: false },
     ],
     [
-      (r) => (r.lines[0].segments[1].needsReview = true),
+      (r) => {
+        r.lines[0].segments[1].needsReview = true;
+        r.lines[0].segments[1].pronunciation = '  ';
+      },
       1,
       { language: 'en', pronunciation: null, needsReview: true },
     ],
@@ -520,7 +548,7 @@ test('Spanish review rules match the other foreign languages', () => {
     validateResult(spanishRequest, segment({ pronunciation: null })),
   );
   assert.deepEqual(
-    validateResult(spanishRequest, segment({ needsReview: true }), {
+    validateResult(spanishRequest, segment({ pronunciation: ' ' }), {
       normalize: true,
     }).lines[0].segments[0],
     {
@@ -530,6 +558,12 @@ test('Spanish review rules match the other foreign languages', () => {
       pronunciation: null,
       needsReview: true,
     },
+  );
+  assert.equal(
+    validateResult(spanishRequest, segment({ needsReview: true }), {
+      normalize: true,
+    }).lines[0].segments[0].pronunciation,
+    '투 코라손',
   );
 });
 test('the provider schema and instructions name Spanish', async () => {

@@ -75,31 +75,27 @@ export function validateResult(request, value, { normalize = false } = {}) {
       for (const key of ['reading', 'pronunciation'])
         if (segment[key] !== null)
           string(segment[key], 1000, normalize && key === 'pronunciation');
+      // A review flag marks a pronunciation to check; it keeps the model's pronunciation when there is one.
+      const retainsSource =
+        segment.language === request.target || segment.language === 'und';
       if (normalize) {
         // The server repairs review rules so one segment cannot fail the whole batch.
         if (segment.language === 'und') segment.needsReview = true;
-        if (
-          segment.language !== request.target &&
-          !segment.needsReview &&
-          !segment.pronunciation?.trim()
-        )
-          segment.needsReview = true;
-        if (segment.language === request.target || segment.needsReview)
+        if (retainsSource || !segment.pronunciation?.trim())
           segment.pronunciation = null;
+        if (!retainsSource && segment.pronunciation === null)
+          segment.needsReview = true;
       }
-      if (
-        (segment.language === request.target ||
-          segment.language === 'und' ||
-          segment.needsReview) &&
-        segment.pronunciation !== null
-      )
-        throw new Error('Uncertain or same-language phrase must retain source');
+      if (retainsSource && segment.pronunciation !== null)
+        throw new Error('Unknown or same-language phrase must retain source');
       if (segment.language === 'und' && !segment.needsReview)
         throw new Error('Unknown language requires review');
+      if (segment.pronunciation !== null && !segment.pronunciation.trim())
+        throw new Error('Pronunciation must not be blank');
       if (
-        segment.language !== request.target &&
+        !retainsSource &&
         !segment.needsReview &&
-        !segment.pronunciation?.trim()
+        segment.pronunciation === null
       )
         throw new Error('Foreign phrase requires pronunciation');
     }
