@@ -15,6 +15,7 @@ backgrounding
 bomnare
 cinterop
 cloze
+Colada
 commandlinetools
 Deprioritize
 desu
@@ -58,6 +59,7 @@ noprofile
 norc
 NSURL
 odoriko
+Piña
 Pkotlin
 Postype
 romaji

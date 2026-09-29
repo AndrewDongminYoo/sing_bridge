@@ -381,6 +381,31 @@ internal fun youtubeLyricsHtml(): String = """
       }
     }
 
+    // An album or video title as the query returns other tracks; detect that from the candidate titles.
+    // Width, case, diacritics, punctuation, and spacing do not distinguish titles.
+    function comparableText(value) { return value.normalize('NFKD').replace(/\p{M}/gu, '').normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu, ''); }
+    const bracketed = /[(\[{（［【]([^)\]}）］】]*)[)\]}）］】]/g;
+    // Whole-title variants: the full title, the title without brackets, and each bracketed alias.
+    // Segments: the parts of those variants around a spaced dash, where an artist prefix may appear.
+    function titleVariants(title) {
+      const clean = value => comparableText(value.trim().replace(/^(the|an?)\s+/i, ''));
+      const whole = [title, title.replace(bracketed, ' '), ...[...title.matchAll(bracketed)].map(match => match[1])];
+      const segments = whole.flatMap(value => { const parts = value.split(/\s[-–—]\s/); return parts.length > 1 ? parts : []; });
+      return { whole: whole.map(clean), segments: segments.map(clean) };
+    }
+    function titleInQuery(query) {
+      const target = comparableText(query);
+      const words = query.split(/\s+/).map(comparableText);
+      // A short Latin title such as "I" must be a whole word, not a substring.
+      const found = part => part && (/^[a-z0-9]{1,2}$/.test(part) ? words.includes(part) : target.includes(part));
+      return lyricCandidates.some(record => {
+        const artist = comparableText(record.artistName);
+        const { whole, segments } = titleVariants(record.trackName);
+        // Only a dashed segment can be an artist prefix, including a collaborator field such as "A & B".
+        return whole.some(found) || segments.some(part => part !== artist && !(part.length >= 3 && artist.includes(part)) && found(part));
+      });
+    }
+
     async function searchLyrics(query, saved = null) {
       if (lyricBusy) return;
       if (!ready) { lyricsStatus.textContent = '먼저 YouTube 영상을 열어 주세요.'; return; }
@@ -425,7 +450,9 @@ internal fun youtubeLyricsHtml(): String = """
         lyricCandidates = records.map(normalizeLyricRecord).filter(Boolean);
         renderLyricCandidates(videoGeneration);
         const count = lyricsResults.children.length;
-        lyricsStatus.textContent = count ? '영상과 같은 곡·버전을 골라 주세요. 길이가 같아도 가사 시간이 다를 수 있어요.' : '검색 결과가 없어요. 노래 제목이나 가수를 바꿔 검색해 주세요.';
+        lyricsStatus.textContent = !count ? '검색 결과가 없어요. 노래 제목이나 가수를 바꿔 검색해 주세요.'
+          : titleInQuery(query) ? '영상과 같은 곡·버전을 골라 주세요. 길이가 같아도 가사 시간이 다를 수 있어요.'
+          : '검색어와 제목이 같은 가사를 찾지 못했어요. 앨범이나 영상 제목이 아닌 노래 제목으로 다시 검색해 보세요. 아래 결과도 고를 수 있어요.';
       } catch (error) {
         if (videoGeneration === generation) lyricsStatus.textContent = controller.signal.aborted ? '검색 시간이 초과됐어요. 다시 검색해 주세요.' : error instanceof SyntaxError ? '가사 응답을 읽지 못했어요.' : error.message;
       } finally {
