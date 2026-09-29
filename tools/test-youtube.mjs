@@ -2495,3 +2495,116 @@ test('an exact short artist prefix does not count as the song title', async () =
   await f.search('U2 Achtung Baby');
   assert.match(f.element('lyrics-status').textContent, /노래 제목으로/);
 });
+
+// Issue #33: one test per edge case of the substring matching from PR #32.
+for (const [label, trackName, artistName, query, hint] of [
+  [
+    'a longer Latin title is a whole word',
+    'Love',
+    'Taylor Swift',
+    'Taylor Swift Lover',
+    true,
+  ],
+  [
+    'a presentation suffix is not an alias',
+    'Song (Visualizer)',
+    'Artist',
+    'Artist Visualizer',
+    true,
+  ],
+  [
+    'punctuation separates a short title',
+    'I',
+    'Kendrick Lamar',
+    'Kendrick Lamar-I',
+    false,
+  ],
+  [
+    'a title equal to the artist needs its own occurrence',
+    'Bad Company',
+    'Bad Company',
+    'Bad Company Straight Shooter',
+    true,
+  ],
+  [
+    'width is normalized before the leading article',
+    'Ｔｈｅ Song',
+    'Artist',
+    'Artist Song',
+    false,
+  ],
+  ['kana voicing marks are kept', 'がらす', 'Artist', 'Artist からす', true],
+  ['Devanagari vowel signs are kept', 'कोई', 'Artist', 'Artist कई', true],
+]) {
+  test(`song-title hint: ${label}`, async () => {
+    const f = fixture(() =>
+      response([{ ...record, id: 1, trackName, artistName }]),
+    );
+    f.ready();
+    await f.search(query);
+    const status = f.element('lyrics-status').textContent;
+    if (hint) assert.match(status, /노래 제목으로/);
+    else assert.match(status, /같은 곡·버전/);
+  });
+}
+
+test('song-title hint: only the displayed candidates count, and a refined duration recomputes it', async () => {
+  const f = fixture(() =>
+    response([
+      { ...record, id: 1, trackName: 'Target', duration: 300 },
+      ...Array.from({ length: 20 }, (_, index) => ({
+        ...record,
+        id: index + 2,
+        trackName: `Other ${index + 2}`,
+        duration: 100,
+      })),
+    ]),
+  );
+  f.ready();
+  f.players[0].duration = 100;
+  await f.search('SingBridge Target');
+  assert.equal(f.element('lyrics-results').children.length, 20);
+  assert.match(f.element('lyrics-status').textContent, /노래 제목으로/);
+  f.players[0].duration = 300;
+  f.tick();
+  assert.match(f.element('lyrics-results').children[0].textContent, /^Target/);
+  assert.match(f.element('lyrics-status').textContent, /같은 곡·버전/);
+});
+
+test('token matching keeps titles that differ only in punctuation or spacing', async () => {
+  for (const [trackName, artistName, query] of [
+    ["Don't Stop Me Now", 'Queen', 'Queen dont stop me now'],
+    ['A.D.H.D', 'Kendrick Lamar', 'Kendrick Lamar ADHD'],
+    [
+      'Mr. Blue Sky',
+      'Electric Light Orchestra',
+      'Electric Light Orchestra Mr Blue Sky',
+    ],
+    ['Bad Company', 'Bad Company', 'Bad Company Bad Company'],
+    ['Song (Official Video)', 'Artist', 'Artist Song'],
+  ]) {
+    const f = fixture(() =>
+      response([{ ...record, id: 1, trackName, artistName }]),
+    );
+    f.ready();
+    await f.search(query);
+    assert.match(f.element('lyrics-status').textContent, /같은 곡·버전/, query);
+  }
+});
+
+test('a selected lyric keeps its status when a refined duration re-ranks the candidates', async () => {
+  const f = fixture(() =>
+    response([
+      { ...record, id: 1, trackName: 'Initial', duration: 246 },
+      { ...record, id: 2, trackName: 'Refined', duration: 245 },
+    ]),
+  );
+  f.ready();
+  f.players[0].duration = 246;
+  await f.search();
+  f.select();
+  const status = f.element('lyrics-status').textContent;
+  f.players[0].duration = 245.4;
+  f.tick();
+  assert.equal(f.element('lyrics-status').textContent, status);
+});

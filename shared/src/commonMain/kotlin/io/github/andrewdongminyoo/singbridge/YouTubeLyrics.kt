@@ -111,7 +111,9 @@ internal fun youtubeLyricsHtml(): String = """
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(function() {
       followDirty = true;
     }).observe(lyricWindow);
-    let lyricCandidates = [], rankedDuration = 0;
+    let lyricCandidates = [], rankedDuration = 0, lyricQuery = '';
+    const candidateStatus = '영상과 같은 곡·버전을 골라 주세요. 길이가 같아도 가사 시간이 다를 수 있어요.';
+    const titleHintStatus = '검색어와 제목이 같은 가사를 찾지 못했어요. 앨범이나 영상 제목이 아닌 노래 제목으로 다시 검색해 보세요. 아래 결과도 고를 수 있어요.';
     let lyricLines = [], lyricAdjustment = 0, lyricRequest = null, lyricBusy = false, lyricRetryAt = 0;
 
     let lyricFinished = Promise.resolve(), selectedLyricRecord = null;
@@ -357,7 +359,8 @@ internal fun youtubeLyricsHtml(): String = """
         ? '영상 ' + time(rankedDuration) + ' · 길이 차이가 작은 순서예요. 같은 곡·버전인지 확인해 주세요.'
         : '영상 길이를 확인하면 길이 차이가 작은 순서로 정렬해요.';
       lyricsResults.replaceChildren();
-      for (const item of records.slice(0, 20)) {
+      const shown = records.slice(0, 20);
+      for (const item of shown) {
         const record = item;
         const button = document.createElement('button'); button.type = 'button';
         const hasLyrics = !record.instrumental && (record.syncedLyrics || record.plainLyrics);
@@ -379,30 +382,59 @@ internal fun youtubeLyricsHtml(): String = """
         button.addEventListener('click', () => chooseLyrics(record, videoGeneration));
         lyricsResults.append(button);
       }
+      // The song-title hint describes the displayed candidates, so a re-ranking by a refined duration can change it.
+      if (lyricsStatus.textContent === candidateStatus || lyricsStatus.textContent === titleHintStatus) lyricsStatus.textContent = titleInQuery(lyricQuery, shown) ? candidateStatus : titleHintStatus;
+      return shown;
     }
 
     // An album or video title as the query returns other tracks; detect that from the candidate titles.
-    // Width, case, diacritics, punctuation, and spacing do not distinguish titles.
-    function comparableText(value) { return value.normalize('NFKD').replace(/\p{M}/gu, '').normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu, ''); }
+    // Width, case, Latin diacritics, punctuation, and spacing do not distinguish titles; other scripts keep their marks.
+    function foldText(value) { return value.normalize('NFKD').replace(/(\p{Script=Latin})\p{M}+/gu, '$1').normalize('NFKC').toLowerCase(); }
+    // joined drops punctuation, symbols, and spaces; tokens are the words between them.
+    function textParts(value) {
+      const folded = foldText(value);
+      return { joined: folded.replace(/[\p{P}\p{S}\s]/gu, ''), tokens: folded.split(/[\p{P}\p{S}\s]+/u).filter(Boolean) };
+    }
+    const noWordSpaces = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
+    // A spaced-script title must equal a run of whole words, so "Love" is not found in "Lover" but "Don't" matches "dont".
+    // Titles in scripts written without word spaces (Han, kana, Hangul) have no word boundaries and match as a substring.
+    function wordRun(text, part) {
+      for (let start = 0; start < text.tokens.length; start++) {
+        let run = '';
+        for (let end = start; end < text.tokens.length && run.length < part.length; end++) {
+          run += text.tokens[end];
+          if (run === part) return [start, end + 1];
+        }
+      }
+      return null;
+    }
+    function contains(text, part) { return !!part && (noWordSpaces.test(part) ? text.joined.includes(part) : !!wordRun(text, part)); }
+    function withoutFirst(text, part) {
+      if (noWordSpaces.test(part)) return { joined: text.joined.replace(part, ''), tokens: text.tokens };
+      const run = wordRun(text, part);
+      return run ? { joined: text.joined, tokens: [...text.tokens.slice(0, run[0]), ...text.tokens.slice(run[1])] } : text;
+    }
     const bracketed = /[(\[{（［【]([^)\]}）］】]*)[)\]}）］】]/g;
-    // Whole-title variants: the full title, the title without brackets, and each bracketed alias.
+    const presentation = /^(official)?(music|lyrics?)?(video|audio|visualizer)$|^(mv|lyrics?)$/;
+    // Whole-title variants: the full title, the title without brackets, and each bracketed alias that is not a presentation label.
     // Segments: the parts of those variants around a spaced dash, where an artist prefix may appear.
     function titleVariants(title) {
-      const clean = value => comparableText(value.trim().replace(/^(the|an?)\s+/i, ''));
-      const whole = [title, title.replace(bracketed, ' '), ...[...title.matchAll(bracketed)].map(match => match[1])];
+      const clean = value => textParts(foldText(value).trim().replace(/^(the|an?)\s+/, '')).joined;
+      const aliases = [...title.matchAll(bracketed)].map(match => match[1]).filter(alias => !presentation.test(textParts(alias).joined));
+      const whole = [title, title.replace(bracketed, ' '), ...aliases];
       const segments = whole.flatMap(value => { const parts = value.split(/\s[-–—]\s/); return parts.length > 1 ? parts : []; });
       return { whole: whole.map(clean), segments: segments.map(clean) };
     }
-    function titleInQuery(query) {
-      const target = comparableText(query);
-      const words = query.split(/\s+/).map(comparableText);
-      // A short Latin title such as "I" must be a whole word, not a substring.
-      const found = part => part && (/^[a-z0-9]{1,2}$/.test(part) ? words.includes(part) : target.includes(part));
-      return lyricCandidates.some(record => {
-        const artist = comparableText(record.artistName);
+    function titleInQuery(query, records) {
+      const text = textParts(query);
+      return records.some(record => {
+        const artist = textParts(record.artistName);
         const { whole, segments } = titleVariants(record.trackName);
+        // A title equal to the artist counts only when it appears apart from the artist's own name.
+        const inQuery = part => contains(part === artist.joined ? withoutFirst(text, part) : text, part);
         // Only a dashed segment can be an artist prefix, including a collaborator field such as "A & B".
-        return whole.some(found) || segments.some(part => part !== artist && !(part.length >= 3 && artist.includes(part)) && found(part));
+        const artistPart = part => part === artist.joined || (noWordSpaces.test(part) ? part.length >= 3 && artist.joined.includes(part) : !!wordRun(artist, part));
+        return whole.some(inQuery) || segments.some(part => !artistPart(part) && contains(text, part));
       });
     }
 
@@ -448,11 +480,10 @@ internal fun youtubeLyricsHtml(): String = """
         }
         if (!Array.isArray(records)) throw new Error('가사 응답을 읽지 못했어요. 잠시 후 다시 검색해 주세요.');
         lyricCandidates = records.map(normalizeLyricRecord).filter(Boolean);
-        renderLyricCandidates(videoGeneration);
-        const count = lyricsResults.children.length;
-        lyricsStatus.textContent = !count ? '검색 결과가 없어요. 노래 제목이나 가수를 바꿔 검색해 주세요.'
-          : titleInQuery(query) ? '영상과 같은 곡·버전을 골라 주세요. 길이가 같아도 가사 시간이 다를 수 있어요.'
-          : '검색어와 제목이 같은 가사를 찾지 못했어요. 앨범이나 영상 제목이 아닌 노래 제목으로 다시 검색해 보세요. 아래 결과도 고를 수 있어요.';
+        lyricQuery = query;
+        const shown = renderLyricCandidates(videoGeneration);
+        lyricsStatus.textContent = !shown.length ? '검색 결과가 없어요. 노래 제목이나 가수를 바꿔 검색해 주세요.'
+          : titleInQuery(query, shown) ? candidateStatus : titleHintStatus;
       } catch (error) {
         if (videoGeneration === generation) lyricsStatus.textContent = controller.signal.aborted ? '검색 시간이 초과됐어요. 다시 검색해 주세요.' : error instanceof SyntaxError ? '가사 응답을 읽지 못했어요.' : error.message;
       } finally {
