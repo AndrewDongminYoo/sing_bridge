@@ -20,14 +20,15 @@ internal fun youtubeLyricsHtml(): String = """
     <button id="forward" type="button" disabled>5초 앞으로</button>
     </div>
     </div>
-    <div class="control-row" role="group" aria-labelledby="sync-caption">
-    <span id="sync-caption" class="control-caption">가사<br>싱크</span>
-    <div class="sync-controls">
+    <details id="lyrics-sync">
+    <summary>가사 싱크 조절</summary>
+    <p>노래 위치는 그대로 두고 가사 표시 시점만 바꿔요.</p>
+    <div class="sync-controls" role="group" aria-label="가사 표시 시점 조절">
     <button id="lyrics-earlier" type="button" disabled>0.5초 일찍</button>
     <button id="lyrics-later" type="button" disabled>0.5초 늦게</button>
     <button id="lyrics-reset" type="button" disabled>초기화</button>
     </div>
-    </div>
+    </details>
     </footer>
     <dialog id="lyrics-panel" aria-labelledby="lyrics-panel-heading">
     <div class="panel-toolbar">
@@ -116,6 +117,7 @@ internal fun youtubeLyricsHtml(): String = """
     let lyricFinished = Promise.resolve(), selectedLyricRecord = null;
 
     function resetLyrics() {
+      document.getElementById('lyrics-sync').open = false;
       if (lyricsPanel.open) lyricsPanel.close();
       document.getElementById('lyric-window').scrollTop = 0;
       if (lyricRequest) lyricRequest.abort();

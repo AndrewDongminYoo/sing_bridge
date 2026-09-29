@@ -47,8 +47,12 @@ Use **0.5초 일찍**, **0.5초 늦게**, and **초기화** without opening a ke
 Precise numeric entry remains under **시간 직접 입력** in the settings panel, bounded to ±600 seconds.
 Plain lyrics are displayed without synchronization.
 The practice screen fits the WebView viewport with the official video, lyrics, and bottom controls visible together.
+Expand **가사 싱크 조절** for lyric-only half-second adjustments and reset.
+On short portrait screens, the expanded section temporarily replaces five-second seeking to preserve readable lyric space; collapse it to return to playback controls.
+A new video starts with this section collapsed.
+Expanding or collapsing this inline section preserves playback and the current offset; the offset summary remains visible when collapsed.
 Long lyrics scroll inside the reading area; the transport and timing controls stay in place.
-Visible **재생 이동** and **가사 싱크** captions distinguish seeking from timing adjustment; search and save actions use primary buttons.
+The **재생 이동** caption and **가사 싱크 조절** disclosure distinguish seeking from timing adjustment; search and save actions use primary buttons.
 Timed lyrics form a stable list: the active row is emphasized and smoothly follows the actual playback position.
 Touch, wheel, or keyboard reading suspends automatic following until four seconds after the last interaction; reduced-motion settings disable animated scrolling.
 Tap a timed lyric or its pronunciation to play from that line, including the current timing adjustment; Enter and Space work on focused rows.
