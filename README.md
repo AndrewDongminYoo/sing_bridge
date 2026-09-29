@@ -286,6 +286,7 @@ For independent Japanese dictionary reading comparisons, see the [offline refere
 It reports agreement, differences, and unassessable phrases without changing app output or saved edits; dictionary agreement is not sung-pronunciation accuracy.
 
 The YouTube lyric settings can request AI phrase identification and pronunciation in Korean or English.
+Source phrases can be Japanese, Korean, English, or Spanish; Spanish is experimental and shown as `스페인어(실험)` because it has no Gate A accuracy measurement yet.
 The initial target follows the native preferred language; other locales require an explicit choice.
 Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
 The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction, and leaves original lyrics usable on failure.
