@@ -62,7 +62,9 @@ In those six batches every line came back without pronunciation, so a user would
 The マリーゴールド count is a lower bound because its batch 3 had one more flagged segment, and the script did not record whether that segment was a whole line.
 The fully flagged second batches of 夜に駆ける and 白日 are the batches that failed in the earlier run.
 
-This output cannot show whether the model flagged those segments without a pronunciation or filled one that the server then removed under the #31 normalization, because the server returns only the normalized result.
+The server returns only the normalized result, so this output cannot show where a flag came from.
+Under the #31 normalization, `validateResult` in `server/pronunciation.mjs` sets `needsReview` when the model flagged the segment, when the language is `und`, or when a foreign-language segment has an empty or missing pronunciation, and then removes the pronunciation of every flagged segment.
+Any of the 85 segments may therefore have been flagged by the server rather than the model, and a flagged segment may or may not have had a pronunciation from the model; only a raw provider capture can separate these cases.
 The follow-up is tracked in #37.
 
 ## Reading the numbers
