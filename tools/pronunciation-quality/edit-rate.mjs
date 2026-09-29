@@ -60,6 +60,13 @@ function validateLayer(target, data) {
     ) {
       invalid('line segments');
     }
+    // Like validatePronunciation: the segments must reproduce their source line exactly.
+    if (
+      line.segments.map((segment) => segment.source).join('') !==
+      data.source[Number(match[1])].text
+    ) {
+      invalid('segments do not reproduce the source line');
+    }
   }
   if (
     !isObject(data.edits) ||
@@ -146,7 +153,12 @@ function layerReport(item, target, data) {
   };
 }
 
-// `reviewed` names the layers a reviewer finished, as "<lyricId>:<target>"; only they enter the totals.
+// A key is "<lyricId>:<target>", or "<videoId>:<lyricId>:<target>" when one lyric is saved for several videos.
+const matches = (key, layer) =>
+  key === `${layer.lyricId}:${layer.target}` ||
+  key === `${layer.videoId}:${layer.lyricId}:${layer.target}`;
+
+// `reviewed` names the layers a reviewer finished; only they enter the totals.
 export function editRate(library, { reviewed = [] } = {}) {
   validateLibrary(library);
   const layers = library.items.flatMap((item) =>
@@ -154,31 +166,33 @@ export function editRate(library, { reviewed = [] } = {}) {
       layerReport(item, target, data),
     ),
   );
-  const keys = new Set(
-    layers.map((layer) => `${layer.lyricId}:${layer.target}`),
-  );
+  const selected = new Set();
   for (const key of reviewed) {
-    if (!keys.has(key)) {
+    const found = layers.filter((layer) => matches(key, layer));
+    if (!found.length) {
       throw new Error(
         `The reviewed layer ${JSON.stringify(key)} is not in the saved library.`,
       );
     }
+    if (found.length > 1) {
+      throw new Error(
+        `The reviewed layer ${JSON.stringify(key)} matches more than one saved video; use <videoId>:<lyricId>:<target>.`,
+      );
+    }
+    selected.add(found[0]);
   }
   if (!reviewed.length) return { layers, total: null };
-  const selected = layers.filter((layer) =>
-    reviewed.includes(`${layer.lyricId}:${layer.target}`),
-  );
   const sum = (field) =>
-    selected.reduce((total, layer) => total + layer[field], 0);
+    [...selected].reduce((total, layer) => total + layer[field], 0);
   const textLines = sum('textLines');
   const uneditedLines = sum('uneditedLines');
   return {
     layers,
     total: {
       songs: new Set(
-        selected.map((layer) => `${layer.videoId}:${layer.lyricId}`),
+        [...selected].map((layer) => `${layer.videoId}:${layer.lyricId}`),
       ).size,
-      layers: selected.length,
+      layers: selected.size,
       textLines,
       generatedLines: sum('generatedLines'),
       missingLines: sum('missingLines'),

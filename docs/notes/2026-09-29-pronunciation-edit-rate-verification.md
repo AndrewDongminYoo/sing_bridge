@@ -15,6 +15,7 @@ They cover per-song counts (text, generated, missing, edited, unedited, review-f
 Hosted review on PR #34 reported five findings, all confirmed against the code: totals included every saved layer, including unreviewed ones; the ratio divided by generated lines, so an incomplete layer could pass; one song with two targets counted as two songs; malformed entries such as `items: [null]` produced an empty successful report; and rerunning the extraction could reuse a stale `library.bin`.
 Totals now cover only layers named with `--reviewed <lyricId>:<target>` and are `null` otherwise, the ratio divides by lines with text, songs and layers are counted separately, input must pass the app's version-1 saved-library checks, and the README protocol recreates the extraction directory and checks that a file was written.
 The eight rewritten tests failed on the first version except the CLI error test, which guards existing behavior, and all eight pass; a query for a missing key left no file and `test -s` failed as intended.
+A local review then found that `<lyricId>:<target>` could select layers of two videos saved with the same lyrics, and that segments were not checked against their source line; ambiguous keys now fail unless written as `<videoId>:<lyricId>:<target>`, segments must reproduce the source like the app's `validatePronunciation`, both regressions failed first, and all ten tests pass.
 
 ## Real-data smoke run
 

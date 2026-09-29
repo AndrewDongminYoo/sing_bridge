@@ -199,3 +199,25 @@ test('the CLI exits 2 on invalid input or options without echoing input', () => 
     assert.ok(!child.stderr.includes(SECRET));
   }
 });
+
+test('a reviewed key matching layers of two videos must name the video', () => {
+  const data = library(
+    item({ ko: layer() }),
+    item({ ko: layer('ko', { edits: {} }) }, { videoId: 'DDDDDDDDDDD' }),
+  );
+  assert.throws(() => editRate(data, { reviewed: ['7:ko'] }), /more than one/);
+  const report = editRate(data, { reviewed: ['DDDDDDDDDDD:7:ko'] });
+  assert.equal(report.total.layers, 1);
+  assert.equal(report.total.editedLines, 0);
+});
+
+test('rejects segments that do not reproduce their source line', () => {
+  const mismatched = layer('ko', {
+    lines: [line('line-1', segment('unrelated', '니'))],
+    edits: {},
+  });
+  assert.throws(
+    () => editRate(library(item({ ko: mismatched }))),
+    /saved pronunciation/,
+  );
+});
