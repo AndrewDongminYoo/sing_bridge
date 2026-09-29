@@ -593,6 +593,11 @@ test('the provider schema and instructions name Spanish', async () => {
   // An uncertain Japanese reading gets the most likely pronunciation plus a review flag (#40).
   assert.match(sent.instructions, /most likely reading/);
   assert.match(sent.instructions, /per phrase, never for a whole batch/);
+  // Korean is foreign for the en target, so it needs a pronunciation too.
+  assert.match(
+    sent.instructions,
+    /Every ja, ko, en, or es phrase outside the target language needs a pronunciation/,
+  );
   assert.doesNotMatch(
     sent.instructions,
     /ambiguous phrases use needsReview=true and pronunciation=null/,

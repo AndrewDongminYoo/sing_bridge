@@ -14,7 +14,7 @@ The prompt in `server/pronunciation.mjs` no longer tells the model to use `pronu
 It now says:
 
 - `und` marks a phrase whose language is unsupported or cannot be identified, and always carries `needsReview=true` and `pronunciation=null`.
-- Every `ja`, `en`, or `es` phrase outside the target language needs a pronunciation.
+- Every `ja`, `ko`, `en`, or `es` phrase outside the target language needs a pronunciation. `ko` was added after the paid run below, in answer to review on #41; for the `ko` target used in that run a Korean phrase is in the target language, so the addition does not change what was tested.
 - When a Japanese reading is uncertain, the model chooses the most likely reading from the phrase and neighboring lines, gives its pronunciation, and sets `needsReview=true`.
 - Review is decided per phrase, never for a whole batch of lines.
 
