@@ -99,6 +99,38 @@ The tool does not infer or merge language boundaries and does not fill missing r
 Captures and reports contain supplied text; keep real samples outside Git unless explicitly approved for publication.
 No API requests are made, and no app storage is modified.
 
+## Measure the reviewer edit rate
+
+`edit-rate.mjs` reads the app's saved library and counts, per saved song and target language, how many generated pronunciation lines a reviewer edited.
+It supports the pronunciation-accuracy target in Gate A of the [competitive brief](../../docs/notes/2026-09-29-competitive-brief.md).
+
+Protocol for a measurement:
+
+1. On the iOS Debug simulator, generate pronunciation for a song, have a fluent reviewer read every line and correct it with **음차 수정**, then save with **음차 저장**.
+2. Extract the saved library from a copy of the simulator's WebKit storage:
+
+   ```sh
+   container=$(xcrun simctl get_app_container booted io.github.andrewdongminyoo.singbridge data)
+   store=$(find "$container/Library/WebKit" -name localstorage.sqlite3 | head -1)
+   mkdir -p build/edit-rate && cp "$store"* build/edit-rate/
+   sqlite3 build/edit-rate/localstorage.sqlite3 "select writefile('build/edit-rate/library.bin', value) from ItemTable where key='singbridge.practice.v1';"
+   ```
+
+3. Run the report:
+
+   ```sh
+   node tools/pronunciation-quality/edit-rate.mjs build/edit-rate/library.bin
+   ```
+
+The input can be UTF-8 or the UTF-16LE value WebKit stores, up to 4 MiB.
+The report lists video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, edited and unedited lines, lines with a review flag, and the unedited ratio, plus totals.
+It never prints lyric or pronunciation text; invalid input exits 2 without echoing it.
+An edit identical to the generated text does not count as a change.
+
+The app does not record that a review happened, so an unreviewed song reports every line unedited; the protocol, not the tool, guarantees review.
+Since #29, the server marks a segment for review when its language is unknown or its pronunciation is empty, so a review flag no longer shows whether the model or the server set it.
+Keep extracted libraries under the ignored `build/` directory; they contain lyrics.
+
 ## Report
 
 The CLI emits JSON to stdout, with engine and Node versions, one dictionary-load duration, per-phrase timings, source-preserving token evidence, reference candidates, and comparison outcomes.
