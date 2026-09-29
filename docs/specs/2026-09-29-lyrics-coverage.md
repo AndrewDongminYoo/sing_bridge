@@ -15,7 +15,7 @@ Tests use fixture responses and run in CI; they make no network requests.
 ## Constraints
 
 - Store and print metadata only; lyric text never leaves the process.
-- Follow LRCLIB's guidance: client identification, sequential requests with a delay, and `Retry-After` on HTTP 429.
+- Follow LRCLIB's guidance: client identification, sequential requests with a delay, and no further requests after HTTP 429.
 - Keep the query, response limit, candidate normalization, and 20-candidate display limit aligned with `YouTubeLyrics.kt` and `YouTubeSearch.kt`.
 
 ## Non-goals

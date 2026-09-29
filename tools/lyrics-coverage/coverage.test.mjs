@@ -164,27 +164,6 @@ test('summarizes coverage over measured songs, excluding errors', async () => {
   assert.match(report.songs[2].error, /HTTP 503/);
 });
 
-test('waits for Retry-After once, then records an error', async () => {
-  const waits = [];
-  let calls = 0;
-  const fetcher = async () => {
-    calls += 1;
-    return new Response('', { status: 429, headers: { 'Retry-After': '3' } });
-  };
-  const report = await measure(
-    [{ artist: 'A', title: 'B', durationSeconds: null }],
-    {
-      fetcher,
-      delayMs: 0,
-      sleep: async (ms) => waits.push(ms),
-    },
-  );
-  assert.equal(calls, 2);
-  assert.deepEqual(waits, [3000]);
-  assert.equal(report.songs[0].status, 'error');
-  assert.match(report.songs[0].error, /rate limited/);
-});
-
 test('requests songs sequentially with the configured delay', async () => {
   const events = [];
   let active = 0;
@@ -278,22 +257,6 @@ test('reports malformed JSON without quoting the response', async () => {
   assert.ok(!JSON.stringify(report).includes(LYRIC_SENTINEL));
 });
 
-test('records an error instead of retrying early after a long Retry-After', async () => {
-  const waits = [];
-  let calls = 0;
-  const fetcher = async () => {
-    calls += 1;
-    return new Response('', { status: 429, headers: { 'Retry-After': '600' } });
-  };
-  const report = await measure(
-    [{ artist: 'A', title: 'B', durationSeconds: 200 }],
-    { fetcher, delayMs: 0, sleep: async (ms) => waits.push(ms) },
-  );
-  assert.equal(calls, 1);
-  assert.deepEqual(waits, []);
-  assert.match(report.songs[0].error, /Retry-After 600 s exceeds/);
-});
-
 test('creates the output directory for the report', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'singbridge-coverage-'));
   try {
@@ -339,14 +302,15 @@ test('the CLI rejects an option without a value before any request', () => {
   }
 });
 
-test('stops requesting later songs once LRCLIB rate limits the run', async () => {
-  for (const retryAfter of ['600', '3']) {
+test('ends the run on the first 429 without waiting or retrying', async () => {
+  for (const retryAfter of ['3', '600', '9'.repeat(400), null]) {
     let calls = 0;
+    const waits = [];
     const fetcher = async () => {
       calls += 1;
       return new Response('', {
         status: 429,
-        headers: { 'Retry-After': retryAfter },
+        headers: retryAfter === null ? {} : { 'Retry-After': retryAfter },
       });
     };
     const report = await measure(
@@ -354,14 +318,15 @@ test('stops requesting later songs once LRCLIB rate limits the run', async () =>
         { artist: 'A', title: 'One', durationSeconds: 200 },
         { artist: 'A', title: 'Two', durationSeconds: 200 },
       ],
-      { fetcher, delayMs: 1000, sleep: async () => {} },
+      { fetcher, delayMs: 1000, sleep: async (ms) => waits.push(ms) },
     );
-    assert.equal(calls, retryAfter === '600' ? 1 : 2, retryAfter);
+    assert.equal(calls, 1, String(retryAfter));
+    assert.deepEqual(waits, []);
     assert.deepEqual(
       report.songs.map((song) => song.status),
       ['error', 'error'],
     );
+    assert.match(report.songs[0].error, /rate limited/);
     assert.match(report.songs[1].error, /not requested/);
-    assert.equal(report.summary.error, 2);
   }
 });

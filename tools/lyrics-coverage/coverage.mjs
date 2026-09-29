@@ -13,7 +13,6 @@ const REPORTED_CANDIDATES = 5;
 const DURATION_TOLERANCE_SECONDS = 2;
 const MAX_SONGS = 100;
 const MAX_QUERY_LENGTH = 120;
-const MAX_RETRY_WAIT_MS = 120000;
 const STATUSES = [
   'synced',
   'synced-other-duration',
@@ -150,51 +149,29 @@ async function readBoundedJson(response) {
   }
 }
 
-function retryDelay(response) {
-  const value = response.headers.get('Retry-After');
-  const delay =
-    value && /^\d+$/.test(value)
-      ? Number(value) * 1000
-      : Date.parse(value) - Date.now();
-  return Number.isFinite(delay) && delay > 0 ? delay : 60000;
-}
-
-// LRCLIB rate limits the client, not one song, so this ends the whole run.
+// LRCLIB rate limits the client, not one song. A measurement run has no reason to wait
+// it out, so the first 429 ends the run and the remaining songs are not requested.
 class RateLimitError extends Error {}
 
-async function search(song, fetcher, sleep) {
+async function search(song, fetcher) {
   const url = new URL(SEARCH_URL);
   url.searchParams.set('q', song.artist + ' ' + song.title);
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const response = await fetcher(url.toString(), {
-      headers: { 'Lrclib-Client': CLIENT },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (response.status === 429) {
-      await response.body?.cancel();
-      const delay = retryDelay(response);
-      // Never retry before the provider allows it; give up when that is longer than we wait.
-      if (delay > MAX_RETRY_WAIT_MS) {
-        throw new RateLimitError(
-          `LRCLIB rate limited the request; Retry-After ${Math.ceil(delay / 1000)} s exceeds the ${MAX_RETRY_WAIT_MS / 1000} s local wait`,
-        );
-      }
-      if (attempt === 0) {
-        await sleep(delay);
-        continue;
-      }
-      throw new RateLimitError('LRCLIB rate limited the request twice');
-    }
-    if (!response.ok) {
-      await response.body?.cancel();
-      throw new Error(`LRCLIB HTTP ${response.status}`);
-    }
-    const records = await readBoundedJson(response);
-    if (!Array.isArray(records))
-      throw new Error('LRCLIB returned a non-array response');
-    return records;
+  const response = await fetcher(url.toString(), {
+    headers: { 'Lrclib-Client': CLIENT },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (response.status === 429) {
+    await response.body?.cancel();
+    throw new RateLimitError('LRCLIB rate limited the run (HTTP 429)');
   }
-  throw new Error('unreachable');
+  if (!response.ok) {
+    await response.body?.cancel();
+    throw new Error(`LRCLIB HTTP ${response.status}`);
+  }
+  const records = await readBoundedJson(response);
+  if (!Array.isArray(records))
+    throw new Error('LRCLIB returned a non-array response');
+  return records;
 }
 
 export async function measure(
@@ -226,7 +203,7 @@ export async function measure(
     try {
       results.push({
         ...song,
-        ...classify(await search(song, fetcher, sleep), song.durationSeconds),
+        ...classify(await search(song, fetcher), song.durationSeconds),
       });
     } catch (error) {
       if (error instanceof RateLimitError) rateLimited = error.message;
