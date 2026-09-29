@@ -16,7 +16,10 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         :root { --control-ink: #263b35; --control-muted: #596d65; --control-border: #c6d0c9; --control-surface: #fff; --control-tint: #edf2ee; --control-focus: #235e52; }
         * { box-sizing: border-box; }
         [hidden] { display: none !important; }
-        body { margin: 0; background: #faf7f0; color: #263b35; font: 16px system-ui; }
+        html { font-size: 16px; }
+        /* iOS WebKit scales this with Dynamic Type; every size below is in rem. */
+        @supports (font: -apple-system-body) { html { font: -apple-system-body; } }
+        body { margin: 0; background: #faf7f0; color: #263b35; font-family: system-ui; font-size: 1rem; }
         main { max-width: 720px; margin: auto; padding: 16px; }
         label, input { display: block; }
         input { width: 100%; padding: 12px; margin: 8px 0; font: inherit; }
@@ -49,18 +52,18 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         #lyric-window { position: relative; min-height: 0; overflow-y: auto; overscroll-behavior: contain; overflow-anchor: none; text-align: left; }
         #lyrics-timing { padding-inline: 12px; }
         .lyric-row, .lyric-plain { white-space: pre-wrap; margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
-        .lyric-row { min-height: 1.5em; padding-block: 14px; font-size: 1.35rem; font-weight: 700; color: #596d65; opacity: 0.8; transition: color 240ms ease, opacity 240ms ease; }
+        .lyric-row { min-height: 1.5em; padding-block: 14px; font-size: 1.35rem; font-weight: 700; color: #596d65; transition: color 240ms ease; }
         button.lyric-row { display: block; width: 100%; padding-inline: 0; border: 0; border-radius: 6px; background: transparent; text-align: inherit; font-family: inherit; }
         button.lyric-row:focus-visible { outline-offset: -2px; }
         button.lyric-row:not(:disabled):active { background: var(--control-tint); box-shadow: none; }
         .pronunciation-layer { display: block; margin-top: 6px; font-size: 1rem; font-weight: 500; color: #235e52; }
-        .pronunciation-languages { display: block; margin-top: 4px; font-size: 0.6875rem; font-weight: 400; }
+        .pronunciation-languages { display: block; margin-top: 4px; font-size: 0.75rem; font-weight: 600; }
         .pronunciation-review { text-decoration: underline dotted; text-underline-offset: 4px; }
         #pronunciation-target, #pronunciation-edit-line, #pronunciation-edit-text { min-height: 44px; padding: 8px; font: inherit; color: inherit; background: #fff; border: 1px solid var(--control-border); border-radius: 10px; }
         #pronunciation-editor { margin-top: 12px; }
         #pronunciation-edit-line, #pronunciation-edit-text { display: block; width: 100%; margin-block: 8px; }
         #pronunciation-edit-text { resize: vertical; }
-        .lyric-row.is-current { color: #263b35; opacity: 1; }
+        .lyric-row.is-current { color: #263b35; }
         @media (prefers-reduced-motion: reduce) { .lyric-row { transition: none; } }
         .lyric-plain:empty { display: none; }
         #lyrics-placeholder { margin: 12px 0; color: #596d65; }
@@ -119,7 +122,7 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         <label for="video-url">YouTube 영상 링크 또는 ID</label>
         <input id="video-url" type="text" inputmode="url" autocapitalize="none" autocomplete="off" autocorrect="off"
           spellcheck="false" placeholder="https://youtu.be/…" maxlength="2048">
-        <button class="button-primary" type="submit">영상 열기</button>
+        <button type="submit">영상 열기</button>
         </form>
         <div id="saved-library"></div>
         <button id="return-to-practice" type="button" hidden>연습으로 돌아가기</button>

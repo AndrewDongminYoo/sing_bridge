@@ -2779,6 +2779,35 @@ test('the lyric panel follows the task order: status, search, results, 음차, s
   assert.doesNotMatch(settings, /id="lyrics-status"/);
 });
 
+test('lyric rows are dimmed by color, not opacity, and row labels are at least 0.75rem', () => {
+  const rule = (selector) =>
+    html.match(
+      new RegExp(selector.replace(/[.]/g, '\\.') + '\\s*\\{([^}]*)\\}'),
+    )[1];
+  assert.doesNotMatch(rule('.lyric-row'), /opacity/);
+  assert.doesNotMatch(rule('.lyric-row.is-current'), /opacity/);
+  const size = rule('.pronunciation-languages').match(
+    /font-size:\s*([\d.]+)rem/,
+  )[1];
+  assert.ok(Number(size) >= 0.75, size);
+});
+
+test('the page root font follows iOS Dynamic Type where WebKit supports it', () => {
+  assert.match(
+    html,
+    /@supports \(font: -apple-system-body\) \{\s*html \{ font: -apple-system-body; \}/,
+  );
+  assert.doesNotMatch(html, /body \{[^}]*font: 16px/);
+});
+
+test('opening a video link is a secondary action beside the primary song search', () => {
+  assert.match(
+    html,
+    /<form id="open">[\s\S]*?<button type="submit">영상 열기<\/button>/,
+  );
+  assert.match(searchHtml, /class="button-primary" type="submit">노래 검색/);
+});
+
 test('saving a reopened practice does not report its saved 음차 as unsaved', async () => {
   const storage = memoryStorage();
   const first = await generatedPractice(storage);
