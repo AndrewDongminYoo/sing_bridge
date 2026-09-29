@@ -20,15 +20,15 @@ Prompt refinement alone did not resolve the source mutation reliably in this sma
 The selected model is `gpt-5.4-mini-2026-03-17` with default reasoning and strict structured output.
 The final two mini fixture requests preserved all source partitions and returned the following examples:
 
-| Source | Target | Observed output |
-| --- | --- | --- |
-| 오늘도 stay with me | Korean | 오늘도 스테이 위드 미; Korean retained, English converted |
-| 明日は君と歩く | Korean | 아시타와 키미토 아루쿠 |
-| ねえ、空へ行こう | Korean | 네에、소라에 이코- |
-| Kimi to arukou | Korean | 키미 토 아루코-; classified as Japanese |
-| 君と sing with me | Korean | 키미토 싱 위드 미; separate Japanese and English phrases |
-| 같이 걸어요 | English | gachi georeoyo |
-| 봄날에 만나요 | English | bomnare mannayo |
+| Source              | Target  | Observed output                                           |
+| ------------------- | ------- | --------------------------------------------------------- |
+| 오늘도 stay with me | Korean  | 오늘도 스테이 위드 미; Korean retained, English converted |
+| 明日は君と歩く      | Korean  | 아시타와 키미토 아루쿠                                    |
+| ねえ、空へ行こう    | Korean  | 네에、소라에 이코-                                        |
+| Kimi to arukou      | Korean  | 키미 토 아루코-; classified as Japanese                   |
+| 君と sing with me   | Korean  | 키미토 싱 위드 미; separate Japanese and English phrases  |
+| 같이 걸어요         | English | gachi georeoyo                                            |
+| 봄날에 만나요       | English | bomnare mannayo                                           |
 
 The eight-line Korean-target request took 2,944 ms and reported 510 input tokens and 527 output tokens.
 The two-line English-target request took 1,293 ms and reported 424 input tokens and 97 output tokens.

@@ -1,0 +1,37 @@
+version: '0.2'
+language: en
+useGitignore: true
+enableGlobDot: true # tracked dot-paths exist (.github/, .trunk/, .editorconfig)
+ignorePaths:
+  - .git # required because enableGlobDot is on
+  - gradlew # generated Gradle wrapper
+  - gradlew.bat
+  - '**/*.lockfile'
+  - '**/package-lock.json'
+dictionaryDefinitions:
+  - name: project-terms
+    path: ./.cspell/project-terms.txt
+    addWords: true
+dictionaries:
+  - bash
+  - html
+  - java
+  - kotlin
+  - swift
+  - node
+  - npm
+  - typescript
+  - python
+  - softwareTerms
+  - filetypes
+  - fonts
+  - project-terms
+ignoreWords:
+  - UDID # Apple device identifier; a bundled dictionary suggests "uuid"
+overrides:
+  - filename:
+      - tools/test-youtube.mjs
+      - cspell.config.yaml # names the same words below
+    ignoreWords:
+      - écho # accented and non-Latin fixture text
+      - مرحبا

@@ -60,16 +60,20 @@ Place one authorized request and its corresponding validated server result in a 
   },
   "result": {
     "target": "ko",
-    "lines": [{
-      "id": "line-0",
-      "segments": [{
-        "source": "青い空",
-        "language": "ja",
-        "reading": "アオイソラ",
-        "pronunciation": "아오이 소라",
-        "needsReview": false
-      }]
-    }]
+    "lines": [
+      {
+        "id": "line-0",
+        "segments": [
+          {
+            "source": "青い空",
+            "language": "ja",
+            "reading": "アオイソラ",
+            "pronunciation": "아오이 소라",
+            "needsReview": false
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -100,11 +104,11 @@ No API requests are made, and no app storage is modified.
 The CLI emits JSON to stdout, with engine and Node versions, one dictionary-load duration, per-phrase timings, source-preserving token evidence, reference candidates, and comparison outcomes.
 Each timing is a single local measurement, not a stable performance guarantee.
 
-| Outcome | Meaning |
-| --- | --- |
-| `reference_match` | Normalized model reading matches either the dictionary lexical reading or pronunciation candidate. |
-| `reference_difference` | Comparable readings differ; inspect both rather than automatically replacing one. |
-| `unassessable` | Unsupported language/script, missing reading, unknown token, or incomplete dictionary evidence. |
+| Outcome                | Meaning                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| `reference_match`      | Normalized model reading matches either the dictionary lexical reading or pronunciation candidate. |
+| `reference_difference` | Comparable readings differ; inspect both rather than automatically replacing one.                  |
+| `unassessable`         | Unsupported language/script, missing reading, unknown token, or incomplete dictionary evidence.    |
 
 Normalization unifies kana width, composed voicing marks, and hiragana/katakana; it removes punctuation and whitespace.
 It retains prolonged sound marks, geminates, and voicing distinctions.

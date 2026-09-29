@@ -37,12 +37,12 @@ A named agent-browser session loaded the shipped templates with a clearly labele
 The old-layout negative control failed the geometry assertion because the current lyric and timing controls were below the viewport.
 The compact layout passed the same check.
 
-| Browser viewport | Document height | Reading area height | Bottom of controls | Result |
-| --- | --- | --- | --- | --- |
-| 393 × 700 | 700 | 212 | 688 | No outer overflow |
-| 320 × 568 | 568 | 90 | 556 | Controls remain visible |
-| 852 × 393 | 393 | 163 | 381 | Side-by-side layout fits |
-| 393 × 700, 32px root/body text | 700 | 100 | 688 | Enlarged text and controls fit |
+| Browser viewport               | Document height | Reading area height | Bottom of controls | Result                         |
+| ------------------------------ | --------------- | ------------------- | ------------------ | ------------------------------ |
+| 393 × 700                      | 700             | 212                 | 688                | No outer overflow              |
+| 320 × 568                      | 568             | 90                  | 556                | Controls remain visible        |
+| 852 × 393                      | 393             | 163                 | 381                | Side-by-side layout fits       |
+| 393 × 700, 32px root/body text | 700             | 100                 | 688                | Enlarged text and controls fit |
 
 The enlarged-text fixture is a browser CSS scaling check, not a native Dynamic Type claim.
 At 320 × 568, a long lyric produced 2307 pixels of internal content in a 90-pixel reading area; scrollTop reached 120 while the controls stayed at 556.

@@ -1,9 +1,9 @@
 """Generate SingBridge's original instrumental timing guide with no external assets."""
 
 import math
-from pathlib import Path
 import struct
 import wave
+from pathlib import Path
 
 SAMPLE_RATE = 22050
 DURATION_SECONDS = 28
