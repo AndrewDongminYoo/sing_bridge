@@ -2761,3 +2761,47 @@ test('a selected lyric keeps its status when a refined duration re-ranks the can
   f.tick();
   assert.equal(f.element('lyrics-status').textContent, status);
 });
+
+// UI review of 2026-09-29: docs/notes/2026-09-29-ui-review.md.
+test('the lyric panel follows the task order: status, search, results, 음차, save', () => {
+  const at = (needle, from = 0) => {
+    const index = lyricsHtml.indexOf(needle, from);
+    assert.notEqual(index, -1, needle);
+    return index;
+  };
+  assert.ok(at('id="lyrics-status"') < at('id="lyrics-search"'));
+  assert.ok(at('id="lyrics-search"') < at('id="lyrics-results"'));
+  assert.ok(at('id="lyrics-results"') < at('__PRONUNCIATION__'));
+  assert.ok(at('__PRONUNCIATION__') < at('id="save-practice"'));
+  // The search section collapses after a lyric is chosen, so the status stays outside it.
+  const start = at('<details id="lyrics-settings"');
+  const settings = lyricsHtml.slice(start, at('</details>', start));
+  assert.doesNotMatch(settings, /id="lyrics-status"/);
+});
+
+test('saving a reopened practice does not report its saved 음차 as unsaved', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('pronunciation-save').click();
+  const f = await reopenPronunciation(storage);
+  assert.match(
+    f.element('lyrics-timing').children[0].textContent,
+    /테스트 발음/,
+  );
+  f.element('lyrics-offset').value = '2';
+  f.element('lyrics-offset').change();
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /저장했어요/);
+  assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
+});
+
+test('saving the practice says when generated 음차 is not saved yet', async () => {
+  const f = await generatedPractice(memoryStorage());
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /음차 저장/);
+  f.element('pronunciation-save').click();
+  f.element('lyrics-later').click();
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /저장했어요/);
+  assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
+});

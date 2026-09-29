@@ -38,9 +38,7 @@ internal fun youtubeLyricsHtml(): String = """
     <p id="video-details"></p>
     <p id="lyrics-source"></p>
     <p id="lyrics-scripts"></p>
-    <button id="save-practice" class="button-primary" type="button" disabled>이 연습 저장</button>
-    <p id="save-status" role="status" aria-live="polite"></p>
-    __PRONUNCIATION__
+    <p id="lyrics-status" role="status" aria-live="polite">영상을 연 뒤 가사를 검색해 주세요.</p>
     <details id="lyrics-settings" open>
     <summary>노래 제목·가수로 가사 찾기</summary>
     <form id="lyrics-search">
@@ -52,12 +50,14 @@ internal fun youtubeLyricsHtml(): String = """
     <p id="lyrics-ranking" role="status" aria-live="polite"></p>
     <div id="lyrics-results"></div>
     </details>
-    <p id="lyrics-status" role="status" aria-live="polite">영상을 연 뒤 가사를 검색해 주세요.</p>
     <details><summary>시간 직접 입력</summary>
     <label for="lyrics-offset">가사 시간 조정 (초)</label>
     <input id="lyrics-offset" type="number" min="-600" max="600" step="0.1" value="0" disabled>
     <p>양수는 가사를 늦게, 음수는 일찍 보여 줍니다. ±600초까지 조정할 수 있어요.</p>
     </details>
+    __PRONUNCIATION__
+    <button id="save-practice" class="button-primary" type="button" disabled>이 연습 저장</button>
+    <p id="save-status" role="status" aria-live="polite"></p>
     </dialog>
     </section>
     <script>
