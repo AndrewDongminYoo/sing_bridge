@@ -129,13 +129,15 @@ The input can be UTF-8 or the UTF-16LE value WebKit stores, up to 4 MiB.
 The tool validates the fields the report reads: the version-1 envelope; each entry's video ID, LRCLIB ID, and title type; each layer's target and source lines; generated lines, with the server's `validateResult` as the app uses; and edits, with the app's edit limits.
 It does not validate fields that do not affect the counts, such as the timing offset, the preferred target, or the app's 20-entry limit, so it is not a full check of what the app would load.
 Invalid input, or a `--reviewed` key that matches no layer or more than one, exits 2 without echoing input.
-`layers` lists every saved layer with video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, whether generation completed, edited and unedited lines, lines with a review flag, and the unedited ratio.
+`layers` lists every saved layer with video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, whether generation completed, edited and unedited lines, lines with a review flag, phrases saved without pronunciation, and the unedited ratio.
 `totals` covers only the `--reviewed` layers, with one entry per target language, and is `null` without them, so unreviewed or stale layers never enter the measurement and English layers never offset the Hangul result; the Gate A measurement reads `totals.ko`. Each entry counts songs and layers separately.
 The unedited ratio divides unedited generated lines by lines with text, so lines that were never generated count against it; it is not rounded, and the counts beside it are exact.
 An edit identical to the generated text does not count as a change, and the report never prints lyric or pronunciation text.
 
 The app does not record that a review happened, so naming a layer with `--reviewed` is the operator's statement that a reviewer finished it.
 Since #29, the server marks a segment for review when its language is unknown or its pronunciation is empty, so a review flag no longer shows whether the model or the server set it.
+`unpronouncedSegments` counts, per layer and in each total, the phrases in a supported language other than the target that were saved without pronunciation and contain a letter; the page shows their source with the `음차 확인 필요` label.
+The server keeps these phrases instead of retrying the batch, and #43 left the decision on a retry to this count from reviewed songs.
 Keep extracted libraries under the ignored `build/` directory, and delete them after measuring; they contain lyrics.
 
 ## Report
