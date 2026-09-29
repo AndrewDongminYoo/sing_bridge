@@ -20,6 +20,8 @@ Applied to the LRCLIB responses saved from the 2026-09-29 metadata probe, the ch
 
 ## Limits
 
+Superseded by #33: the matching rule, the artist-title case, and the displayed-candidate limit below changed; see [the token-matching verification](2026-09-29-title-hint-token-match-verification.md).
+
 The check reads every returned candidate, while the list shows the 20 closest by duration, so a title match ranked below 20 still suppresses the hint.
 Limiting it to the displayed slice would require recomputing the status on every duration refinement, which this advisory hint does not justify.
 
