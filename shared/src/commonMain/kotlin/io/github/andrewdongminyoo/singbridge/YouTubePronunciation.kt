@@ -97,7 +97,9 @@ internal fun youtubePronunciationHtml(): String = """
           fields(s, ['source', 'language', 'reading', 'pronunciation', 'needsReview']);
           if (typeof s.source !== 'string' || !s.source.length || s.source.length > 500 || !Object.keys(pronunciationLanguages).includes(s.language) || typeof s.needsReview !== 'boolean') throw new Error('invalid_response');
           for (const key of ['reading','pronunciation']) if (s[key] !== null && (typeof s[key] !== 'string' || !s[key].length || s[key].length > 1000)) throw new Error('invalid_response');
-          if ((s.language === request.target || s.language === 'und' || s.needsReview) && s.pronunciation !== null) throw new Error('invalid_response');
+          // A review flag may keep the model's pronunciation; unknown and same-language phrases never have one.
+          if ((s.language === request.target || s.language === 'und') && s.pronunciation !== null) throw new Error('invalid_response');
+          if (s.pronunciation !== null && !s.pronunciation.trim()) throw new Error('invalid_response');
           if (s.language === 'und' && !s.needsReview) throw new Error('invalid_response');
           if (s.language !== request.target && !s.needsReview && !s.pronunciation?.trim()) throw new Error('invalid_response');
         }
@@ -123,13 +125,14 @@ internal fun youtubePronunciationHtml(): String = """
           layer.append(phrase);
         }
         row.append(layer);
-        if (validEditedPronunciation(pronunciationEdits[result.id])) {
-          const edited = document.createElement('span'); edited.className = 'pronunciation-languages';
-          edited.textContent = '직접 수정'; row.append(edited);
-        } else if (result.segments.some(segment => segment.language === 'es')) {
-          // Touch WebViews show no title tooltip, so the experimental status is visible row text.
-          const experimental = document.createElement('span'); experimental.className = 'pronunciation-languages';
-          experimental.textContent = pronunciationLanguages.es; row.append(experimental);
+        // Touch WebViews show no title tooltip, so row status is visible text.
+        const labels = validEditedPronunciation(pronunciationEdits[result.id]) ? ['직접 수정'] : [
+          ...(result.segments.some(segment => segment.language === 'es') ? [pronunciationLanguages.es] : []),
+          ...(result.segments.some(segment => segment.needsReview && /\p{L}/u.test(segment.source)) ? ['발음 확인 필요'] : [])
+        ];
+        for (const text of labels) {
+          const label = document.createElement('span'); label.className = 'pronunciation-languages';
+          label.textContent = text; row.append(label);
         }
       });
       followDirty = true;

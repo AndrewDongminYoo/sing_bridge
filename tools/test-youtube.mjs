@@ -1940,6 +1940,64 @@ test('video replacement disables pronunciation until new timed lyrics are select
   assert.equal(f.element('pronunciation-generate').disabled, true);
 });
 
+// Issue #37: a flagged phrase keeps the model's pronunciation, and the row says why it needs review.
+test('a review-flagged phrase shows its pronunciation with a visible review label and restores', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage, 'ja', { needsReview: true });
+  const row = first.element('lyrics-timing').children[0];
+  assert.match(row.textContent, /테스트 발음.*발음 확인 필요/);
+  assert.ok(
+    row.children.some((child) =>
+      child.children?.some(
+        (phrase) => phrase.className === 'pronunciation-review',
+      ),
+    ),
+  );
+  first.element('pronunciation-save').click();
+  const second = await reopenPronunciation(storage);
+  assert.match(
+    second.element('lyrics-timing').children[0].textContent,
+    /테스트 발음.*발음 확인 필요/,
+  );
+});
+
+test('a review-flagged phrase without pronunciation shows the source and the review label', async () => {
+  const f = await generatedPractice(memoryStorage(), 'ja', {
+    needsReview: true,
+    pronunciation: null,
+  });
+  const row = f.element('lyrics-timing').children[0];
+  assert.doesNotMatch(row.textContent, /테스트 발음/);
+  assert.match(row.textContent, /발음 확인 필요/);
+});
+
+test('a review-flagged pronunciation cannot be blank', () => {
+  const f = fixture();
+  f.context.candidate = {
+    target: 'ko',
+    lines: [
+      {
+        id: 'line-0',
+        segments: [
+          {
+            source: 'Hello',
+            language: 'en',
+            reading: null,
+            pronunciation: '   ',
+            needsReview: true,
+          },
+        ],
+      },
+    ],
+  };
+  assert.throws(() =>
+    vm.runInContext(
+      "validatePronunciation({target:'ko',lines:[{id:'line-0',text:'Hello'}]}, candidate)",
+      f.context,
+    ),
+  );
+});
+
 test('confident foreign pronunciation cannot be missing or blank', () => {
   const f = fixture();
   for (const pronunciation of [null, '   ']) {
@@ -1969,7 +2027,11 @@ test('confident foreign pronunciation cannot be missing or blank', () => {
   }
 });
 
-async function generatedPractice(storage = memoryStorage(), language = 'en') {
+async function generatedPractice(
+  storage = memoryStorage(),
+  language = 'en',
+  fields = {},
+) {
   const f = fixture(() => response(), 'fixture-key', storage);
   f.ready();
   await f.search();
@@ -1994,6 +2056,7 @@ async function generatedPractice(storage = memoryStorage(), language = 'en') {
             reading: null,
             pronunciation: '테스트 발음',
             needsReview: false,
+            ...fields,
           },
         ],
       })),

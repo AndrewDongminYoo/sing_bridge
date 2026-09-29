@@ -291,6 +291,7 @@ The initial target follows the native preferred language; other locales require 
 Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
 The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction, and leaves original lyrics usable on failure.
 Results are optional and may need correction for sung readings.
+A phrase the model marks for review keeps its pronunciation with a dotted underline, or its original text when the model gave none, and its row shows `발음 확인 필요`.
 Use **음차 저장** to save the current practice, generated pronunciation, and line edits on this device.
 The ordinary practice save button updates video, lyric selection, and timing only; it preserves previously saved pronunciation without storing unsaved generated text or edits.
 Use **음차 수정** to edit one existing pronunciation line or restore its generated text; original lyrics and timestamps remain unchanged.

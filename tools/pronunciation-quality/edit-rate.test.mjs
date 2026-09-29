@@ -235,13 +235,28 @@ test('rejects segments that do not reproduce their source line', () => {
   );
 });
 
+test('a review-flagged phrase may keep the model pronunciation, as the app saves it (#37)', () => {
+  const flagged = layer('ko', {
+    lines: [
+      line('line-0', segment(SECRET + ' one', '원')),
+      line('line-1', segment('二', '니', true)),
+      line('line-2', segment('三', null, true)),
+    ],
+  });
+  const report = editRate(library(item({ ko: flagged })));
+  assert.equal(report.layers[0].generatedLines, 3);
+  assert.equal(report.layers[0].reviewFlaggedLines, 2);
+});
+
 test('rejects layers and edits the app itself would reject', () => {
   const invalid = [
     // A foreign phrase that is not flagged for review needs a pronunciation.
     layer('ko', { lines: [line('line-1', segment('二', ''))], edits: {} }),
-    // A review-flagged phrase must keep its source instead of a pronunciation.
+    // An unknown-language phrase must keep its source instead of a pronunciation.
     layer('ko', {
-      lines: [line('line-1', segment('二', '니', true))],
+      lines: [
+        line('line-1', { ...segment('二', '니', true), language: 'und' }),
+      ],
       edits: {},
     }),
     layer('ko', { edits: { 'line-0': '   ' } }),
