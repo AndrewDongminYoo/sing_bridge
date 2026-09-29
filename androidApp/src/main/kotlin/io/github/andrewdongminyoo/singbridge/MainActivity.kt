@@ -83,6 +83,8 @@ class MainActivity : ComponentActivity() {
         val navigation = ComposeView(this).apply { setContent { AppNavigationBar(selectedTab, ::selectTab) } }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            // The system-bar padding shows this color, so it matches the screens' paper color.
+            setBackgroundColor(0xFFFAF7F0.toInt())
             addView(content, LinearLayout.LayoutParams(-1, 0, 1f))
             addView(navigation, LinearLayout.LayoutParams(-1, -2))
         }
