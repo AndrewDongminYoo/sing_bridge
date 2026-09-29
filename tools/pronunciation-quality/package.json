@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "node --test reference.test.mjs evaluate.test.mjs",
+    "test": "node --test reference.test.mjs evaluate.test.mjs edit-rate.test.mjs",
     "evaluate": "node evaluate.mjs cases.json"
   },
   "dependencies": {

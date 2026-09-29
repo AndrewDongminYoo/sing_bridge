@@ -99,6 +99,45 @@ The tool does not infer or merge language boundaries and does not fill missing r
 Captures and reports contain supplied text; keep real samples outside Git unless explicitly approved for publication.
 No API requests are made, and no app storage is modified.
 
+## Measure the reviewer edit rate
+
+`edit-rate.mjs` reads the app's saved library and counts, per saved song and target language, how many generated pronunciation lines a reviewer edited.
+It supports the pronunciation-accuracy target in Gate A of the [competitive brief](../../docs/notes/2026-09-29-competitive-brief.md).
+
+Protocol for a measurement:
+
+1. On the iOS Debug simulator, generate pronunciation for a song, have a fluent reviewer read every line and correct it with **음차 수정**, then save with **음차 저장**. Note the LRCLIB ID and target of each reviewed song.
+2. Stop the app so WebKit is not writing, take a consistent read-only snapshot of its storage into a fresh directory, and confirm the extraction wrote a file:
+
+   ```sh
+   rm -rf build/edit-rate && mkdir -p build/edit-rate
+   xcrun simctl terminate booted io.github.andrewdongminyoo.singbridge || true
+   container=$(xcrun simctl get_app_container booted io.github.andrewdongminyoo.singbridge data)
+   store=$(find "$container/Library/WebKit" -name localstorage.sqlite3 | head -1)
+   sqlite3 -readonly "$store" ".backup build/edit-rate/localstorage.sqlite3"
+   sqlite3 build/edit-rate/localstorage.sqlite3 "select writefile('build/edit-rate/library.bin', value) from ItemTable where key='singbridge.practice.v1';"
+   test -s build/edit-rate/library.bin
+   ```
+
+3. Run the report, naming each reviewed layer as `<lyricId>:<target>`, or `<videoId>:<lyricId>:<target>` when the same lyrics are saved for more than one video:
+
+   ```sh
+   node tools/pronunciation-quality/edit-rate.mjs build/edit-rate/library.bin --reviewed 35923881:ko
+   ```
+
+The input can be UTF-8 or the UTF-16LE value WebKit stores, up to 4 MiB.
+The tool validates the fields the report reads: the version-1 envelope; each entry's video ID, LRCLIB ID, and title type; each layer's target and source lines; generated lines, with the server's `validateResult` as the app uses; and edits, with the app's edit limits.
+It does not validate fields that do not affect the counts, such as the timing offset, the preferred target, or the app's 20-entry limit, so it is not a full check of what the app would load.
+Invalid input, or a `--reviewed` key that matches no layer or more than one, exits 2 without echoing input.
+`layers` lists every saved layer with video ID, LRCLIB ID, saved title, target, lines with text, generated and missing lines, whether generation completed, edited and unedited lines, lines with a review flag, and the unedited ratio.
+`totals` covers only the `--reviewed` layers, with one entry per target language, and is `null` without them, so unreviewed or stale layers never enter the measurement and English layers never offset the Hangul result; the Gate A measurement reads `totals.ko`. Each entry counts songs and layers separately.
+The unedited ratio divides unedited generated lines by lines with text, so lines that were never generated count against it; it is not rounded, and the counts beside it are exact.
+An edit identical to the generated text does not count as a change, and the report never prints lyric or pronunciation text.
+
+The app does not record that a review happened, so naming a layer with `--reviewed` is the operator's statement that a reviewer finished it.
+Since #29, the server marks a segment for review when its language is unknown or its pronunciation is empty, so a review flag no longer shows whether the model or the server set it.
+Keep extracted libraries under the ignored `build/` directory, and delete them after measuring; they contain lyrics.
+
 ## Report
 
 The CLI emits JSON to stdout, with engine and Node versions, one dictionary-load duration, per-phrase timings, source-preserving token evidence, reference candidates, and comparison outcomes.
