@@ -2,17 +2,89 @@
   "version": 1,
   "description": "Original evaluation phrases and synthetic candidate readings; no live AI output or commercial lyrics.",
   "cases": [
-    { "id": "kana-equivalence", "language": "ja", "source": "青い空。", "modelReading": "あおい そら！", "expected": "reference_match" },
-    { "id": "different-word", "language": "ja", "source": "青い空", "modelReading": "アカイソラ", "expected": "reference_difference" },
-    { "id": "particles", "language": "ja", "source": "私は駅へ歩く", "modelReading": "ワタシワエキエアルク", "expected": "reference_match" },
-    { "id": "long-vowel", "language": "ja", "source": "スーパー", "modelReading": "スーパー", "expected": "reference_match" },
-    { "id": "lost-long-vowel", "language": "ja", "source": "スーパー", "modelReading": "スパ", "expected": "reference_difference" },
-    { "id": "lost-geminate", "language": "ja", "source": "きっと", "modelReading": "キト", "expected": "reference_difference" },
-    { "id": "lost-voicing", "language": "ja", "source": "風", "modelReading": "カセ", "expected": "reference_difference" },
-    { "id": "unknown-kanji", "language": "ja", "source": "𠮷", "modelReading": "ヨシ", "expected": "unassessable" },
-    { "id": "mixed-phrase", "language": "ja", "source": "青い空 Hello", "modelReading": "アオイソラハロー", "expected": "unassessable" },
-    { "id": "romanized-japanese", "language": "ja", "source": "Kimi to arukou", "modelReading": "キミトアルコウ", "expected": "unassessable" },
-    { "id": "korean", "language": "ko", "source": "같이 걸어요", "modelReading": "gachi georeoyo", "expected": "unassessable" },
-    { "id": "missing-model-reading", "language": "ja", "source": "青い空", "modelReading": null, "expected": "unassessable" }
+    {
+      "id": "kana-equivalence",
+      "language": "ja",
+      "source": "青い空。",
+      "modelReading": "あおい そら！",
+      "expected": "reference_match"
+    },
+    {
+      "id": "different-word",
+      "language": "ja",
+      "source": "青い空",
+      "modelReading": "アカイソラ",
+      "expected": "reference_difference"
+    },
+    {
+      "id": "particles",
+      "language": "ja",
+      "source": "私は駅へ歩く",
+      "modelReading": "ワタシワエキエアルク",
+      "expected": "reference_match"
+    },
+    {
+      "id": "long-vowel",
+      "language": "ja",
+      "source": "スーパー",
+      "modelReading": "スーパー",
+      "expected": "reference_match"
+    },
+    {
+      "id": "lost-long-vowel",
+      "language": "ja",
+      "source": "スーパー",
+      "modelReading": "スパ",
+      "expected": "reference_difference"
+    },
+    {
+      "id": "lost-geminate",
+      "language": "ja",
+      "source": "きっと",
+      "modelReading": "キト",
+      "expected": "reference_difference"
+    },
+    {
+      "id": "lost-voicing",
+      "language": "ja",
+      "source": "風",
+      "modelReading": "カセ",
+      "expected": "reference_difference"
+    },
+    {
+      "id": "unknown-kanji",
+      "language": "ja",
+      "source": "𠮷",
+      "modelReading": "ヨシ",
+      "expected": "unassessable"
+    },
+    {
+      "id": "mixed-phrase",
+      "language": "ja",
+      "source": "青い空 Hello",
+      "modelReading": "アオイソラハロー",
+      "expected": "unassessable"
+    },
+    {
+      "id": "romanized-japanese",
+      "language": "ja",
+      "source": "Kimi to arukou",
+      "modelReading": "キミトアルコウ",
+      "expected": "unassessable"
+    },
+    {
+      "id": "korean",
+      "language": "ko",
+      "source": "같이 걸어요",
+      "modelReading": "gachi georeoyo",
+      "expected": "unassessable"
+    },
+    {
+      "id": "missing-model-reading",
+      "language": "ja",
+      "source": "青い空",
+      "modelReading": null,
+      "expected": "unassessable"
+    }
   ]
 }

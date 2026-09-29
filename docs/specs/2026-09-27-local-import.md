@@ -44,4 +44,4 @@ Limit lyric input to 1 MiB and 10,000 timestamp entries.
 ## Platform references
 
 [Android Storage Access Framework](https://developer.android.com/training/data-storage/shared/documents-files) provides user-selected document access without broad storage permission.
-[Apple fileImporter](https://developer.apple.com/documentation/swiftui/view/fileimporter(ispresented:allowedcontenttypes:allowsmultipleselection:oncompletion:)) supplies the system picker; imported URLs require balanced security-scoped access.
+[Apple fileImporter](<https://developer.apple.com/documentation/swiftui/view/fileimporter(ispresented:allowedcontenttypes:allowsmultipleselection:oncompletion:)>) supplies the system picker; imported URLs require balanced security-scoped access.
