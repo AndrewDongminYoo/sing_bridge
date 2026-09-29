@@ -2894,6 +2894,18 @@ test('saving a reopened practice does not report its saved 음차 as unsaved', a
   assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
 });
 
+test('saving the practice still says 음차 is unsaved while a 음차 edit is invalid', async () => {
+  const f = await generatedPractice(memoryStorage());
+  f.element('pronunciation-edit-line').value = 'line-0';
+  f.element('pronunciation-edit-line').change();
+  f.element('pronunciation-edit-text').value = 'one\ntwo';
+  f.element('pronunciation-edit-text').input();
+  assert.equal(f.element('save-practice').disabled, false);
+  f.element('save-practice').click();
+  assert.match(f.element('save-status').textContent, /저장했어요/);
+  assert.match(f.element('save-status').textContent, /음차 저장/);
+});
+
 test('saving the practice says when generated 음차 is not saved yet', async () => {
   const f = await generatedPractice(memoryStorage());
   f.element('save-practice').click();

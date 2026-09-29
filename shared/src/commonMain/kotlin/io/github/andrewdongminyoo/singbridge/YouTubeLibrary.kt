@@ -70,12 +70,14 @@ internal fun youtubeLibraryHtml(): String = """
       if (!validSavedEntry(entry)) { saveStatus.textContent = '이 연습을 저장하지 못했어요.'; return false; }
       const remaining = savedPractices.filter(item => item.videoId !== entry.videoId || item.lyricId !== entry.lyricId);
       if (remaining.length >= 20) { saveStatus.textContent = '최대 20개까지 저장할 수 있어요. 노래 찾기에서 저장한 연습을 삭제해 주세요.'; return false; }
-      const unsaved = includePronunciation ? null : pronunciationSnapshot();
+      // An invalid edit has no snapshot, but the generated layer and the edit are still unsaved.
+      const current = !includePronunciation && pronunciationResults.size ? pronunciationSnapshot() : null;
+      const unsaved = !includePronunciation && pronunciationResults.size > 0 &&
+        (!current || JSON.stringify(current) !== JSON.stringify(entry.pronunciations?.[current.target]));
       const saved = writeSavedPractices([entry, ...remaining]);
       saveStatus.textContent = saved
         ? '영상·가사 선택·싱크를 저장했어요. 노래 찾기에서 다시 열 수 있어요.' +
-          (unsaved && JSON.stringify(unsaved) !== JSON.stringify(entry.pronunciations?.[unsaved.target])
-            ? ' 만든 음차는 음차 저장을 눌러야 저장돼요.' : '')
+          (unsaved ? ' 만든 음차는 음차 저장을 눌러야 저장돼요.' : '')
         : '저장하지 못했어요. 저장 공간이나 기기 설정을 확인해 주세요.';
       updateSaveControl(); return saved;
     }
