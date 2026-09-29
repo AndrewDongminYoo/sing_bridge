@@ -95,20 +95,83 @@ test('rejects unsupported targets, extra fields, duplicated IDs and unbounded in
   ])
     assert.throws(() => validateRequest(bad));
 });
-test('rejects source mutation, IDs, unknown fields, unsupported language and same-language rewriting', () => {
+test('rejects source mutation, IDs, unknown fields, unsupported language and malformed fields', () => {
   for (const mutate of [
     (r) => (r.lines[0].segments[0].source = '오늘 '),
     (r) => (r.lines[0].id = 'wrong'),
     (r) => (r.lines[0].segments[0].extra = true),
     (r) => (r.lines[0].segments[0].language = 'fr'),
-    (r) => (r.lines[0].segments[0].pronunciation = 'rewritten'),
-    (r) => (r.lines[0].segments[1].needsReview = true),
-    (r) => (r.lines[0].segments[1].pronunciation = null),
-    (r) => (r.lines[0].segments[1].pronunciation = '   '),
+    (r) => (r.lines[0].segments[1].needsReview = 'yes'),
+    (r) => (r.lines[0].segments[1].pronunciation = 42),
+    (r) => (r.lines[0].segments[1].pronunciation = 'x'.repeat(1001)),
+    (r) => (r.target = 'en'),
+    (r) => r.lines.push(r.lines[0]),
   ]) {
     const value = result();
     mutate(value);
     assert.throws(() => validateResult(request, value));
+  }
+});
+test('provider results that break review rules are normalized instead of failing the batch', async () => {
+  for (const [mutate, index, expected] of [
+    [
+      (r) => (r.lines[0].segments[0].pronunciation = 'rewritten'),
+      0,
+      { language: 'ko', pronunciation: null, needsReview: false },
+    ],
+    [
+      (r) => (r.lines[0].segments[1].needsReview = true),
+      1,
+      { language: 'en', pronunciation: null, needsReview: true },
+    ],
+    [
+      (r) => {
+        r.lines[0].segments[0].language = 'und';
+        r.lines[0].segments[0].pronunciation = '오늘도';
+      },
+      0,
+      { language: 'und', pronunciation: null, needsReview: true },
+    ],
+    [
+      (r) => (r.lines[0].segments[1].pronunciation = null),
+      1,
+      { language: 'en', pronunciation: null, needsReview: true },
+    ],
+    [
+      (r) => (r.lines[0].segments[1].pronunciation = '   '),
+      1,
+      { language: 'en', pronunciation: null, needsReview: true },
+    ],
+    [
+      (r) => (r.lines[0].segments[1].pronunciation = ''),
+      1,
+      { language: 'en', pronunciation: null, needsReview: true },
+    ],
+  ]) {
+    const value = result();
+    mutate(value);
+    const response = await generatePronunciation(request, 'fixture-key', {
+      fetcher: async () =>
+        Response.json({
+          status: 'completed',
+          output: [
+            {
+              type: 'message',
+              content: [{ type: 'output_text', text: JSON.stringify(value) }],
+            },
+          ],
+        }),
+    });
+    const { source, reading } = result().lines[0].segments[index];
+    assert.deepEqual(response.result.lines[0].segments[index], {
+      source,
+      reading,
+      ...expected,
+    });
+    assert.deepEqual(
+      response.result.lines[0].segments[1 - index],
+      result().lines[0].segments[1 - index],
+    );
   }
 });
 test('provider uses fixed model, no storage, strict schema; refuses incomplete or refused output', async () => {
