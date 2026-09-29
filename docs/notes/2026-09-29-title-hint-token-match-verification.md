@@ -11,7 +11,7 @@ A title in a spaced script matches only when it equals a run of whole query word
 A title containing Han, Hiragana, Katakana, or Hangul still matches as a substring, because those scripts do not separate words with spaces.
 The leading-article rule runs after width folding, so `Ｔｈｅ Song` is compared as `song`.
 Bracketed presentation labels (video, audio, visualizer, lyrics, and MV variants, each with an optional `Official` prefix) are no longer aliases.
-A title equal to the artist, compared after both drop a leading article, counts only when it appears again after one occurrence of the artist is removed from the query.
+A title equal to the artist, compared after both drop a leading article, counts only when it appears again after one occurrence of the artist is removed from the query; the full artist name is removed when the query contains it (`The The`), otherwise the name without its article.
 The hint reads only the 20 displayed candidates and is recomputed when a refined video duration re-renders the list, but only while the status still shows one of the two candidate messages.
 
 ## Checks
@@ -20,7 +20,8 @@ Each row of the #33 table has its own page test in `tools/test-youtube.mjs`; all
 Two companion tests passed before and after: titles that differ only in punctuation or spacing (`Don't Stop Me Now`, `A.D.H.D`, `Mr. Blue Sky`, an artist-titled query that repeats the title, and an `(Official Video)` suffix), and a selected lyric keeping its status through a duration re-ranking.
 The #32 album-title, matching, and short-artist-prefix tests pass unchanged.
 The first hosted review round on PR #35 found three gaps: an emoji variation selector left in `Love ❤️`, the `Official MV` and `Official Lyrics` labels, and an artist-titled song with an article (`A Perfect Circle`). Their four regressions failed first and pass after the fix.
-`node --test tools/test-youtube.mjs server/pronunciation.test.mjs` passed 118 of 118 tests.
+The second round found that `The The` by The The reduced to `the`, so removing one `the` from `The The Soul Mining` left the second one as a title match; that regression failed first, and a companion for an artist searched without its article (`Perfect Circle Mer de Noms`) passed before and after.
+`node --test tools/test-youtube.mjs server/pronunciation.test.mjs` passed 120 of 120 tests.
 
 ## Limits
 
