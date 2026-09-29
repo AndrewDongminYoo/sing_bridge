@@ -65,6 +65,7 @@ function fixture(
   respond = async () => new Response('[]'),
   apiKey = 'fixture-key',
   storage = memoryStorage(),
+  start = 1700000000000,
 ) {
   const elements = new Map();
   function node(tagName = 'div') {
@@ -150,7 +151,7 @@ function fixture(
     },
   };
   const requests = [];
-  let now = 1700000000000;
+  let now = start;
   let intersection;
   const context = vm.createContext({
     document,
@@ -1805,6 +1806,32 @@ test('target change cancels a pending conversion and ignores its late response',
   assert.equal(vm.runInContext('pronunciationResults.size', f.context), 0);
   assert.equal(f.element('pronunciation-generate').disabled, false);
   assert.equal(f.element('lyrics-timing').children[0].textContent, 'First');
+});
+
+test('pronunciation request IDs keep the bridge format and differ across page lifetimes', async () => {
+  const ids = [];
+  // Two page loads five seconds apart that repeat the same reset sequence.
+  for (const start of [1700000000000, 1700000005000]) {
+    const f = fixture(() => response(), undefined, undefined, start);
+    f.ready();
+    await f.search();
+    f.select();
+    vm.runInContext(
+      "window.singBridgeConfigurePronunciation('ko', true)",
+      f.context,
+    );
+    const sent = [];
+    f.context.window.webkit = {
+      messageHandlers: { pronunciation: { postMessage: (m) => sent.push(m) } },
+    };
+    f.element('pronunciation-generate').click();
+    ids.push(sent[0].id);
+  }
+  for (const id of ids) {
+    assert.match(id, /^[0-9]+-[0-9]+$/);
+    assert.ok(id.length <= 40, id);
+  }
+  assert.notEqual(ids[0].split('-')[0], ids[1].split('-')[0]);
 });
 
 test('Android pronunciation port rejects a forged iframe port without its native nonce', () => {

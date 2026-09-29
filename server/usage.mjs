@@ -68,7 +68,7 @@ const empty = () => ({
   ...Object.fromEntries(fields.map((field) => [field, 0])),
 });
 // A song is one page generation run: consecutive records sharing the request ID prefix and target.
-// The page counter restarts when the WebView reloads, so equal prefixes are only merged when adjacent.
+// The page counter starts at the page load time, so different page lifetimes do not share a prefix.
 export function summarizeUsage(records) {
   const songs = [],
     total = empty();

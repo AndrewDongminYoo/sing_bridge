@@ -32,7 +32,8 @@ internal fun youtubePronunciationHtml(): String = """
     const pronunciationEditLine = document.getElementById('pronunciation-edit-line');
     const pronunciationEditText = document.getElementById('pronunciation-edit-text');
     let pronunciationEdits = {};
-    let pronunciationResults = new Map(), pronunciationVersion = 0, pronunciationPending = null;
+    /* Start at the page load time so request IDs from different page lifetimes never share a prefix. */
+    let pronunciationResults = new Map(), pronunciationVersion = Date.now(), pronunciationPending = null;
     let pronunciationAvailable = false, pronunciationBusy = false, pronunciationVisible = true;
     let pronunciationPort = null, pronunciationPortNonce = null;
     window.singBridgePreparePronunciationPort = nonce => { pronunciationPortNonce = nonce; };

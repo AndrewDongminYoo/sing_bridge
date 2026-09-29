@@ -331,7 +331,7 @@ test('usage report sums adjacent page runs as songs', () => {
     record('1-12', 'ko', 100, 6000, false),
     record('1-24', 'ko', 100, 10),
     record('2-12', 'en', 100, 10),
-    // A WebView reload restarts the page counter.
+    // A repeated prefix that is not adjacent stays a separate song.
     record('1-12', 'ko', 100, 10),
     record(null, 'ko', null, 10),
   ]);

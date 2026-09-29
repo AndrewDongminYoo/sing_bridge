@@ -7,15 +7,19 @@ The README section "Development pronunciation server" owns the log location, the
 
 ## Checks performed
 
-`node --test tools/test-youtube.mjs server/pronunciation.test.mjs` on Node 22.22.2 passed 99 of 99 tests, 4 of them new (`server/pronunciation.test.mjs` went from 6 to 10 tests).
+`node --test tools/test-youtube.mjs server/pronunciation.test.mjs` on Node 22.22.2 passed 100 of 100 tests, 5 of them new (`server/pronunciation.test.mjs` went from 6 to 10 tests, and `tools/test-youtube.mjs` gained one).
 Every provider response in these tests comes from a fake fetcher; no paid request was made.
 The new tests cover:
 
 - usage reported for an incomplete body, a refusal, and a result that fails source reconstruction, since each is billed;
 - the HTTP server recording exact records for an accepted result, a billed failure, a provider HTTP 500 (no record, a gap in `sequence`), and an invalid request ID header (recorded with `requestId: null`);
 - serialized records never containing the lyric text, the key, or a video ID sent in the request ID header;
-- per-song grouping, including a retry after a billed failure, a target change, a WebView reload that reuses a page counter, and a record without token counts;
-- `node server/usage.mjs <log>` printing per-song and total rows from a log written by the server's own writer.
+- per-song grouping, including a retry after a billed failure, a target change, a repeated prefix that is not adjacent, and a record without token counts;
+- `node server/usage.mjs <log>` printing per-song and total rows from a log written by the server's own writer;
+- two page loads five seconds apart that repeat the same reset sequence sending request IDs with different prefixes, in the bridge format.
+
+Codex review on PR #28 reported that the page counter restarted at 0 on every page load, so repeating the same flow after an app restart produced the same prefix and merged two songs.
+The page-lifetime test failed on that code with both prefixes `3`; the counter now starts at the page load time and the test passes.
 
 The new server checks were made to fail before their pass was trusted.
 With two deliberate breaks applied together (the usage callback moved after the status check, and the lyric text added to every record), the billed-failure test and the server test failed.

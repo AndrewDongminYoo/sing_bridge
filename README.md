@@ -325,7 +325,7 @@ node server/usage.mjs [usage log]
 
 Without an argument it reads the newest log.
 A song is one page generation run: adjacent records that share the request ID prefix (the page counter before `-`) and the target language.
-The page counter restarts when the WebView reloads, so equal prefixes count as one song only when adjacent.
+The page counter starts at the page load time in milliseconds, so different page lifetimes do not share a prefix.
 The fixed loopback port trusts processes on the development machine and is not a production authentication boundary.
 Do not expose it through a tunnel or bind it publicly.
 
