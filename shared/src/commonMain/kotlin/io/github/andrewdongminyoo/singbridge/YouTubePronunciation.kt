@@ -126,6 +126,10 @@ internal fun youtubePronunciationHtml(): String = """
         if (validEditedPronunciation(pronunciationEdits[result.id])) {
           const edited = document.createElement('span'); edited.className = 'pronunciation-languages';
           edited.textContent = '직접 수정'; row.append(edited);
+        } else if (result.segments.some(segment => segment.language === 'es')) {
+          // Touch WebViews show no title tooltip, so the experimental status is visible row text.
+          const experimental = document.createElement('span'); experimental.className = 'pronunciation-languages';
+          experimental.textContent = pronunciationLanguages.es; row.append(experimental);
         }
       });
       followDirty = true;

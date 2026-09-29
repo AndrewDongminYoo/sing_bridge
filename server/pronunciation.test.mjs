@@ -554,4 +554,6 @@ test('the provider schema and instructions name Spanish', async () => {
   assert.deepEqual(language.enum, ['ja', 'ko', 'en', 'es', 'und']);
   assert.match(sent.instructions, /\bes\b.*Spanish/);
   assert.match(sent.instructions, /ñ/);
+  // Every sentence ends before the next one starts; "es.Keep" reads as an identifier.
+  assert.doesNotMatch(sent.instructions, /[a-z]\.[A-Za-z]/);
 });

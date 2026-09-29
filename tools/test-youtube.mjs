@@ -2014,22 +2014,41 @@ async function reopenPronunciation(storage, restoredRecord = record) {
   return f;
 }
 
-test('Spanish pronunciation renders as experimental and restores from a saved layer', async () => {
-  const titles = (node) => [
-    ...(node.title ? [node.title] : []),
-    ...node.children.flatMap(titles),
-  ];
+test('Spanish pronunciation shows a visible experimental label and restores from a saved layer', async () => {
   const storage = memoryStorage();
   const first = await generatedPractice(storage, 'es');
   const row = first.element('lyrics-timing').children[0];
-  assert.match(row.textContent, /테스트 발음/);
-  assert.ok(titles(row).includes('스페인어(실험)'), titles(row).join());
+  // Touch WebViews show no title tooltip, so the label must be visible row text.
+  assert.match(row.textContent, /테스트 발음.*스페인어\(실험\)/);
+  assert.ok(
+    row.children.some(
+      (child) =>
+        child.className === 'pronunciation-languages' &&
+        child.textContent === '스페인어(실험)',
+    ),
+  );
   first.element('pronunciation-save').click();
   const second = await reopenPronunciation(storage);
   assert.match(
     second.element('lyrics-timing').children[0].textContent,
-    /테스트 발음/,
+    /테스트 발음.*스페인어\(실험\)/,
   );
+});
+
+test('rows without Spanish or with an edited line show no experimental label', async () => {
+  const english = await generatedPractice(memoryStorage(), 'en');
+  assert.doesNotMatch(
+    english.element('lyrics-timing').children[0].textContent,
+    /실험/,
+  );
+  const spanish = await generatedPractice(memoryStorage(), 'es');
+  spanish.element('pronunciation-edit-line').value = 'line-0';
+  spanish.element('pronunciation-edit-line').change();
+  spanish.element('pronunciation-edit-text').value = '내가 고친 발음';
+  spanish.element('pronunciation-edit-text').input();
+  const row = spanish.element('lyrics-timing').children[0];
+  assert.match(row.textContent, /직접 수정/);
+  assert.doesNotMatch(row.textContent, /실험/);
 });
 
 test('generic practice saves never persist unsaved pronunciation or edits', async () => {
