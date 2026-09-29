@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -350,6 +357,49 @@ test('fails on an unwritable --out before any request', async () => {
       /EISDIR/,
     );
     assert.equal(calls, 0);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('still ends the run when discarding a 429 body fails', async () => {
+  let calls = 0;
+  const fetcher = async () => {
+    calls += 1;
+    const body = new ReadableStream({
+      cancel() {
+        throw new Error('stream broke');
+      },
+    });
+    return new Response(body, { status: 429 });
+  };
+  const report = await measure(
+    [
+      { artist: 'A', title: 'One', durationSeconds: 200 },
+      { artist: 'A', title: 'Two', durationSeconds: 200 },
+    ],
+    { fetcher, delayMs: 0 },
+  );
+  assert.equal(calls, 1);
+  assert.match(report.songs[0].error, /rate limited/);
+  assert.match(report.songs[1].error, /not requested/);
+});
+
+test('the CLI runs when invoked through a symlink', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'singbridge-coverage-'));
+  try {
+    const list = join(directory, 'songs.json');
+    const link = join(directory, 'coverage-link.mjs');
+    writeFileSync(list, '[]');
+    symlinkSync(
+      fileURLToPath(new URL('./coverage.mjs', import.meta.url)),
+      link,
+    );
+    const child = spawnSync(process.execPath, [link, list], {
+      encoding: 'utf8',
+    });
+    assert.equal(child.status, 2);
+    assert.match(child.stderr, /song list/i);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

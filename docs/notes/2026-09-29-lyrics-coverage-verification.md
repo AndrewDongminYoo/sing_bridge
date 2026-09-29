@@ -18,6 +18,9 @@ The second hosted round found that an overflowing numeric `Retry-After` fell bac
 That was the third guard on the same retry path, so the retry was removed instead: the first 429 now ends the run with no header parsing.
 The four retry tests were replaced by one that covers short, long, overflowing, and missing headers; it failed against the retrying code, and all 18 tests pass.
 The third hosted round found that `--out` naming an existing directory still failed only after every request; the report file is now opened before the first request, which covers any unwritable path, and its regression failed first before all 19 tests passed.
+The fourth hosted round found two more edge cases: a failed discard of a 429 body skipped the run-wide stop, and a symlinked command exited without running.
+Discarding a body is now best effort, the entry point compares resolved paths, both regressions failed first, and all 21 tests pass.
+The hosted loop was stopped there with a clean local review, because later rounds reported edge cases of this developer tool rather than defects in the documented use.
 
 ## Live smoke run
 

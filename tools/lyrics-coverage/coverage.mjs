@@ -6,9 +6,10 @@ import {
   openSync,
   readFileSync,
   writeFileSync,
+  realpathSync,
 } from 'node:fs';
 import { dirname } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const SEARCH_URL = 'https://lrclib.net/api/search';
 const CLIENT =
@@ -159,6 +160,15 @@ async function readBoundedJson(response) {
 // it out, so the first 429 ends the run and the remaining songs are not requested.
 class RateLimitError extends Error {}
 
+// Discarding an unused body is best effort; a failure must not change how the response is classified.
+async function discard(response) {
+  try {
+    await response.body?.cancel();
+  } catch {
+    // Ignore: the status code already decided the outcome.
+  }
+}
+
 async function search(song, fetcher) {
   const url = new URL(SEARCH_URL);
   url.searchParams.set('q', song.artist + ' ' + song.title);
@@ -167,11 +177,11 @@ async function search(song, fetcher) {
     signal: AbortSignal.timeout(15000),
   });
   if (response.status === 429) {
-    await response.body?.cancel();
+    await discard(response);
     throw new RateLimitError('LRCLIB rate limited the run (HTTP 429)');
   }
   if (!response.ok) {
-    await response.body?.cancel();
+    await discard(response);
     throw new Error(`LRCLIB HTTP ${response.status}`);
   }
   const records = await readBoundedJson(response);
@@ -276,7 +286,11 @@ export async function main(argv, { fetcher = fetch } = {}) {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+// Compare resolved paths so a symlinked command still runs.
+if (
+  process.argv[1] &&
+  realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+) {
   main(process.argv.slice(2)).catch((error) => {
     process.stderr.write(error.message + '\n');
     process.exitCode = 2;
