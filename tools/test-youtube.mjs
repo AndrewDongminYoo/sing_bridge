@@ -2434,11 +2434,20 @@ test('an album-title search suggests searching by song title and keeps the candi
         trackName: 'BAD BUNNY - DtMF (Visualizer)',
         artistName: 'Bad Bunny',
       },
+      // A short title must not match inside unrelated words.
+      { ...record, id: 3, trackName: 'I', artistName: 'Someone' },
+      // A collaborator artist field still marks the prefix as the artist.
+      {
+        ...record,
+        id: 4,
+        trackName: 'BAD BUNNY - TURiSTA',
+        artistName: 'Bad Bunny & Feid',
+      },
     ]),
   );
   f.ready();
   await f.search('BAD BUNNY DeBÍ TiRAR MáS FOToS');
-  assert.equal(f.element('lyrics-results').children.length, 2);
+  assert.equal(f.element('lyrics-results').children.length, 4);
   assert.match(f.element('lyrics-status').textContent, /노래 제목으로/);
 });
 
@@ -2448,6 +2457,12 @@ test('a candidate title found in the query does not trigger the song-title hint'
     ['YOASOBI 夜に駆ける(inst)', 'YOASOBI', 'YOASOBI 夜に駆ける'],
     ['ＰＲＥＴＥＮＤＥＲ', 'Official髭男dism', 'Official髭男dism pretender'],
     ['DtMF', 'Bad Bunny', 'Bad Bunny - DtMF'],
+    [
+      'Escape (The Piña Colada Song)',
+      'Rupert Holmes',
+      'Rupert Holmes Piña Colada Song',
+    ],
+    ['白日', 'King Gnu', 'King Gnu 白日'],
   ]) {
     const f = fixture(() =>
       response([{ ...record, id: 1, trackName, artistName }]),

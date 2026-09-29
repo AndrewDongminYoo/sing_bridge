@@ -383,12 +383,21 @@ internal fun youtubeLyricsHtml(): String = """
 
     // An album or video title as the query returns other tracks; detect that from the candidate titles.
     function comparableText(value) { return value.normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu, ''); }
+    const bracketed = /[(\[{（［【]([^)\]}）］】]*)[)\]}）］】]/g;
+    // The full title, the title without brackets, bracketed aliases, and each part around a spaced dash.
+    function titleVariants(title) {
+      const variants = [title, title.replace(bracketed, ' '), ...[...title.matchAll(bracketed)].map(match => match[1])];
+      return variants.flatMap(value => [value, ...value.split(/\s[-–—]\s/)])
+        .map(value => comparableText(value.trim().replace(/^(the|an?)\s+/i, '')));
+    }
     function titleInQuery(query) {
       const target = comparableText(query);
+      const words = query.split(/\s+/).map(comparableText);
       return lyricCandidates.some(record => {
         const artist = comparableText(record.artistName);
-        return record.trackName.replace(/[(\[{（［【][^)\]}）］】]*[)\]}）］】]/g, ' ').split(/\s[-–—]\s/)
-          .map(comparableText).some(part => part && part !== artist && target.includes(part));
+        return titleVariants(record.trackName).some(part => part && !artist.includes(part) &&
+          // A short Latin title such as "I" must be a whole word, not a substring.
+          (/^[a-z0-9]{1,2}$/.test(part) ? words.includes(part) : target.includes(part)));
       });
     }
 
