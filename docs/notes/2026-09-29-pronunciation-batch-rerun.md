@@ -58,7 +58,8 @@ Of 314 returned segments, 85 were marked `needsReview` and carried `pronunciatio
 | King Gnu - 白日              | 82       | 12                    | 2                                       |
 | あいみょん - マリーゴールド  | 55       | 28                    | 1, 4                                    |
 
-In those six batches every line came back without pronunciation, so a user would see none for 32 of 56 lines of 夜に駆ける, 23 of 47 lines of マリーゴールド, and 12 of 82 lines of 白日.
+In those six batches every line came back without pronunciation, so a user would see none for 32 of 56 lines of 夜に駆ける, at least 23 of 47 lines of マリーゴールド, and 12 of 82 lines of 白日.
+The マリーゴールド count is a lower bound because its batch 3 had one more flagged segment, and the script did not record whether that segment was a whole line.
 The fully flagged second batches of 夜に駆ける and 白日 are the batches that failed in the earlier run.
 
 This output cannot show whether the model flagged those segments without a pronunciation or filled one that the server then removed under the #31 normalization, because the server returns only the normalized result.
@@ -66,5 +67,7 @@ The follow-up is tracked in #37.
 
 ## Reading the numbers
 
-Machine time to the first pronounced lines was about 4.2 to 6.6 seconds (search, lyrics, and first batch), and a full song took 12.5 to 18.8 seconds, which is consistent with the earlier run.
+Machine time until the first batch returned was about 4.2 to 6.6 seconds (search, lyrics, and first batch), and a full song took 12.5 to 18.8 seconds, which is consistent with the earlier run.
+For マリーゴールド the first batch carried no pronunciation, so its first pronounced line arrived with batch 2, about 7.6 seconds after the search, and sits after the first 12 lyric lines.
 The batch failures from #29 no longer occur on these songs, so the device protocol in the earlier note can now be run for #24.
+Step 5 of that protocol stops when the first line with pronunciation is highlighted, so while #37 is open a song like マリーゴールド adds playback through its unpronounced opening lines to the measured time; record the affected songs separately.
