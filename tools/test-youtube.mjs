@@ -1945,7 +1945,7 @@ test('a review-flagged phrase shows its pronunciation with a visible review labe
   const storage = memoryStorage();
   const first = await generatedPractice(storage, 'ja', { needsReview: true });
   const row = first.element('lyrics-timing').children[0];
-  assert.match(row.textContent, /테스트 발음.*발음 확인 필요/);
+  assert.match(row.textContent, /테스트 발음.*음차 확인 필요/);
   assert.ok(
     row.children.some((child) =>
       child.children?.some(
@@ -1957,7 +1957,7 @@ test('a review-flagged phrase shows its pronunciation with a visible review labe
   const second = await reopenPronunciation(storage);
   assert.match(
     second.element('lyrics-timing').children[0].textContent,
-    /테스트 발음.*발음 확인 필요/,
+    /테스트 발음.*음차 확인 필요/,
   );
 });
 
@@ -1968,7 +1968,7 @@ test('a review-flagged phrase without pronunciation shows the source and the rev
   });
   const row = f.element('lyrics-timing').children[0];
   assert.doesNotMatch(row.textContent, /테스트 발음/);
-  assert.match(row.textContent, /발음 확인 필요/);
+  assert.match(row.textContent, /음차 확인 필요/);
 });
 
 test('the pronunciation help says an underlined phrase may show a pronunciation to check', () => {
@@ -2798,6 +2798,13 @@ test('the page root font follows iOS Dynamic Type where WebKit supports it', () 
     /@supports \(font: -apple-system-body\) \{\s*html \{ font: -apple-system-body; \}/,
   );
   assert.doesNotMatch(html, /body \{[^}]*font: 16px/);
+});
+
+test('user-facing strings call the feature 음차 and keep 발음 only for the sung sound', () => {
+  const text = pronunciationHtml
+    .replace('노래에서 부르는 발음과', '')
+    .replace('구절 언어와 발음을', '');
+  assert.doesNotMatch(text, /발음/);
 });
 
 test('opening a video link is a secondary action beside the primary song search', () => {

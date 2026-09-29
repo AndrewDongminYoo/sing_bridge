@@ -2,12 +2,12 @@ package io.github.andrewdongminyoo.singbridge
 
 internal fun youtubePronunciationHtml(): String = """
     <section aria-labelledby="pronunciation-heading">
-    <h3 id="pronunciation-heading">발음 도움</h3>
+    <h3 id="pronunciation-heading">음차</h3>
     <label for="pronunciation-target">읽을 언어</label>
     <select id="pronunciation-target">
     <option value="">언어를 선택하세요</option><option value="ko">한국어</option><option value="en">English</option>
     </select>
-    <p class="candidate-detail">선택한 가사를 서버와 OpenAI에 보내 발음을 만듭니다. 번역이 아니며, 노래에서 부르는 발음과 다를 수 있어요. 밑줄 친 구절은 발음 확인이 필요한 구절이에요. 만들어진 발음이 있으면 그 발음을, 없으면 원문을 보여 줘요.</p>
+    <p class="candidate-detail">선택한 가사를 서버와 OpenAI에 보내 음차를 만듭니다. 번역이 아니며, 노래에서 부르는 발음과 다를 수 있어요. 밑줄 친 구절은 음차 확인이 필요한 구절이에요. 만들어진 음차가 있으면 그 음차를, 없으면 원문을 보여 줘요.</p>
     <button id="pronunciation-generate" type="button" disabled>음차 만들기</button>
     <button id="pronunciation-toggle" type="button" aria-pressed="false" disabled>음차 숨기기</button>
     <button id="pronunciation-save" type="button" disabled>음차 저장</button>
@@ -16,7 +16,7 @@ internal fun youtubePronunciationHtml(): String = """
     <label for="pronunciation-edit-line">수정할 가사</label>
     <select id="pronunciation-edit-line"></select>
     <p id="pronunciation-edit-source" class="candidate-detail"></p>
-    <label for="pronunciation-edit-text">내가 읽을 발음</label>
+    <label for="pronunciation-edit-text">내가 읽을 음차</label>
     <textarea id="pronunciation-edit-text" rows="3" maxlength="2000" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
     <button id="pronunciation-edit-reset" type="button">생성한 음차로 되돌리기</button>
     <p class="candidate-detail">수정한 뒤 음차 저장을 눌러 주세요. 원문과 싱크는 바뀌지 않아요.</p>
@@ -119,7 +119,7 @@ internal fun youtubePronunciationHtml(): String = """
           const phrase = document.createElement('span');
           const leading = segment.source.match(/^\s*/)[0], trailing = segment.source.match(/\s*$/)[0];
           phrase.textContent = segment.pronunciation === null ? segment.source : leading + segment.pronunciation.trim() + trailing;
-          phrase.title = names[segment.language] + (segment.needsReview ? ' · 발음 확인 필요' : '');
+          phrase.title = names[segment.language] + (segment.needsReview ? ' · 음차 확인 필요' : '');
           phrase.setAttribute('aria-label', phrase.textContent + ' (' + phrase.title + ')');
           if (segment.needsReview && /\p{L}/u.test(segment.source)) phrase.className = 'pronunciation-review';
           layer.append(phrase);
@@ -128,7 +128,7 @@ internal fun youtubePronunciationHtml(): String = """
         // Touch WebViews show no title tooltip, so row status is visible text.
         const labels = validEditedPronunciation(pronunciationEdits[result.id]) ? ['직접 수정'] : [
           ...(result.segments.some(segment => segment.language === 'es') ? [pronunciationLanguages.es] : []),
-          ...(result.segments.some(segment => segment.needsReview && /\p{L}/u.test(segment.source)) ? ['발음 확인 필요'] : [])
+          ...(result.segments.some(segment => segment.needsReview && /\p{L}/u.test(segment.source)) ? ['음차 확인 필요'] : [])
         ];
         for (const text of labels) {
           const label = document.createElement('span'); label.className = 'pronunciation-languages';
@@ -263,7 +263,7 @@ internal fun youtubePronunciationHtml(): String = """
           while (start < lines.length && batch.length < 12 && length + lines[start].text.length <= 3000) {
             length += lines[start].text.length; batch.push(lines[start++]);
           }
-          pronunciationStatus.textContent = '발음을 만들고 있어요… ' + pronunciationResults.size + '/' + lines.length;
+          pronunciationStatus.textContent = '음차를 만들고 있어요… ' + pronunciationResults.size + '/' + lines.length;
           const result = await requestPronunciation({ target, lines: batch }, version + '-' + start);
           if (version !== pronunciationVersion) return;
           result.lines.forEach(line => pronunciationResults.set(line.id, line));
