@@ -3014,6 +3014,13 @@ test('a pasted share code opens the video, fetches that lyric record, and applie
     /공유받은 연습을 열었어요/,
   );
   assert.equal(storage.getItem('singbridge.practice.v1'), null);
+  // The existing save button then stores the fetched record's title and the shared offset.
+  f.element('save-practice').click();
+  const saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
+  assert.equal(saved.videoId, 'M7lc1UVf-VE');
+  assert.equal(saved.lyricId, 42);
+  assert.equal(saved.title, 'SingBridge - Original <song>');
+  assert.equal(saved.offset, 1.25);
 });
 
 test('a share code is found when a messenger or the input joins the lines', async () => {
