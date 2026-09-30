@@ -28,6 +28,7 @@ doublearray
 drawscope
 exoplayer
 FEFF
+Firestore
 furigana
 gachi
 georeoyo
