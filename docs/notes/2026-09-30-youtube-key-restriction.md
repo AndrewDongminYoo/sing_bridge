@@ -44,7 +44,16 @@ A debug build made with the tester key (`./gradlew :androidApp:assembleDebug`, e
 A simulator build made with the same key (the README `xcodebuild` command, exit 0) was installed over the existing app on the iPhone 17 Pro simulator, which kept its saved library, and the same search opened the first video and started the LRCLIB lookup, so iOS WKWebView sends it too.
 No app code changed: the page's default referrer policy already sends the origin on this cross-origin HTTPS request.
 
+## Quota alert
+
+Andrew added a Cloud Monitoring alert policy on 2026-09-30, read from a console screenshot he shared:
+
+- Metric: quota usage of "YouTube Data API v3 - Search Queries per day" (`youtube.googleapis.com/search_list`).
+- Condition: any time series above 0.8 of the daily limit, retested every minute.
+- Notification channel: email.
+
+The same chart showed 0.61 of the day's limit used for the quota day 2026-09-29 (Pacific time), during the #21 review and these checks.
+
 ## Remaining
 
 - Give tester builds the restricted key, and restrict or retire the development key once no session depends on it.
-- Set a quota alert on `search.list` in the console; it was not set during this check.
