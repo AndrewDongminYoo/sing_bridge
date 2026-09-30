@@ -51,3 +51,7 @@ overrides:
       - pero
       - quiero
       - NYAH # English-target pronunciation aid fixture
+  - filename:
+      - tools/lyrics-coverage/songs-*.json
+    ignoreRegExpList:
+      - '"videoId": "[\w-]{11}"' # YouTube video IDs in the coverage song list (#19)
