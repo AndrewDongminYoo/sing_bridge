@@ -27,6 +27,8 @@ Only the saved-practice reference: the YouTube video ID, the LRCLIB lyric ID, an
 - The bridge accepts messages only from the app's own page, as `PronunciationBridge.swift` and `PronunciationBridge.kt` already do: on iOS it rejects a message unless `frameInfo.isMainFrame` is true and the security origin is `https` with the app's bundle identifier as host, so the embedded YouTube player or any other frame cannot open the share sheet; on Android the message port is posted only to the app origin.
 - It accepts only a string of at most 2,000 characters and passes it to the share sheet unchanged; it never reads storage or makes network calls.
 - When the bridge is missing, the button stays hidden.
+- Wire contract, owned by the page since #65: on iOS the page posts the message string to `window.webkit.messageHandlers.share`; on Android the host calls `window.singBridgePrepareSharePort(nonce)` and then posts `nonce` with one `MessagePort` to the app origin, and the page posts the message string to that port.
+  The page shows the button when either path exists, checking again whenever its controls update, so a port that arrives after load shows it; it caps the title at 500 code points so the message stays within 2,000 characters.
 
 ## Message
 
@@ -34,7 +36,7 @@ Three lines:
 
 1. The code: `singbridge:1:<videoId>:<lyricId>:<offset>`.
 2. A line for people, proposed wording: `SingBridge 연습: <title>`, where the title is the selected record's `artistName - trackName`, as the save button stores it.
-   The title comes from LRCLIB, so before building the line the page replaces control characters and line or paragraph separators (`\p{Cc}`, `\p{Zl}`, `\p{Zp}`) with spaces, replaces every `:` with a space, and collapses runs of whitespace; since a code needs colons, provider text can then neither add a line nor form a second code, however it is built.
+   The title comes from LRCLIB, so before building the line the page replaces control characters, format characters such as bidirectional overrides and isolates, and line or paragraph separators (`\p{Cc}`, `\p{Cf}`, `\p{Zl}`, `\p{Zp}`) with spaces (#64), replaces every `:` with a space, and collapses runs of whitespace; since a code needs colons, provider text can then neither add a line nor form a second code, however it is built.
 3. `https://youtu.be/<videoId>`, so a recipient without the app can still open the video.
 
 In the code, `1` is the format version, `videoId` is 11 characters of `[A-Za-z0-9_-]`, `lyricId` is a positive decimal integer within JavaScript's safe range, and `offset` is a signed integer in milliseconds, from `-600000` to `600000`.

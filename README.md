@@ -77,6 +77,11 @@ Reopening fetches the exact lyric ID and restores its offset without autoplay; i
 No lyric body, credentials, playback position, or account data is stored by this feature.
 Invalid storage is preserved and reported; failed writes do not report success.
 See [saved practice scope](docs/specs/2026-09-28-saved-practice.md).
+
+To open a practice someone shared, paste the whole received message into the **노래 찾기** link field and tap **영상 열기**.
+The message carries a code (`singbridge:1:<video ID>:<LRCLIB ID>:<offset in ms>`) and no lyrics; the app opens the video, fetches that lyric ID, and applies the offset, and nothing is saved until **이 연습 저장** is used.
+The **이 연습 공유** button in lyric settings appears only when the native share bridge is present (#66).
+See [practice sharing scope](docs/specs/2026-09-30-practice-sharing.md).
 API access and attribution do not establish rights to distribute commercial lyrics; release clearance remains unresolved.
 The original local song stays saved and paused, with line repeat turned off on entry.
 The app pauses the video on background or when less than half the player is visible; returning does not resume automatically.
