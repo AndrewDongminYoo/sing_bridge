@@ -38,6 +38,9 @@ private struct PracticeTabs: UIViewControllerRepresentable {
 private final class PracticeTabController: UITabBarController, UITabBarControllerDelegate {
     private let importer: SongImporter
     private let youtube = UIHostingController(rootView: YouTubeScreen(active: false))
+    // Tab positions: 노래 찾기, 연습, 내 노래.
+    private static let searchTab = 0
+    private static let practiceTab = 1
 
     init(importer: SongImporter) {
         self.importer = importer
@@ -55,20 +58,21 @@ private final class PracticeTabController: UITabBarController, UITabBarControlle
             library: importer.library,
             onPickAudio: { [weak importer] in importer?.pickAudio() },
             onPickLyrics: { [weak importer] in importer?.pickLyrics() },
-            onPractice: { [weak self] in self?.selectHome() }
+            onPractice: { [weak self] in self?.selectPractice() }
         )
-        home.tabBarItem = UITabBarItem(title: "홈", image: UIImage(systemName: "house"), tag: 0)
-        youtube.tabBarItem = UITabBarItem(title: "YouTube", image: UIImage(systemName: "play.rectangle"), tag: 1)
+        youtube.tabBarItem = UITabBarItem(title: "노래 찾기", image: UIImage(systemName: "magnifyingglass"), tag: 0)
+        home.tabBarItem = UITabBarItem(title: "연습", image: UIImage(systemName: "music.mic"), tag: 1)
         songs.tabBarItem = UITabBarItem(title: "내 노래", image: UIImage(systemName: "music.note.list"), tag: 2)
-        viewControllers = [home, youtube, songs]
+        viewControllers = [youtube, home, songs]
         tabBar.tintColor = UIColor(red: 0.14, green: 0.37, blue: 0.32, alpha: 1)
-        importer.onImported = { [weak self] in self?.selectHome() }
+        importer.onImported = { [weak self] in self?.selectPractice() }
+        updateVisibility()
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    private func selectHome() {
-        selectedIndex = 0
+    private func selectPractice() {
+        selectedIndex = Self.practiceTab
         updateVisibility()
     }
 
@@ -77,7 +81,7 @@ private final class PracticeTabController: UITabBarController, UITabBarControlle
     }
 
     private func updateVisibility() {
-        importer.library.setPracticeVisible(visible: selectedIndex == 0)
-        youtube.rootView = YouTubeScreen(active: selectedIndex == 1)
+        importer.library.setPracticeVisible(visible: selectedIndex == Self.practiceTab)
+        youtube.rootView = YouTubeScreen(active: selectedIndex == Self.searchTab)
     }
 }

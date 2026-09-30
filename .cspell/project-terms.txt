@@ -54,6 +54,7 @@ LDFLAGS
 Leina
 lockfiles
 lrclib
+magnifyingglass
 mannayo
 MINKYU
 Moegi

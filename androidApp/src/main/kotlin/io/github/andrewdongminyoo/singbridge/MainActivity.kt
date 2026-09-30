@@ -27,11 +27,17 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : ComponentActivity() {
+    private companion object {
+        // Positions in AppNavigationBar: 노래 찾기, 연습, 내 노래.
+        const val SEARCH_TAB = 0
+        const val PRACTICE_TAB = 1
+    }
+
     private lateinit var library: SongLibrary
     private lateinit var store: LastSongStore
     private lateinit var youtube: YouTubePlayerView
     private lateinit var pages: List<View>
-    private var selectedTab by mutableStateOf(0)
+    private var selectedTab by mutableStateOf(SEARCH_TAB)
     private var resumed = false
     private val importScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val audioPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -74,11 +80,11 @@ class MainActivity : ComponentActivity() {
                     library,
                     onPickAudio = { audioPicker.launch(arrayOf("audio/*")) },
                     onPickLyrics = { lyricsPicker.launch(arrayOf("*/*")) },
-                    onPractice = { selectTab(0) },
+                    onPractice = { selectTab(PRACTICE_TAB) },
                 )
             }
         }
-        pages = listOf(home, youtube, songs)
+        pages = listOf(youtube, home, songs)
         val content = FrameLayout(this).apply { pages.forEach { addView(it, FrameLayout.LayoutParams(-1, -1)) } }
         val navigation = ComposeView(this).apply { setContent { AppNavigationBar(selectedTab, ::selectTab) } }
         val root = LinearLayout(this).apply {
@@ -94,15 +100,15 @@ class MainActivity : ComponentActivity() {
             WindowInsetsCompat.CONSUMED
         }
         setContentView(root)
-        selectTab(0)
+        selectTab(SEARCH_TAB)
         onBackPressedDispatcher.addCallback(this) {
-            if (selectedTab != 0) selectTab(0) else finish()
+            if (selectedTab != SEARCH_TAB) selectTab(SEARCH_TAB) else finish()
         }
     }
 
     private fun selectTab(index: Int) {
-        library.setPracticeVisible(index == 0)
-        youtube.setActive(resumed && index == 1)
+        library.setPracticeVisible(index == PRACTICE_TAB)
+        youtube.setActive(resumed && index == SEARCH_TAB)
         selectedTab = index
         pages.forEachIndexed { page, view -> view.visibility = if (page == index) View.VISIBLE else View.GONE }
     }
@@ -188,7 +194,7 @@ class MainActivity : ComponentActivity() {
                 handedToLibrary = true
                 player
             }
-            if (save && library.error == null && library.pendingAudio == null) selectTab(0)
+            if (save && library.error == null && library.pendingAudio == null) selectTab(PRACTICE_TAB)
         } catch (exception: CancellationException) {
             throw exception
         } catch (_: Exception) {
@@ -211,7 +217,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         resumed = true
-        youtube.setActive(selectedTab == 1)
+        youtube.setActive(selectedTab == SEARCH_TAB)
     }
 
     override fun onPause() {
