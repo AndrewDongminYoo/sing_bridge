@@ -609,6 +609,9 @@ test('normalization treats a pronunciation in the wrong script as missing', () =
     ['ko', 'aoi sora'],
     ['ko', 'アオイソラ'],
     ['en', '아오이 소라'],
+    // Script characters that are not letters do not count (U+2160 ROMAN NUMERAL ONE, U+3200 a parenthesized Hangul symbol).
+    ['en', 'ダイⅠショウ'],
+    ['ko', '㈀ダイ'],
   ])
     assert.deepEqual(
       [target, normalized(target, pronunciation)],

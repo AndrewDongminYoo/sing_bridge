@@ -97,7 +97,9 @@ export function validateResult(request, value, { normalize = false } = {}) {
         if (segment.language === 'und') segment.needsReview = true;
         // A pronunciation with no letter of the target script is missing, not an aid (#56).
         const targetScript =
-          request.target === 'ko' ? /\p{Script=Hangul}/u : /\p{Script=Latin}/u;
+          request.target === 'ko'
+            ? /(?=\p{Letter})\p{Script=Hangul}/u
+            : /(?=\p{Letter})\p{Script=Latin}/u;
         if (
           retainsSource ||
           !segment.pronunciation?.trim() ||
