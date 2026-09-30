@@ -135,7 +135,7 @@ The unedited ratio divides unedited generated lines by lines with text, so lines
 An edit identical to the generated text does not count as a change, and the report never prints lyric or pronunciation text.
 
 The app does not record that a review happened, so naming a layer with `--reviewed` is the operator's statement that a reviewer finished it.
-Since #29, the server marks a segment for review when its language is unknown or its pronunciation is empty, so a review flag no longer shows whether the model or the server set it.
+Since #29, the server marks a segment for review when its language is unknown or its pronunciation is empty, and since #56 also when the pronunciation has no letter of the target script (Hangul for `ko`, Latin for `en`), dropping that pronunciation; so a review flag no longer shows whether the model or the server set it.
 `unpronouncedSegments` counts, per layer and in each total, the phrases in a supported language other than the target that were saved without pronunciation and contain a letter; the page shows their source with the `음차 확인 필요` label.
 The server keeps these phrases instead of retrying the batch, and #43 left the decision on a retry to this count from reviewed songs.
 Keep extracted libraries under the ignored `build/` directory, and delete them after measuring; they contain lyrics.

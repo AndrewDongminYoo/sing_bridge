@@ -580,6 +580,68 @@ test('Spanish phrases are accepted for the Korean and English targets', () => {
     );
   }
 });
+// Issue #56: a whole ko-target batch once came back in Latin letters; a wrong-script pronunciation counts as missing.
+test('normalization treats a pronunciation in the wrong script as missing', () => {
+  const result = (target, pronunciation) => ({
+    target,
+    lines: [
+      {
+        id: 'line-0',
+        segments: [
+          {
+            source: '青い空',
+            language: 'ja',
+            reading: 'アオイソラ',
+            pronunciation,
+            needsReview: false,
+          },
+        ],
+      },
+    ],
+  });
+  const normalized = (target, pronunciation) =>
+    validateResult(
+      validateRequest({ target, lines: [{ id: 'line-0', text: '青い空' }] }),
+      result(target, pronunciation),
+      { normalize: true },
+    ).lines[0].segments[0];
+  for (const [target, pronunciation] of [
+    ['ko', 'aoi sora'],
+    ['ko', 'アオイソラ'],
+    ['en', '아오이 소라'],
+    // Script characters that are not letters do not count (U+2160 ROMAN NUMERAL ONE, U+3200 a parenthesized Hangul symbol).
+    ['en', 'ダイⅠショウ'],
+    ['ko', '㈀ダイ'],
+  ])
+    assert.deepEqual(
+      [target, normalized(target, pronunciation)],
+      [
+        target,
+        {
+          source: '青い空',
+          language: 'ja',
+          reading: 'アオイソラ',
+          pronunciation: null,
+          needsReview: true,
+        },
+      ],
+    );
+  // Mixed scripts keep the pronunciation, since Korean aids may carry Latin letters.
+  assert.equal(normalized('ko', '아오이 sora').pronunciation, '아오이 sora');
+  assert.equal(normalized('ko', '아오이 소라').needsReview, false);
+  assert.equal(normalized('en', 'aoi sora').pronunciation, 'aoi sora');
+  assert.equal(normalized('en', 'āoi sora').pronunciation, 'āoi sora');
+  // Strict validation, used for saved layers, still accepts layers saved before this rule.
+  const request = validateRequest({
+    target: 'ko',
+    lines: [{ id: 'line-0', text: '青い空' }],
+  });
+  assert.equal(
+    validateResult(request, result('ko', 'aoi sora')).lines[0].segments[0]
+      .pronunciation,
+    'aoi sora',
+  );
+});
 test('Spanish review rules match the other foreign languages', () => {
   const spanishRequest = validateRequest({
     target: 'ko',
