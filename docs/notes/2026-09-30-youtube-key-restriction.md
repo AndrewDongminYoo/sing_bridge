@@ -22,9 +22,11 @@ A referrer can be forged by anyone who extracts the key from a build, like the a
 
 ## Quota
 
-The [YouTube Data API getting-started page](https://developers.google.com/youtube/v3/getting-started), read on 2026-09-30, gives a default allocation of 100 `search.list` calls per day, plus 10,000 units per day for the other endpoints.
+The [getting-started page](https://developers.google.com/youtube/v3/getting-started) and the [quota cost page](https://developers.google.com/youtube/v3/determine_quota_cost) (last updated 2026-09-14 and 2026-09-15, read on 2026-09-30) give projects a default allocation of 100 `search.list` calls, 100 `videos.insert` calls, and 10,000 units per day for all other endpoints.
+The quota cost page adds that `search.list` has its own bucket with a default limit of 100 per day at a cost of 1 per call; older versions of that page charged 100 units per search against the 10,000-unit pool.
+The allocation belongs to the Google Cloud project, not to a key, so the tester and development keys draw on the same 100 searches.
 The page calls only `search.list`, once per song search; opening a video link makes no API call.
-So all users of one key share 100 song searches a day, which the Gate B plan (#26) has to budget for or raise through a quota request.
+So every build that uses a key of this project shares 100 song searches a day, which the Gate B plan (#26) has to budget for or raise through a quota request.
 
 ## Checks
 
