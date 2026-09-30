@@ -1,0 +1,72 @@
+{
+  "measuredAt": "2026-09-30T00:35:16.533Z",
+  "source": "https://lrclib.net/api/search",
+  "toleranceSeconds": 2,
+  "summary": {
+    "total": 1,
+    "measured": 1,
+    "synced": 0,
+    "synced-other-duration": 1,
+    "plain-only": 0,
+    "none": 0,
+    "error": 0,
+    "syncedRatio": 0
+  },
+  "songs": [
+    {
+      "artist": "back number",
+      "title": "ヒロイン",
+      "durationSeconds": 270,
+      "status": "synced-other-duration",
+      "match": null,
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 15152573,
+          "trackName": "ヒロイン",
+          "artistName": "back number",
+          "albumName": "ヒロイン",
+          "duration": 270,
+          "type": "instrumental",
+          "durationDifference": 0
+        },
+        {
+          "id": 11403634,
+          "trackName": "ヒロイン",
+          "artistName": "back number",
+          "albumName": "ヒロイン - EP",
+          "duration": 270,
+          "type": "plain",
+          "durationDifference": 0
+        },
+        {
+          "id": 14125898,
+          "trackName": "ヒロイン (女主角)",
+          "artistName": "back number",
+          "albumName": "ヒロイン",
+          "duration": 270,
+          "type": "instrumental",
+          "durationDifference": 0
+        },
+        {
+          "id": 11403635,
+          "trackName": "ヒロイン (instrumental)",
+          "artistName": "back number",
+          "albumName": "ヒロイン - EP",
+          "duration": 270,
+          "type": "instrumental",
+          "durationDifference": 0
+        },
+        {
+          "id": 37605343,
+          "trackName": "ヒロイン - Heroine",
+          "artistName": "back number",
+          "albumName": "back number",
+          "duration": 270,
+          "type": "plain",
+          "durationDifference": 0
+        }
+      ]
+    }
+  ]
+}

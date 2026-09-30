@@ -11,7 +11,10 @@ Target: synced LRCLIB lyrics for at least 70% of the curated 30 songs, with fals
 On 2026-09-30 at 00:34 UTC, `node tools/lyrics-coverage/coverage.mjs tools/lyrics-coverage/songs-2026-09.json --out build/lyrics-coverage.json` ran on `c6f785a` with the tool's defaults (one request per song, 1 second apart, 2-second duration tolerance).
 LRCLIB answered one song, back number - ヒロイン, with HTTP 503, so the tool recorded it as `error`.
 At 00:35 UTC the same command ran on a one-entry list holding only that song, and that result replaces the error below.
-The reports hold metadata only and stay in the ignored `build/` directory; no lyric text was read or stored.
+No lyric text was read or stored.
+Both tool reports are kept unchanged except for formatting, so the classification below can be checked later even if LRCLIB results change: [the main run](2026-09-30-lyrics-coverage-gate-run.json) and [the rerun](2026-09-30-lyrics-coverage-gate-rerun.json).
+They hold record IDs, names, album names, durations, lyric types, and the per-song status, and no lyric text.
+The tool keeps at most five candidates per song, ranked by duration difference, out of the up to 20 the app displays, so a record outside those five, such as ヒロイン's synced record at another length, is counted in the status but not listed.
 
 ## Result per song
 
