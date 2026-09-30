@@ -32,7 +32,7 @@ Three lines:
 
 1. The code: `singbridge:1:<videoId>:<lyricId>:<offset>`.
 2. A line for people, proposed wording: `SingBridge 연습: <title>`, where the title is the selected record's `artistName - trackName`, as the save button stores it.
-   The title comes from LRCLIB, so the page removes every case-insensitive occurrence of `singbridge:` from it before building the line, and provider text can never form a second code.
+   The title comes from LRCLIB, so before building the line the page replaces control characters and line or paragraph separators (`\p{Cc}`, `\p{Zl}`, `\p{Zp}`) with spaces, collapses runs of whitespace, and removes every case-insensitive occurrence of `singbridge:`; provider text can then neither add a line nor form a second code.
 3. `https://youtu.be/<videoId>`, so a recipient without the app can still open the video.
 
 In the code, `1` is the format version, `videoId` is 11 characters of `[A-Za-z0-9_-]`, `lyricId` is a positive decimal integer within JavaScript's safe range, and `offset` is a signed integer in milliseconds, from `-600000` to `600000`.
@@ -75,6 +75,6 @@ Other failures (network, timeout, rate limit) reuse the existing lyric messages.
 ## Acceptance
 
 1. Page tests in `tools/test-youtube.mjs` cover: a valid code opens the video, fetches that lyric ID, and applies the offset after lyrics load; a code inside joined or multi-line text is found; each invalid field (ID length and characters, zero or unsafe lyric ID, offset outside ±600000, unknown version) and input with two different codes are rejected without a network request; an offset such as 1.25 seconds survives the round trip; a plain YouTube link still opens as before; nothing is saved until the save button is pressed; a stale lyric response from an earlier open cannot apply its offset.
-2. The share button builds the three-line message with the current offset, removes `singbridge:` from the title line, and is hidden without the bridge.
+2. The share button builds the three-line message with the current offset, flattens the title line to one line and removes `singbridge:` from it, and is hidden without the bridge.
 3. On the iOS simulator and an Android emulator, the share sheet opens with the message, and pasting that message on the other platform opens the same video, record, and offset; the check is recorded in a dated note.
 4. Existing page, server, and JVM tests, Android build and lint, the iOS host build, and scoped Trunk checks pass.
