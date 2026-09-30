@@ -19,7 +19,9 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         html { font-size: 16px; }
         /* iOS WebKit scales this with Dynamic Type; every size below is in rem. */
         @supports (font: -apple-system-body) { html { font: -apple-system-body; } }
-        body { margin: 0; background: #faf7f0; color: #263b35; font-family: system-ui; font-size: 1rem; }
+        body { margin: 0; background: #faf7f0; color: #263b35; font-family: system-ui; font-size: 1rem; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        /* Taps on controls never start a selection; lyrics and typed text stay selectable. */
+        #lyric-window, #pronunciation-edit-source, input, textarea { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
         main { max-width: 720px; margin: auto; padding: 16px; }
         label, input { display: block; }
         input { width: 100%; padding: 12px; margin: 8px 0; font: inherit; }

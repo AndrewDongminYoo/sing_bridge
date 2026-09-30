@@ -2916,3 +2916,32 @@ test('saving the practice says when generated 음차 is not saved yet', async ()
   assert.match(f.element('save-status').textContent, /저장했어요/);
   assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
 });
+
+test('taps on controls never start a text selection, while lyrics and form fields stay selectable', () => {
+  const rule = (selector) => {
+    const match = html.match(
+      new RegExp(
+        `(?:^|\\n)\\s*${selector.replace(/[.#]/g, '\\$&')}\\s*\\{([^}]*)\\}`,
+      ),
+    );
+    assert.ok(match, selector);
+    return match[1];
+  };
+  const body = rule('body');
+  assert.match(body, /-webkit-user-select:\s*none/);
+  assert.match(body, /user-select:\s*none/);
+  assert.match(body, /-webkit-touch-callout:\s*none/);
+  const selectable = html.match(
+    /\n\s*([^{}\n]+)\{[^}]*-webkit-user-select:\s*text[^}]*\}/,
+  );
+  assert.ok(selectable, 'a rule re-enables text selection');
+  const selectors = selectable[1].split(',').map((part) => part.trim());
+  for (const selector of [
+    '#lyric-window',
+    '#pronunciation-edit-source',
+    'input',
+    'textarea',
+  ]) {
+    assert.ok(selectors.includes(selector), selector);
+  }
+});
