@@ -293,6 +293,7 @@ The initial target follows the native preferred language; other locales require 
 Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
 The page sends batches of up to 12 lines and 3,000 characters, each with up to two non-blank neighbor lines on each side as read-only context; context lines are never returned or saved from that request.
 The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction, and leaves original lyrics usable on failure.
+A pronunciation with no letter of the chosen script (Hangul for Korean, Latin letters for English) is dropped, and its phrase is shown as original text marked for review.
 Results are optional and may need correction for sung readings.
 A phrase the model marks for review keeps its pronunciation with a dotted underline, or its original text when the model gave none, and its row shows `음차 확인 필요`.
 Use **음차 저장** to save the current practice, generated pronunciation, and line edits on this device.
