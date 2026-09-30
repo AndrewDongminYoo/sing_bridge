@@ -39,6 +39,7 @@ overrides:
       - ＰＲＥＴＥＮＤＥＲ # full-width title fixture
       - Feid # collaborator artist fixture
       - Achtung # album-title query fixture
+      - singbrisingbridge # nested share-code marker fixture (#65)
   - filename:
       - server/pronunciation.mjs
       - server/pronunciation.test.mjs

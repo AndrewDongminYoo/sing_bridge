@@ -143,8 +143,15 @@ function fixture(
     },
   };
   const window = {
+    // Chain listeners as a browser does: the pronunciation and share ports both listen for 'message'.
     addEventListener(type, fn) {
-      this[type] = fn;
+      const previous = this[type];
+      this[type] = previous
+        ? (event) => {
+            previous(event);
+            fn(event);
+          }
+        : fn;
     },
     matchMedia() {
       return { matches: this.reducedMotion || false };
@@ -2944,4 +2951,274 @@ test('taps on controls never start a text selection, while lyrics and form field
   ]) {
     assert.ok(selectors.includes(selector), selector);
   }
+});
+
+// Practice sharing by code: docs/specs/2026-09-30-practice-sharing.md (#65).
+const sharedCode = 'singbridge:1:M7lc1UVf-VE:42:1250';
+const sharedMessage = `${sharedCode}\nSingBridge 연습: Someone else\nhttps://youtu.be/M7lc1UVf-VE`;
+const sharedRespond = (url) =>
+  url.includes('/api/get/') ? response(record) : response();
+
+function sharedReceiver(respond = sharedRespond, storage = memoryStorage()) {
+  const f = fixture(respond, 'fixture-key', storage);
+  f.window.onYouTubeIframeAPIReady();
+  f.visibility(1);
+  return f;
+}
+
+async function openShared(f, text) {
+  f.submit(text);
+  f.players.at(-1).options.events.onReady();
+  await vm.runInContext('lyricFinished', f.context);
+}
+
+async function sharingSender(records = [record]) {
+  const f = fixture(() => response(records));
+  f.ready();
+  await f.search();
+  f.select();
+  return f;
+}
+
+function shareBridge(f) {
+  const sent = [];
+  f.window.webkit = {
+    messageHandlers: { share: { postMessage: (m) => sent.push(m) } },
+  };
+  f.tick();
+  return sent;
+}
+
+test('a pasted share code opens the video, fetches that lyric record, and applies the offset after lyrics load', async () => {
+  const storage = memoryStorage();
+  const f = sharedReceiver(sharedRespond, storage);
+  f.submit(sharedMessage);
+  assert.equal(f.players.length, 1);
+  assert.equal(f.players[0].options.videoId, 'M7lc1UVf-VE');
+  assert.equal(f.players[0].options.playerVars.autoplay, 0);
+  assert.equal(f.requests.length, 0);
+  f.players[0].options.events.onReady();
+  await vm.runInContext('lyricFinished', f.context);
+  assert.deepEqual(
+    f.requests.map((r) => new URL(r.url).pathname),
+    ['/api/get/42'],
+  );
+  assert.equal(vm.runInContext('lyricAdjustment', f.context), 1.25);
+  // The title comes from the fetched record, never from the pasted message.
+  assert.equal(
+    f.element('song-result').textContent,
+    'SingBridge - Original <song>',
+  );
+  assert.match(
+    f.element('save-status').textContent,
+    /공유받은 연습을 열었어요/,
+  );
+  assert.equal(storage.getItem('singbridge.practice.v1'), null);
+});
+
+test('a share code is found when a messenger or the input joins the lines', async () => {
+  for (const text of [
+    sharedMessage.replaceAll('\n', ''),
+    sharedMessage.replaceAll('\n', ' '),
+    `받은 메시지 ${sharedMessage} 끝`,
+    `${sharedCode}\n${sharedCode}`,
+  ]) {
+    const f = sharedReceiver();
+    await openShared(f, text);
+    assert.equal(f.players[0].options.videoId, 'M7lc1UVf-VE', text);
+    assert.equal(vm.runInContext('lyricAdjustment', f.context), 1.25, text);
+  }
+});
+
+test('invalid or conflicting share codes are rejected without a player or a network request', () => {
+  for (const text of [
+    'singbridge:1:M7lc1UVf-V:42:0',
+    'singbridge:1:M7lc1UVf-VEx:42:0',
+    'singbridge:1:M7lc1UVf!VE:42:0',
+    'singbridge:1:M7lc1UVf-VE:0:0',
+    'singbridge:1:M7lc1UVf-VE:042:0',
+    'singbridge:1:M7lc1UVf-VE:9007199254740993:0',
+    'singbridge:1:M7lc1UVf-VE:42:600001',
+    'singbridge:1:M7lc1UVf-VE:42:-600001',
+    'singbridge:1:M7lc1UVf-VE:42:1.5',
+    'singbridge:1:M7lc1UVf-VE:42:',
+    'singbridge:2:M7lc1UVf-VE:42:0',
+    'singbridge:1:M7lc1UVf-VE:42:0 singbridge:1:M7lc1UVf-VE:43:0',
+    'https://youtu.be/M7lc1UVf-VE singbridge:x',
+  ]) {
+    const f = sharedReceiver();
+    f.submit(text);
+    assert.equal(f.players.length, 0, text);
+    assert.equal(f.requests.length, 0, text);
+    assert.match(
+      f.element('song-status').textContent,
+      /공유 코드를 읽지 못했어요/,
+      text,
+    );
+  }
+});
+
+test('an invalid share code is reported before waiting for the YouTube API', () => {
+  const f = fixture();
+  f.submit('singbridge:1:short:42:0');
+  assert.match(
+    f.element('song-status').textContent,
+    /공유 코드를 읽지 못했어요/,
+  );
+});
+
+test('input without a share code keeps opening YouTube links and IDs', () => {
+  const f = sharedReceiver();
+  f.submit('https://youtu.be/M7lc1UVf-VE');
+  assert.equal(f.players.length, 1);
+  f.submit('not a link');
+  assert.match(
+    f.element('song-status').textContent,
+    /올바른 YouTube 영상 링크/,
+  );
+});
+
+test('a shared lyric record that is missing or wrong gets the shared-record messages', async () => {
+  const missing = sharedReceiver((url) =>
+    url.includes('/api/get/') ? new Response('', { status: 404 }) : response(),
+  );
+  await openShared(missing, sharedCode);
+  assert.match(
+    missing.element('lyrics-status').textContent,
+    /공유받은 가사를 찾을 수 없어요/,
+  );
+  const wrong = sharedReceiver((url) =>
+    url.includes('/api/get/') ? response({ ...record, id: 7 }) : response(),
+  );
+  await openShared(wrong, sharedCode);
+  assert.match(
+    wrong.element('lyrics-status').textContent,
+    /공유받은 가사 응답이 올바르지 않아요/,
+  );
+});
+
+test('a stale shared lyric response cannot apply its offset after another code opens', async () => {
+  let releaseFirst;
+  const f = sharedReceiver((url) => {
+    if (url.includes('/api/get/41'))
+      return new Promise((resolve) => {
+        releaseFirst = () => resolve(response({ ...record, id: 41 }));
+      });
+    // The second code's record is missing, so only a stale first response could select a record.
+    return url.includes('/api/get/')
+      ? new Response('', { status: 404 })
+      : response();
+  });
+  f.submit('singbridge:1:M7lc1UVf-VE:41:3000');
+  f.players[0].options.events.onReady();
+  // Let the first lookup reach the network before the second code opens.
+  await new Promise(setImmediate);
+  assert.equal(typeof releaseFirst, 'function');
+  f.submit('singbridge:1:dQw4w9WgXcQ:43:1250');
+  f.players[1].options.events.onReady();
+  releaseFirst();
+  await vm.runInContext('lyricFinished', f.context);
+  assert.equal(vm.runInContext('selectedLyricRecord', f.context), null);
+  assert.equal(vm.runInContext('lyricAdjustment', f.context), 0);
+  assert.match(
+    f.element('lyrics-status').textContent,
+    /공유받은 가사를 찾을 수 없어요/,
+  );
+});
+
+test('the share button is hidden without a bridge and shares the three-line message with the current offset', async () => {
+  const f = await sharingSender();
+  f.tick();
+  assert.equal(f.element('share-practice').hidden, true);
+  const sent = shareBridge(f);
+  assert.equal(f.element('share-practice').hidden, false);
+  assert.equal(f.element('share-practice').disabled, false);
+  f.element('lyrics-later').click();
+  f.element('share-practice').click();
+  assert.equal(sent.length, 1);
+  assert.equal(typeof sent[0], 'string');
+  const offset = Math.round(
+    vm.runInContext('lyricAdjustment', f.context) * 1000,
+  );
+  assert.deepEqual(sent[0].split('\n'), [
+    `singbridge:1:M7lc1UVf-VE:42:${offset}`,
+    'SingBridge 연습: SingBridge - Original <song>',
+    'https://youtu.be/M7lc1UVf-VE',
+  ]);
+});
+
+test('the share button stays disabled until a video and a lyric record are open', () => {
+  const f = fixture(() => response());
+  f.ready();
+  f.tick();
+  assert.equal(f.element('share-practice').hidden, true);
+  shareBridge(f);
+  assert.equal(f.element('share-practice').hidden, false);
+  assert.equal(f.element('share-practice').disabled, true);
+});
+
+test('the share button appears when the Android share port arrives after load', async () => {
+  const f = await sharingSender();
+  f.tick();
+  assert.equal(f.element('share-practice').hidden, true);
+  const posted = [];
+  const port = { postMessage: (m) => posted.push(m), start() {}, close() {} };
+  f.window.singBridgePrepareSharePort('share-nonce');
+  f.window.message({ data: 'other-nonce', ports: [port] });
+  assert.equal(f.element('share-practice').hidden, true);
+  f.window.message({ data: 'share-nonce', ports: [port] });
+  assert.equal(f.element('share-practice').hidden, false);
+  f.element('share-practice').click();
+  assert.equal(posted.length, 1);
+  assert.match(posted[0], /^singbridge:1:M7lc1UVf-VE:42:0\n/);
+});
+
+test('an offset with milliseconds survives the share round trip', async () => {
+  for (const seconds of ['1.25', '-0.5', '12.345']) {
+    const sender = await sharingSender();
+    const sent = shareBridge(sender);
+    sender.element('lyrics-offset').value = seconds;
+    sender.element('lyrics-offset').change();
+    sender.element('share-practice').click();
+    const receiver = sharedReceiver();
+    await openShared(receiver, sent[0]);
+    assert.equal(
+      vm.runInContext('lyricAdjustment', receiver.context),
+      Number(seconds),
+      seconds,
+    );
+  }
+});
+
+test('the share title is flattened to one line without colons, controls, or format characters', async () => {
+  const hostile = {
+    ...record,
+    artistName: 'Art:ist‮',
+    trackName:
+      'A⁦b⁩ c\nd singbrisingbridge:dge:1:dQw4w9WgXcQ:7:0 singbridge:1:dQw4w9WgXcQ:7:0',
+  };
+  const f = await sharingSender([hostile]);
+  const sent = shareBridge(f);
+  f.element('share-practice').click();
+  const lines = sent[0].split('\n');
+  assert.equal(lines.length, 3);
+  const title = lines[1].replace(/^SingBridge 연습: /, '');
+  assert.doesNotMatch(title, /[:\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/u);
+  assert.doesNotMatch(title, /\s{2}/);
+  // Only the real code remains, so the message opens the sender's practice.
+  const receiver = sharedReceiver();
+  await openShared(receiver, sent[0]);
+  assert.equal(receiver.players[0].options.videoId, 'M7lc1UVf-VE');
+  assert.deepEqual(
+    receiver.requests.map((r) => new URL(r.url).pathname),
+    ['/api/get/42'],
+  );
+});
+
+test('a very long title keeps the shared message within the bridge limit', async () => {
+  const f = await sharingSender([{ ...record, trackName: '가'.repeat(5000) }]);
+  const sent = shareBridge(f);
+  f.element('share-practice').click();
+  assert.ok(sent[0].length <= 2000, String(sent[0].length));
+  assert.equal(sent[0].split('\n').length, 3);
 });
