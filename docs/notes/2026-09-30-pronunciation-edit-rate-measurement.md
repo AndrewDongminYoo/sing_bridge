@@ -1,19 +1,21 @@
 # Reviewer edit rate on 10 songs
 
 Issue: #21.
-Target: a fluent reviewer leaves at least 90% of lines unedited across 10 songs (Gate A in the [competitive brief](2026-09-29-competitive-brief.md)).
+Target: a fluent reviewer leaves at least 90% of lines unedited across 10 songs, measured with reviewer edits in the existing edit flow on authorized or original samples (Gate A in the [competitive brief](2026-09-29-competitive-brief.md)).
+
+This run does not establish the Gate A result, for the three reasons under [Gate A status](#gate-a-status); it records a development measurement with the numbers below.
 Protocol: "Measure the reviewer edit rate" in `tools/pronunciation-quality/README.md`.
 
 ## Setup
 
-- **Reviewer:** the operator, who chose to act as the reviewer on 2026-09-30; this measurement did not assess the fluency that Gate A asks of the reviewer, so the verdict below holds on the operator's confirmation that he meets that condition.
+- **Reviewer:** the operator, who chose to act as the reviewer on 2026-09-30; this measurement did not assess the fluency that Gate A asks of the reviewer.
 - **Songs:** the first 10 songs of the approved list (`tools/lyrics-coverage/songs-2026-09.json`, PR #49) by chart rank whose synced match was not flagged as false in the [coverage gate run](2026-09-30-lyrics-coverage-gate-run.md).
 - **App:** the SingBridge build already installed on the iOS Debug simulator (iPhone 17 Pro, iOS 27.0), which the session that installed it reported as the PR #48 build (`55fba29`); `git log 55fba29..3241345` shows no change under `shared`, `iosApp`, `androidApp`, or `server`, and `3241345` ran the pronunciation server.
 - **Flow:** the reviewer searched each song, chose the listed LRCLIB record, generated Korean-target (`ko`) pronunciation in the app, read every line, and saved with **음차 저장**.
 - **Extraction:** the app was stopped, WebKit storage was copied read-only as the README shows, and `edit-rate.mjs` ran with the 10 layers named as `--reviewed <lyricId>:ko`.
   The extracted library, which contains lyrics, was kept only under the ignored `build/` directory of the measurement worktree and never committed.
 
-No lyric or pronunciation text was printed or stored outside the app and that temporary copy.
+The local server and the scripts printed and logged no lyric or pronunciation text; generation sent the lyric lines to OpenAI with `store: false`, and OpenAI's own retention policies still apply, as the README says.
 
 ## Tool report
 
@@ -40,8 +42,18 @@ A script check of the saved layers, which printed counts only, found exactly one
 No other segment in the 10 layers has a Latin-only pronunciation.
 The defect is filed as #56.
 
-Counting those 12 lines as wrong, 387 of 399 lines (97.0%) were correct as generated, above the 90% target, subject to the reviewer condition in Setup.
-The measured ratio rests on the reviewer's reading, not on edits, so the note records both numbers: 399 of 399 unedited by the tool, and 387 of 399 correct by the reviewer's account.
+The protocol asks the reviewer to correct every wrong line, so leaving these 12 lines unedited is a deviation, and the tool's ratio of 1 is not the reviewer edit rate the protocol defines.
+Counting those 12 lines as wrong by the reviewer's account gives 387 of 399 lines (97.0%) correct as generated; that number comes from the reviewer's statement and the script check, not from the tool.
+
+## Gate A status
+
+Not established by this run:
+
+- **Samples:** Gate A measures on authorized or original samples; these 10 songs are commercial recordings with lyrics from LRCLIB, and no authorization is recorded (#17 is waiting for the licensing answers).
+- **Protocol:** 12 known wrong lines were left unedited, so the tool did not measure the reviewer edit rate as defined.
+- **Reviewer:** the fluency that Gate A asks of the reviewer was not assessed.
+
+The 97.0% figure is useful as a development signal of the current prompt's accuracy on popular songs, not as gate evidence.
 
 ## Signals requested in #21
 
