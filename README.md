@@ -100,6 +100,8 @@ Gradle generates the shared configuration under `shared/build`; neither the loca
 Builds without a key retain direct-link playback and manual LRCLIB search.
 Service-account credentials are not supported for this YouTube flow.
 The key is included in configured client builds and can be extracted; apply API/application restrictions and quota controls before distribution.
+Restrict the key to YouTube Data API v3 and to the website `https://io.github.andrewdongminyoo.singbridge/*`: the page's search request carries that referrer on both platforms, and Android or iOS app restrictions would reject it because the WebView does not send their app headers.
+A referrer can be forged by anyone who extracts the key, so the API restriction and the daily quota are the limits that hold; see [key restriction](docs/notes/2026-09-30-youtube-key-restriction.md).
 No backend is introduced.
 See [song-search scope](docs/specs/2026-09-28-song-search.md) and [verification](docs/notes/2026-09-28-song-search-verification.md).
 
