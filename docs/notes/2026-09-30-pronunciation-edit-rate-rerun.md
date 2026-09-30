@@ -52,7 +52,7 @@ The extracted library, which contains lyrics, was kept only in a temporary direc
 | 35057582  | 米津玄師 - LADY                             | 35    | 35        | 0      | 9                    | 0                             |
 
 `totals.ko`: 10 songs, 399 lines with text, 399 generated, 0 edited, 399 unedited, 0 phrases without pronunciation, and an unedited ratio of 1.
-This time no known wrong line was left unedited, so the ratio is the reviewer edit rate that the protocol defines.
+This time no known wrong line was left unedited, so the editing deviation of the first run is gone; because the protocol asks for a fluent reviewer and the reviewer's fluency was not assessed, the ratio is the operator's development edit rate, not yet the reviewer edit rate that the protocol defines.
 
 ## Gate A status
 
@@ -61,7 +61,7 @@ Not established:
 - **Samples:** the 10 songs are commercial recordings with lyrics from LRCLIB, and #17 has not answered the licensing questions; by the decision above, whether these songs count waits for those answers.
 - **Reviewer:** the fluency that Gate A asks of the reviewer was not assessed.
 
-The protocol reason of the first run no longer applies.
+The first run's protocol reason, 12 known wrong lines left unedited, no longer applies.
 
 ## Signals
 
