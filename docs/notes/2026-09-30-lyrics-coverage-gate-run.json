@@ -1,0 +1,1704 @@
+{
+  "measuredAt": "2026-09-30T00:34:02.869Z",
+  "source": "https://lrclib.net/api/search",
+  "toleranceSeconds": 2,
+  "summary": {
+    "total": 30,
+    "measured": 29,
+    "synced": 25,
+    "synced-other-duration": 3,
+    "plain-only": 0,
+    "none": 1,
+    "error": 1,
+    "syncedRatio": 0.862
+  },
+  "songs": [
+    {
+      "artist": "Official髭男dism",
+      "title": "Pretender",
+      "durationSeconds": 336,
+      "status": "synced",
+      "match": {
+        "id": 34678411,
+        "trackName": "Official髭男dism - Pretender［］",
+        "artistName": "Official髭男dism",
+        "albumName": "Official髭男dism - Pretender［］",
+        "duration": 336,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 34678411,
+          "trackName": "Official髭男dism - Pretender［］",
+          "artistName": "Official髭男dism",
+          "albumName": "Official髭男dism - Pretender［］",
+          "duration": 336,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 34678408,
+          "trackName": "Official髭男dism - Pretender［Official Video］",
+          "artistName": "Official髭男dism",
+          "albumName": "Official髭男dism - Pretender［Official Video］",
+          "duration": 336,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 8565469,
+          "trackName": "Official髭男dism - Pretender［Official Video］",
+          "artistName": "Official髭男dism",
+          "albumName": "Official髭男dism",
+          "duration": 336,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 25011100,
+          "trackName": "Official髭男dism - Pretender［Official Video］",
+          "artistName": "Official髭男dism",
+          "albumName": "Official髭男dism Videos",
+          "duration": 336,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 29363557,
+          "trackName": "Pretender",
+          "artistName": "Official髭男dism",
+          "albumName": "Official髭男dism",
+          "duration": 336,
+          "type": "synced",
+          "durationDifference": 0
+        }
+      ]
+    },
+    {
+      "artist": "tuki.",
+      "title": "晩餐歌",
+      "durationSeconds": 220,
+      "status": "synced",
+      "match": {
+        "id": 36513119,
+        "trackName": "晩餐歌",
+        "artistName": "tuki.",
+        "albumName": "tuki. Videos",
+        "duration": 220,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 32389822,
+          "trackName": "tuki.『晩餐歌』Official Music Video",
+          "artistName": "tuki.(17)",
+          "albumName": "tuki.『晩餐歌』Official Music Video",
+          "duration": 220,
+          "type": "plain",
+          "durationDifference": 0
+        },
+        {
+          "id": 36513119,
+          "trackName": "晩餐歌",
+          "artistName": "tuki.",
+          "albumName": "tuki. Videos",
+          "duration": 220,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 33699770,
+          "trackName": "晩餐歌 - Bansanka",
+          "artistName": "tuki.",
+          "albumName": "晩餐歌 - Bansanka",
+          "duration": 220,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 29420388,
+          "trackName": "晩餐歌 - Bansanka",
+          "artistName": "tuki.",
+          "albumName": "tuki. Videos",
+          "duration": 220,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 32300010,
+          "trackName": "晩餐歌 - Bansanka",
+          "artistName": "tuki.",
+          "albumName": "tuki. Songs",
+          "duration": 220,
+          "type": "synced",
+          "durationDifference": 0
+        }
+      ]
+    },
+    {
+      "artist": "優里",
+      "title": "ベテルギウス",
+      "durationSeconds": 292,
+      "status": "synced-other-duration",
+      "match": null,
+      "candidateCount": 8,
+      "candidates": [
+        {
+          "id": 33953084,
+          "trackName": "ベテルギウス",
+          "artistName": "優里",
+          "albumName": "Ichi",
+          "duration": 231,
+          "type": "synced",
+          "durationDifference": 61
+        },
+        {
+          "id": 5395504,
+          "trackName": "ベテルギウス",
+          "artistName": "優里",
+          "albumName": "壱",
+          "duration": 231,
+          "type": "synced",
+          "durationDifference": 61
+        },
+        {
+          "id": 5395505,
+          "trackName": "ベテルギウス",
+          "artistName": "優里",
+          "albumName": "Jpop hits",
+          "duration": 231,
+          "type": "synced",
+          "durationDifference": 61
+        },
+        {
+          "id": 14672849,
+          "trackName": "ベテルギウス (BETELGEUSE)",
+          "artistName": "優里",
+          "albumName": "壱",
+          "duration": 231,
+          "type": "synced",
+          "durationDifference": 61
+        },
+        {
+          "id": 25952969,
+          "trackName": "ベテルギウス",
+          "artistName": "優里",
+          "albumName": "ベテルギウス - Single",
+          "duration": 230.556735,
+          "type": "synced",
+          "durationDifference": 61.4
+        }
+      ]
+    },
+    {
+      "artist": "米津玄師",
+      "title": "IRIS OUT",
+      "durationSeconds": 154,
+      "status": "synced",
+      "match": {
+        "id": 24586951,
+        "trackName": "IRIS OUT (English Cover)",
+        "artistName": "米津玄師",
+        "albumName": "IRIS OUT",
+        "duration": 152.084898,
+        "type": "synced",
+        "durationDifference": 1.9
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 24586951,
+          "trackName": "IRIS OUT (English Cover)",
+          "artistName": "米津玄師",
+          "albumName": "IRIS OUT",
+          "duration": 152.084898,
+          "type": "synced",
+          "durationDifference": 1.9
+        },
+        {
+          "id": 29110153,
+          "trackName": "米津玄師",
+          "artistName": "IRIS OUT",
+          "albumName": "IRIS OUT",
+          "duration": 152,
+          "type": "synced",
+          "durationDifference": 2
+        },
+        {
+          "id": 24447414,
+          "trackName": "IRIS OUT",
+          "artistName": "米津玄師",
+          "albumName": "IRIS OUT",
+          "duration": 152,
+          "type": "synced",
+          "durationDifference": 2
+        },
+        {
+          "id": 30754808,
+          "trackName": "IRIS OUT",
+          "artistName": "米津玄師",
+          "albumName": "米津玄師",
+          "duration": 152,
+          "type": "synced",
+          "durationDifference": 2
+        },
+        {
+          "id": 24419115,
+          "trackName": "IRIS OUT",
+          "artistName": "米津玄師",
+          "albumName": "IRIS OUT/JANE DOE",
+          "duration": 152,
+          "type": "synced",
+          "durationDifference": 2
+        }
+      ]
+    },
+    {
+      "artist": "米津玄師",
+      "title": "Lemon",
+      "durationSeconds": 275,
+      "status": "synced",
+      "match": {
+        "id": 9908302,
+        "trackName": "米津玄師  Kenshi Yonezu  - Lemon",
+        "artistName": "米津玄師",
+        "albumName": "米津玄師 Songs",
+        "duration": 275,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 9908302,
+          "trackName": "米津玄師  Kenshi Yonezu  - Lemon",
+          "artistName": "米津玄師",
+          "albumName": "米津玄師 Songs",
+          "duration": 275,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 33252259,
+          "trackName": "Lemon",
+          "artistName": "米津玄師",
+          "albumName": "米津玄師 Songs",
+          "duration": 275,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 35085038,
+          "trackName": "米津玄師  MV「Lemon」",
+          "artistName": "米津玄師  MV「Lemon」",
+          "albumName": "米津玄師  MV「Lemon」",
+          "duration": 274,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 8948466,
+          "trackName": "Lemon",
+          "artistName": "米津玄師",
+          "albumName": "Lemon",
+          "duration": 274,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 12382013,
+          "trackName": "米津玄師  Kenshi Yonezu  - Lemon",
+          "artistName": "Kenshi Yonezu",
+          "albumName": "Kenshi Yonezu  米津玄師",
+          "duration": 274,
+          "type": "synced",
+          "durationDifference": 1
+        }
+      ]
+    },
+    {
+      "artist": "back number",
+      "title": "ヒロイン",
+      "durationSeconds": 270,
+      "status": "error",
+      "error": "LRCLIB HTTP 503",
+      "match": null,
+      "candidateCount": 0,
+      "candidates": []
+    },
+    {
+      "artist": "米津玄師 & 宇多田ヒカル",
+      "title": "JANE DOE",
+      "durationSeconds": 247,
+      "status": "synced",
+      "match": {
+        "id": 26600318,
+        "trackName": "JANE DOE",
+        "artistName": "米津玄師, 宇多田ヒカル",
+        "albumName": "JANE DOE",
+        "duration": 246,
+        "type": "synced",
+        "durationDifference": 1
+      },
+      "candidateCount": 9,
+      "candidates": [
+        {
+          "id": 26600318,
+          "trackName": "JANE DOE",
+          "artistName": "米津玄師, 宇多田ヒカル",
+          "albumName": "JANE DOE",
+          "duration": 246,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 37948691,
+          "trackName": "JANE DOE",
+          "artistName": "米津玄師, 宇多田ヒカル",
+          "albumName": "IRIS OUT / JANE DOE",
+          "duration": 246,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 25639961,
+          "trackName": "JANE DOE",
+          "artistName": "米津玄師,宇多田ヒカル",
+          "albumName": "Unknown Album",
+          "duration": 246,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 24940905,
+          "trackName": "JANE DOE",
+          "artistName": "米津玄師 & 宇多田ヒカル",
+          "albumName": "JANE DOE - Single",
+          "duration": 236.042449,
+          "type": "synced",
+          "durationDifference": 11
+        },
+        {
+          "id": 24447415,
+          "trackName": "JANE DOE",
+          "artistName": "米津玄師 & 宇多田ヒカル",
+          "albumName": "JANE DOE",
+          "duration": 236,
+          "type": "synced",
+          "durationDifference": 11
+        }
+      ]
+    },
+    {
+      "artist": "Novelbright",
+      "title": "Walking with you",
+      "durationSeconds": 229,
+      "status": "synced",
+      "match": {
+        "id": 35549827,
+        "trackName": "Novelbright - Walking with you",
+        "artistName": "Novelbright",
+        "albumName": "Novelbright - Walking with you",
+        "duration": 229,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 14,
+      "candidates": [
+        {
+          "id": 35549827,
+          "trackName": "Novelbright - Walking with you",
+          "artistName": "Novelbright",
+          "albumName": "Novelbright - Walking with you",
+          "duration": 229,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 11385266,
+          "trackName": "Novelbright - Walking with you [Official Music Video]",
+          "artistName": "Novelbright",
+          "albumName": "Novelbright Songs",
+          "duration": 229,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 38664779,
+          "trackName": "Walking with you",
+          "artistName": "Novelbright",
+          "albumName": "",
+          "duration": 229,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 34220507,
+          "trackName": "Walking with you",
+          "artistName": "Novelbright",
+          "albumName": "Walking with you",
+          "duration": 224,
+          "type": "synced",
+          "durationDifference": 5
+        },
+        {
+          "id": 37706504,
+          "trackName": "Walking with You",
+          "artistName": "Novelbright, Skywalk, 2018",
+          "albumName": "",
+          "duration": 224,
+          "type": "synced",
+          "durationDifference": 5
+        }
+      ]
+    },
+    {
+      "artist": "冨岡 愛",
+      "title": "グッバイバイ",
+      "durationSeconds": 228,
+      "status": "none",
+      "match": null,
+      "candidateCount": 0,
+      "candidates": []
+    },
+    {
+      "artist": "Vaundy",
+      "title": "踊り子",
+      "durationSeconds": 246,
+      "status": "synced",
+      "match": {
+        "id": 35902952,
+        "trackName": "踊り子",
+        "artistName": "Vaundy",
+        "albumName": "踊り子",
+        "duration": 246,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 35902952,
+          "trackName": "踊り子",
+          "artistName": "Vaundy",
+          "albumName": "踊り子",
+          "duration": 246,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 35716415,
+          "trackName": "踊り子 - odoriko",
+          "artistName": "Vaundy",
+          "albumName": "踊り子 - odoriko",
+          "duration": 246,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 22969540,
+          "trackName": "踊り子 - odoriko",
+          "artistName": "Vaundy",
+          "albumName": "Vaundy Songs",
+          "duration": 246,
+          "type": "plain",
+          "durationDifference": 0
+        },
+        {
+          "id": 23096982,
+          "trackName": "踊り子 - odoriko",
+          "artistName": "Vaundy",
+          "albumName": "Vaundy Videos",
+          "duration": 246,
+          "type": "plain",
+          "durationDifference": 0
+        },
+        {
+          "id": 28750912,
+          "trackName": "odoriko",
+          "artistName": "Vaundy",
+          "albumName": "踊り子",
+          "duration": 245,
+          "type": "synced",
+          "durationDifference": 1
+        }
+      ]
+    },
+    {
+      "artist": "imase",
+      "title": "NIGHT DANCER",
+      "durationSeconds": 211,
+      "status": "synced",
+      "match": {
+        "id": 33679367,
+        "trackName": "【imase】NIGHT DANCER（MV）",
+        "artistName": "imase",
+        "albumName": "【imase】NIGHT DANCER（MV）",
+        "duration": 211,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 33679367,
+          "trackName": "【imase】NIGHT DANCER（MV）",
+          "artistName": "imase",
+          "albumName": "【imase】NIGHT DANCER（MV）",
+          "duration": 211,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 36735683,
+          "trackName": "【imase】NIGHT DANCER（Official Audio）",
+          "artistName": "imase",
+          "albumName": "【imase】NIGHT DANCER（Official Audio）",
+          "duration": 211,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 6633797,
+          "trackName": "【imase】NIGHT DANCER（MV）",
+          "artistName": "imase",
+          "albumName": "imase",
+          "duration": 211,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 9691944,
+          "trackName": "【imase】NIGHT DANCER（MV）",
+          "artistName": "imase",
+          "albumName": "imase Videos",
+          "duration": 211,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 6656082,
+          "trackName": "【imase】NIGHT DANCER（Official Audio）",
+          "artistName": "imase",
+          "albumName": "imase",
+          "duration": 211,
+          "type": "synced",
+          "durationDifference": 0
+        }
+      ]
+    },
+    {
+      "artist": "SPYAIR",
+      "title": "サムライハート(Some Like It Hot!!)",
+      "durationSeconds": 215,
+      "status": "synced",
+      "match": {
+        "id": 35613348,
+        "trackName": "サムライハート(Some Like It Hot!!)",
+        "artistName": "SPYAIR",
+        "albumName": "SPYAIR Videos",
+        "duration": 215,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 35613348,
+          "trackName": "サムライハート(Some Like It Hot!!)",
+          "artistName": "SPYAIR",
+          "albumName": "SPYAIR Videos",
+          "duration": 215,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 16746448,
+          "trackName": "サムライハート(Some Like It Hot!!) - From THE FIRST TAKE",
+          "artistName": "SPYAIR",
+          "albumName": "サムライハート(Some Like It Hot!!) - From THE FIRST TAKE",
+          "duration": 204,
+          "type": "plain",
+          "durationDifference": 11
+        },
+        {
+          "id": 17547618,
+          "trackName": "サムライハート(Some Like It Hot!!) - From THE FIRST TAKE",
+          "artistName": "SPYAIR",
+          "albumName": "Some Like It Hot!! - From THE FIRST TAKE",
+          "duration": 204,
+          "type": "plain",
+          "durationDifference": 11
+        },
+        {
+          "id": 24302393,
+          "trackName": "Crazy",
+          "artistName": "SPYAIR",
+          "albumName": "Samurai Heart (Some Like It Hot!!) [サムライハート(Some Like It Hot!!)]",
+          "duration": 203.3142,
+          "type": "synced",
+          "durationDifference": 11.7
+        },
+        {
+          "id": 14746959,
+          "trackName": "Crazy",
+          "artistName": "SPYAIR",
+          "albumName": "サムライハート (Some Like It Hot!!)",
+          "duration": 203,
+          "type": "synced",
+          "durationDifference": 12
+        }
+      ]
+    },
+    {
+      "artist": "あいみょん",
+      "title": "愛を伝えたいだとか",
+      "durationSeconds": 256,
+      "status": "synced-other-duration",
+      "match": null,
+      "candidateCount": 1,
+      "candidates": [
+        {
+          "id": 18845646,
+          "trackName": "愛を伝えたいだとか (Live in 阪神甲子園球場, 2022.11.05)",
+          "artistName": "あいみょん",
+          "albumName": "AIMYON 弾き語りLIVE 2022 -サーチライト- in 阪神甲子園球場",
+          "duration": 260,
+          "type": "synced",
+          "durationDifference": 4
+        }
+      ]
+    },
+    {
+      "artist": "ロクデナシ",
+      "title": "ただ声一つ",
+      "durationSeconds": 162,
+      "status": "synced",
+      "match": {
+        "id": 35674678,
+        "trackName": "ただ声一つ",
+        "artistName": "ロクデナシ",
+        "albumName": "ただ声一つ / ロクデナシ【Covered by Kotoha】",
+        "duration": 162,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 15,
+      "candidates": [
+        {
+          "id": 35674678,
+          "trackName": "ただ声一つ",
+          "artistName": "ロクデナシ",
+          "albumName": "ただ声一つ / ロクデナシ【Covered by Kotoha】",
+          "duration": 162,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 2275251,
+          "trackName": "ただ声一つ",
+          "artistName": "ロクデナシ",
+          "albumName": "ただ声一つ",
+          "duration": 162,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 35972512,
+          "trackName": "ただ声一つ (只想说一声)",
+          "artistName": "ロクデナシ",
+          "albumName": "ただ声一つ",
+          "duration": 162,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 36626223,
+          "trackName": "ただ声一つ",
+          "artistName": "ロクデナシ/MIMI",
+          "albumName": "ただ声一つ",
+          "duration": 162,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 38567868,
+          "trackName": "ロクデナシ",
+          "artistName": "「ただ声一つ」",
+          "albumName": "",
+          "duration": 162,
+          "type": "synced",
+          "durationDifference": 0
+        }
+      ]
+    },
+    {
+      "artist": "米津玄師",
+      "title": "LADY",
+      "durationSeconds": 244,
+      "status": "synced",
+      "match": {
+        "id": 35057582,
+        "trackName": "LADY",
+        "artistName": "米津玄師",
+        "albumName": "LADY",
+        "duration": 244,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 8,
+      "candidates": [
+        {
+          "id": 35057582,
+          "trackName": "LADY",
+          "artistName": "米津玄師",
+          "albumName": "LADY",
+          "duration": 244,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 36569494,
+          "trackName": "LADY",
+          "artistName": "米津玄師",
+          "albumName": "5461万回視聴",
+          "duration": 244,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 16310945,
+          "trackName": "LADY",
+          "artistName": "米津玄師",
+          "albumName": "youtube",
+          "duration": 243.8640128,
+          "type": "synced",
+          "durationDifference": 0.1
+        },
+        {
+          "id": 26957620,
+          "trackName": "LADY",
+          "artistName": "米津玄師",
+          "albumName": "LOST CORNER",
+          "duration": 243.864,
+          "type": "synced",
+          "durationDifference": 0.1
+        },
+        {
+          "id": 11731921,
+          "trackName": "LADY",
+          "artistName": "米津玄師",
+          "albumName": "LOST CORNER",
+          "duration": 208,
+          "type": "synced",
+          "durationDifference": 36
+        }
+      ]
+    },
+    {
+      "artist": "松田 聖子",
+      "title": "青い珊瑚礁",
+      "durationSeconds": 225,
+      "status": "synced",
+      "match": {
+        "id": 22695314,
+        "trackName": "青い珊瑚礁",
+        "artistName": "松田　聖子",
+        "albumName": "永遠のアイドル、永遠の青春、松田聖子。 〜45th Anniversary 究極オールタイムベスト〜",
+        "duration": 226,
+        "type": "synced",
+        "durationDifference": 1
+      },
+      "candidateCount": 9,
+      "candidates": [
+        {
+          "id": 22695314,
+          "trackName": "青い珊瑚礁",
+          "artistName": "松田　聖子",
+          "albumName": "永遠のアイドル、永遠の青春、松田聖子。 〜45th Anniversary 究極オールタイムベスト〜",
+          "duration": 226,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 37350063,
+          "trackName": "青い珊瑚礁 (Blue Lagoon / 2025 Mix)",
+          "artistName": "松田　聖子",
+          "albumName": "永遠のアイドル、永遠の青春、松田聖子。 〜45th Anniversary 究極オールタイムベスト〜",
+          "duration": 226,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 34465599,
+          "trackName": "青い珊瑚礁 (Blue Lagoon / 2025 Mix)",
+          "artistName": "松田 聖子",
+          "albumName": "Eternal Idol, Eternal Youth, Seiko Matsuda. -45th Anniversary Ultimate All Time Best-",
+          "duration": 226,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 38381170,
+          "trackName": "青い珊瑚礁",
+          "artistName": "松田 聖子",
+          "albumName": "SEIKO STORY80s HITS COLLECTION",
+          "duration": 223,
+          "type": "synced",
+          "durationDifference": 2
+        },
+        {
+          "id": 33466220,
+          "trackName": "青い珊瑚礁",
+          "artistName": "松田　聖子",
+          "albumName": "SEIKO STORY～80's HITS COLLECTION～",
+          "duration": 222,
+          "type": "synced",
+          "durationDifference": 3
+        }
+      ]
+    },
+    {
+      "artist": "優里",
+      "title": "ドライフラワー",
+      "durationSeconds": 288,
+      "status": "synced",
+      "match": {
+        "id": 20605926,
+        "trackName": "ドライフラワー",
+        "artistName": "優里",
+        "albumName": "ドライフラワー",
+        "duration": 288,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 11,
+      "candidates": [
+        {
+          "id": 20605926,
+          "trackName": "ドライフラワー",
+          "artistName": "優里",
+          "albumName": "ドライフラワー",
+          "duration": 288,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 10369735,
+          "trackName": "優里『Dried Flowers』(English ver.) ×『ドライフラワー』 -ディレクターズカットver.- Official Music Video",
+          "artistName": "Yuuri",
+          "albumName": "Yuuri Songs",
+          "duration": 288,
+          "type": "plain",
+          "durationDifference": 0
+        },
+        {
+          "id": 34672089,
+          "trackName": "ドライフラワー",
+          "artistName": "優里",
+          "albumName": "壱",
+          "duration": 289,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 31112762,
+          "trackName": "ドライフラワー (優里)",
+          "artistName": "Uru",
+          "albumName": "コントラスト",
+          "duration": 287,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 5395477,
+          "trackName": "ドライフラワー",
+          "artistName": "優里",
+          "albumName": "Jpop hits",
+          "duration": 286,
+          "type": "synced",
+          "durationDifference": 2
+        }
+      ]
+    },
+    {
+      "artist": "高橋洋子",
+      "title": "残酷な天使のテーゼ",
+      "durationSeconds": 244,
+      "status": "synced",
+      "match": {
+        "id": 20917586,
+        "trackName": "残酷な天使のテーゼ (OFF VOCAL Version)",
+        "artistName": "高橋洋子",
+        "albumName": "残酷な天使のテーゼ",
+        "duration": 243.026667,
+        "type": "synced",
+        "durationDifference": 1
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 20917586,
+          "trackName": "残酷な天使のテーゼ (OFF VOCAL Version)",
+          "artistName": "高橋洋子",
+          "albumName": "残酷な天使のテーゼ",
+          "duration": 243.026667,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 12929102,
+          "trackName": "残酷な天使のテーゼ",
+          "artistName": "高橋洋子",
+          "albumName": "高橋洋子/CLAIRE·残酷な天使のテーゼ/Fly Me To The Moon",
+          "duration": 245,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 17288590,
+          "trackName": "残酷な天使のテーゼ",
+          "artistName": "高橋洋子",
+          "albumName": "残酷な天使のテーゼ",
+          "duration": 243,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 35968378,
+          "trackName": "残酷な天使のテーゼ",
+          "artistName": "高橋洋子",
+          "albumName": "残酷な天使のテーゼ - EP",
+          "duration": 245,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 24437957,
+          "trackName": "残酷な天使のテーゼ",
+          "artistName": "高橋洋子",
+          "albumName": "残酷な天使のテーゼ / 月の迷宮",
+          "duration": 245,
+          "type": "synced",
+          "durationDifference": 1
+        }
+      ]
+    },
+    {
+      "artist": "ユイカ",
+      "title": "好きだから。",
+      "durationSeconds": 299,
+      "status": "synced",
+      "match": {
+        "id": 33381569,
+        "trackName": "好きだから。/ 『ユイカ』【MV】",
+        "artistName": "『ユイカ』",
+        "albumName": "好きだから。/ 『ユイカ』【MV】",
+        "duration": 299,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 33381569,
+          "trackName": "好きだから。/ 『ユイカ』【MV】",
+          "artistName": "『ユイカ』",
+          "albumName": "好きだから。/ 『ユイカ』【MV】",
+          "duration": 299,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 11648192,
+          "trackName": "Suki Dakara  好きだから。 - 『ユイカ』",
+          "artistName": "『ユイカ』",
+          "albumName": "好きだから。",
+          "duration": 299,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 1071481,
+          "trackName": "好きだから。",
+          "artistName": "『ユイカ』",
+          "albumName": "好きだから。",
+          "duration": 299,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 5820221,
+          "trackName": "好きだから。 (因为我喜欢你。)",
+          "artistName": "『ユイカ』",
+          "albumName": "好きだから。",
+          "duration": 299,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 36036545,
+          "trackName": "好きだから。",
+          "artistName": "『ユイカ』, れん",
+          "albumName": "好きだから。",
+          "duration": 299,
+          "type": "synced",
+          "durationDifference": 0
+        }
+      ]
+    },
+    {
+      "artist": "Mrs. GREEN APPLE",
+      "title": "ライラック",
+      "durationSeconds": 304,
+      "status": "synced",
+      "match": {
+        "id": 19736310,
+        "trackName": "ライラック - Lilac",
+        "artistName": "Mrs.GREEN APPLE",
+        "albumName": "Mrs.GREEN APPLE Videos",
+        "duration": 304,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 19736310,
+          "trackName": "ライラック - Lilac",
+          "artistName": "Mrs.GREEN APPLE",
+          "albumName": "Mrs.GREEN APPLE Videos",
+          "duration": 304,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 19573851,
+          "trackName": "ライラック",
+          "artistName": "Mrs.GREEN APPLE",
+          "albumName": "Mrs.GREEN APPLE Videos",
+          "duration": 303.302,
+          "type": "synced",
+          "durationDifference": 0.7
+        },
+        {
+          "id": 23337651,
+          "trackName": "ライラック",
+          "artistName": "Mrs. GREEN APPLE",
+          "albumName": "ライラック",
+          "duration": 303,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 24754735,
+          "trackName": "ライラック",
+          "artistName": "Mrs. GREEN APPLE",
+          "albumName": "Unknown Album",
+          "duration": 303,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 36181238,
+          "trackName": "ライラック",
+          "artistName": "Mrs. GREEN APPLE",
+          "albumName": "조회수 4609만회",
+          "duration": 308,
+          "type": "synced",
+          "durationDifference": 4
+        }
+      ]
+    },
+    {
+      "artist": "YOASOBI",
+      "title": "夜に駆ける",
+      "durationSeconds": 276,
+      "status": "synced",
+      "match": {
+        "id": 6918922,
+        "trackName": "夜に駆ける",
+        "artistName": "YOASOBI",
+        "albumName": "夜に駆ける",
+        "duration": 275,
+        "type": "synced",
+        "durationDifference": 1
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 6918922,
+          "trackName": "夜に駆ける",
+          "artistName": "YOASOBI",
+          "albumName": "夜に駆ける",
+          "duration": 275,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 32782129,
+          "trackName": "夜に駆ける",
+          "artistName": "YOASOBI",
+          "albumName": "夜に駆ける",
+          "duration": 281,
+          "type": "synced",
+          "durationDifference": 5
+        },
+        {
+          "id": 26884502,
+          "trackName": "夜に駆ける",
+          "artistName": "YOASOBI",
+          "albumName": "夜に駆ける",
+          "duration": 269.453061,
+          "type": "synced",
+          "durationDifference": 6.5
+        },
+        {
+          "id": 10123662,
+          "trackName": "夜に駆ける",
+          "artistName": "YOASOBI",
+          "albumName": "夜に駆ける",
+          "duration": 286,
+          "type": "synced",
+          "durationDifference": 10
+        },
+        {
+          "id": 35766443,
+          "trackName": "YOASOBI 夜に駆ける(inst)",
+          "artistName": "YOASOBI",
+          "albumName": "YOASOBI 夜に駆ける(inst)",
+          "duration": 262,
+          "type": "synced",
+          "durationDifference": 14
+        }
+      ]
+    },
+    {
+      "artist": "米津玄師",
+      "title": "KICK BACK",
+      "durationSeconds": 228,
+      "status": "synced",
+      "match": {
+        "id": 10451203,
+        "trackName": "KICK BACK",
+        "artistName": "米津玄師",
+        "albumName": "KICK BACK",
+        "duration": 227,
+        "type": "synced",
+        "durationDifference": 1
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 10451203,
+          "trackName": "KICK BACK",
+          "artistName": "米津玄師",
+          "albumName": "KICK BACK",
+          "duration": 227,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 36758615,
+          "trackName": "KICK BACK",
+          "artistName": "Kenshi Yonezu(米津玄師)",
+          "albumName": "KICK BACK",
+          "duration": 227,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 25027630,
+          "trackName": "KICK BACK",
+          "artistName": "米津玄師",
+          "albumName": "KICK BACK",
+          "duration": 211.453425,
+          "type": "synced",
+          "durationDifference": 16.5
+        },
+        {
+          "id": 28773517,
+          "trackName": "KICK BACK (Tomggg Remix)",
+          "artistName": "米津玄師",
+          "albumName": "KICK BACK (Tomggg Remix)",
+          "duration": 200,
+          "type": "plain",
+          "durationDifference": 28
+        },
+        {
+          "id": 25105101,
+          "trackName": "KICK BACK",
+          "artistName": "米津玄師",
+          "albumName": "チェンソーマン｜KICK BACK",
+          "duration": 193.495147,
+          "type": "synced",
+          "durationDifference": 34.5
+        }
+      ]
+    },
+    {
+      "artist": "Tani Yuuki",
+      "title": "W / X / Y",
+      "durationSeconds": 189,
+      "status": "synced-other-duration",
+      "match": null,
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 33785020,
+          "trackName": "W / X / Y ・ 유우리(優里) x 카와사키 타카야(川崎鷹也) x 타니 유우키(Tani Yuuki) [가사/해석/번역]",
+          "artistName": "Haru",
+          "albumName": "조회수 344만회",
+          "duration": 189,
+          "type": "plain",
+          "durationDifference": 0
+        },
+        {
+          "id": 20751375,
+          "trackName": "W/X/Y",
+          "artistName": "Tani Yuuki",
+          "albumName": "W/X/Y",
+          "duration": 273.149333,
+          "type": "synced",
+          "durationDifference": 84.1
+        },
+        {
+          "id": 10346590,
+          "trackName": "W / X / Y",
+          "artistName": "Tani Yuuki",
+          "albumName": "Memories",
+          "duration": 276,
+          "type": "plain",
+          "durationDifference": 87
+        },
+        {
+          "id": 32926690,
+          "trackName": "W / X / Y",
+          "artistName": "Tani Yuuki",
+          "albumName": "undefined",
+          "duration": 278,
+          "type": "synced",
+          "durationDifference": 89
+        },
+        {
+          "id": 13047855,
+          "trackName": "W / X / Y",
+          "artistName": "Tani Yuuki",
+          "albumName": "Tani Yuuki",
+          "duration": 279,
+          "type": "synced",
+          "durationDifference": 90
+        }
+      ]
+    },
+    {
+      "artist": "Vaundy",
+      "title": "怪獣の花唄",
+      "durationSeconds": 233,
+      "status": "synced",
+      "match": {
+        "id": 19912792,
+        "trackName": "怪獣の花唄",
+        "artistName": "Vaundy",
+        "albumName": "strobo",
+        "duration": 232.8275,
+        "type": "synced",
+        "durationDifference": 0.2
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 29419892,
+          "trackName": "怪獣の花唄 - Kaiju No Hanauta",
+          "artistName": "Vaundy",
+          "albumName": "Vaundy Videos",
+          "duration": 233,
+          "type": "plain",
+          "durationDifference": 0
+        },
+        {
+          "id": 19912792,
+          "trackName": "怪獣の花唄",
+          "artistName": "Vaundy",
+          "albumName": "strobo",
+          "duration": 232.8275,
+          "type": "synced",
+          "durationDifference": 0.2
+        },
+        {
+          "id": 24902404,
+          "trackName": "怪獣の花唄",
+          "artistName": "Vaundy",
+          "albumName": "怪獣の花唄",
+          "duration": 234,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 29554380,
+          "trackName": "怪獣の花唄",
+          "artistName": "Vaundy",
+          "albumName": "strobo",
+          "duration": 228,
+          "type": "synced",
+          "durationDifference": 5
+        },
+        {
+          "id": 35890947,
+          "trackName": "怪獣の花唄",
+          "artistName": "Vaundy",
+          "albumName": "2472万回視聴",
+          "duration": 227,
+          "type": "synced",
+          "durationDifference": 6
+        }
+      ]
+    },
+    {
+      "artist": "あいみょん",
+      "title": "マリーゴールド",
+      "durationSeconds": 322,
+      "status": "synced",
+      "match": {
+        "id": 11839819,
+        "trackName": "マリーゴールド - Marigold",
+        "artistName": "aimyon",
+        "albumName": "あいみょん Videos",
+        "duration": 322,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 2,
+      "candidates": [
+        {
+          "id": 11839819,
+          "trackName": "マリーゴールド - Marigold",
+          "artistName": "aimyon",
+          "albumName": "あいみょん Videos",
+          "duration": 322,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 18847340,
+          "trackName": "マリーゴールド (Live in 阪神甲子園球場, 2022.11.05)",
+          "artistName": "あいみょん",
+          "albumName": "AIMYON 弾き語りLIVE 2022 -サーチライト- in 阪神甲子園球場",
+          "duration": 307,
+          "type": "synced",
+          "durationDifference": 15
+        }
+      ]
+    },
+    {
+      "artist": "松原みき",
+      "title": "真夜中のドア〜stay with me",
+      "durationSeconds": 311,
+      "status": "synced",
+      "match": {
+        "id": 11415679,
+        "trackName": "真夜中のドア〜stay with me",
+        "artistName": "松原みき",
+        "albumName": "松原みき ベスト・コレクション",
+        "duration": 311,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 11415679,
+          "trackName": "真夜中のドア〜stay with me",
+          "artistName": "松原みき",
+          "albumName": "松原みき ベスト・コレクション",
+          "duration": 311,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 30093584,
+          "trackName": "真夜中のドア～Stay With Me",
+          "artistName": "松原みき",
+          "albumName": "Anthology 松原みき BEST",
+          "duration": 311,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 8575101,
+          "trackName": "真夜中のドア/Stay With Me",
+          "artistName": "松原みき",
+          "albumName": "真夜中のドア/Stay With Me",
+          "duration": 312,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 30415991,
+          "trackName": "真夜中のドア〜stay with me",
+          "artistName": "松原みき",
+          "albumName": "真夜中のドア〜stay with me",
+          "duration": 312,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 30891187,
+          "trackName": "真夜中のドア/Stay With Me",
+          "artistName": "松原みき",
+          "albumName": "真夜中のドア〜stay with me (classic)",
+          "duration": 310,
+          "type": "synced",
+          "durationDifference": 1
+        }
+      ]
+    },
+    {
+      "artist": "YOASOBI",
+      "title": "たぶん",
+      "durationSeconds": 264,
+      "status": "synced",
+      "match": {
+        "id": 34207675,
+        "trackName": "たぶん - Tabun",
+        "artistName": "Yoasobi",
+        "albumName": "たぶん - Tabun",
+        "duration": 264,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 34207675,
+          "trackName": "たぶん - Tabun",
+          "artistName": "Yoasobi",
+          "albumName": "たぶん - Tabun",
+          "duration": 264,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 13507996,
+          "trackName": "たぶん",
+          "artistName": "Yoasobi",
+          "albumName": "Ayase / YOASOBI Videos",
+          "duration": 264,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 22522210,
+          "trackName": "たぶん - Tabun",
+          "artistName": "Yoasobi",
+          "albumName": "Yoasobi Songs",
+          "duration": 264,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 11219289,
+          "trackName": "たぶん",
+          "artistName": "YOASOBI",
+          "albumName": "たぶん",
+          "duration": 263,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 8938059,
+          "trackName": "たぶん",
+          "artistName": "Yoasobi",
+          "albumName": "Yoasobi Videos",
+          "duration": 263,
+          "type": "synced",
+          "durationDifference": 1
+        }
+      ]
+    },
+    {
+      "artist": "キタニタツヤ",
+      "title": "青のすみか",
+      "durationSeconds": 201,
+      "status": "synced",
+      "match": {
+        "id": 37467719,
+        "trackName": "青のすみか / キタニタツヤ - Where Our Blue Is / Tatsuya Kitani",
+        "artistName": "キタニタツヤ / Tatsuya Kitani",
+        "albumName": "キタニタツヤ / Tatsuya Kitani Videos",
+        "duration": 201,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": 38352820,
+          "trackName": "青のすみか",
+          "artistName": "キタニタツヤ",
+          "albumName": "キタニタツヤ Videos",
+          "duration": 201,
+          "type": "instrumental",
+          "durationDifference": 0
+        },
+        {
+          "id": 37467719,
+          "trackName": "青のすみか / キタニタツヤ - Where Our Blue Is / Tatsuya Kitani",
+          "artistName": "キタニタツヤ / Tatsuya Kitani",
+          "albumName": "キタニタツヤ / Tatsuya Kitani Videos",
+          "duration": 201,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 28445422,
+          "trackName": "青のすみか",
+          "artistName": "キタニタツヤ",
+          "albumName": "青のすみか",
+          "duration": 200,
+          "type": "synced",
+          "durationDifference": 1
+        },
+        {
+          "id": 33567446,
+          "trackName": "青のすみか (Acoustic)",
+          "artistName": "キタニタツヤ",
+          "albumName": "青のすみか (Acoustic ver.)",
+          "duration": 204,
+          "type": "synced",
+          "durationDifference": 3
+        },
+        {
+          "id": 25942961,
+          "trackName": "青のすみか (Acoustic ver.)",
+          "artistName": "キタニタツヤ",
+          "albumName": "青のすみか (Acoustic ver.)",
+          "duration": 204,
+          "type": "synced",
+          "durationDifference": 3
+        }
+      ]
+    },
+    {
+      "artist": "優里",
+      "title": "レオ",
+      "durationSeconds": 269,
+      "status": "synced",
+      "match": {
+        "id": 34366859,
+        "trackName": "レオ",
+        "artistName": "優里",
+        "albumName": "2141万回視聴",
+        "duration": 271,
+        "type": "synced",
+        "durationDifference": 2
+      },
+      "candidateCount": 5,
+      "candidates": [
+        {
+          "id": 34366859,
+          "trackName": "レオ",
+          "artistName": "優里",
+          "albumName": "2141万回視聴",
+          "duration": 271,
+          "type": "synced",
+          "durationDifference": 2
+        },
+        {
+          "id": 14672850,
+          "trackName": "レオ (Leo)",
+          "artistName": "優里",
+          "albumName": "壱",
+          "duration": 239,
+          "type": "synced",
+          "durationDifference": 30
+        },
+        {
+          "id": 16440384,
+          "trackName": "レオ",
+          "artistName": "優里",
+          "albumName": "youtube",
+          "duration": 238.1322496,
+          "type": "synced",
+          "durationDifference": 30.9
+        },
+        {
+          "id": 11389059,
+          "trackName": "レオ",
+          "artistName": "優里",
+          "albumName": "壱",
+          "duration": 238,
+          "type": "synced",
+          "durationDifference": 31
+        },
+        {
+          "id": 14016111,
+          "trackName": "レオ",
+          "artistName": "優里",
+          "albumName": "壱",
+          "duration": 235.349333,
+          "type": "synced",
+          "durationDifference": 33.7
+        }
+      ]
+    },
+    {
+      "artist": "Leina",
+      "title": "うたたね",
+      "durationSeconds": 205,
+      "status": "synced",
+      "match": {
+        "id": 36718461,
+        "trackName": "うたたね",
+        "artistName": "Leina",
+        "albumName": "5,2 jt x ditonton",
+        "duration": 205,
+        "type": "synced",
+        "durationDifference": 0
+      },
+      "candidateCount": 4,
+      "candidates": [
+        {
+          "id": 36718461,
+          "trackName": "うたたね",
+          "artistName": "Leina",
+          "albumName": "5,2 jt x ditonton",
+          "duration": 205,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 30747937,
+          "trackName": "うたたね",
+          "artistName": "Leina",
+          "albumName": "조회수 427만회",
+          "duration": 205,
+          "type": "synced",
+          "durationDifference": 0
+        },
+        {
+          "id": 34645098,
+          "trackName": "うたたね",
+          "artistName": "Leina",
+          "albumName": "愛の産声、哀の鳴き声",
+          "duration": 184,
+          "type": "synced",
+          "durationDifference": 21
+        },
+        {
+          "id": 11310981,
+          "trackName": "うたたね",
+          "artistName": "Leina",
+          "albumName": "tulip",
+          "duration": 182,
+          "type": "synced",
+          "durationDifference": 23
+        }
+      ]
+    }
+  ]
+}

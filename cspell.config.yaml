@@ -8,6 +8,7 @@ ignorePaths:
   - gradlew.bat
   - '**/*.lockfile'
   - '**/package-lock.json'
+  - docs/notes/*-lyrics-coverage-*.json # tool-generated LRCLIB metadata reports (#19)
 dictionaryDefinitions:
   - name: project-terms
     path: ./.cspell/project-terms.txt
