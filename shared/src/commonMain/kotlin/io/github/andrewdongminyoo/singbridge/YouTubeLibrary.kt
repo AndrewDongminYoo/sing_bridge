@@ -56,6 +56,55 @@ internal fun youtubeLibraryHtml(): String = """
       const unchanged = selected && selected.offset === lyricAdjustment;
       saveButton.disabled = !ready || !activeVideoId || !selectedLyricRecord || !!unchanged || pronunciationBusy;
       saveButton.textContent = unchanged ? '저장됨' : selected ? '변경 내용 저장' : '이 연습 저장';
+      updateShareControl();
+    }
+    // Practice sharing by code (docs/specs/2026-09-30-practice-sharing.md). Wire contract: iOS registers a
+    // `share` message handler; Android posts a MessagePort after window.singBridgePrepareSharePort(nonce).
+    // Either way the page sends one string of at most 2,000 characters.
+    const shareButton = document.getElementById('share-practice');
+    let sharePort = null, sharePortNonce = null;
+    window.singBridgePrepareSharePort = nonce => { sharePortNonce = nonce; };
+    window.addEventListener('message', function(event) {
+      if (!sharePortNonce || event.data !== sharePortNonce || !event.ports?.[0]) return;
+      sharePortNonce = null; sharePort?.close();
+      sharePort = event.ports[0]; sharePort.start();
+      updateShareControl();
+    });
+    function shareAvailable() { return !!sharePort || !!window.webkit?.messageHandlers?.share; }
+    function updateShareControl() {
+      shareButton.hidden = !shareAvailable();
+      shareButton.disabled = !ready || !activeVideoId || !selectedLyricRecord;
+    }
+    function shareTitle(record) {
+      // Provider text can add neither a line nor a code: separators, controls, format characters, and colons go.
+      const flat = (record.artistName + ' - ' + record.trackName)
+        .replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}:]/gu, ' ').replace(/\s+/g, ' ').trim();
+      return [...flat].slice(0, 500).join('').trim();
+    }
+    shareButton.addEventListener('click', function() {
+      if (shareButton.disabled || !shareAvailable()) return;
+      const message = ['singbridge:1:' + activeVideoId + ':' + selectedLyricRecord.id + ':' + Math.round(lyricAdjustment * 1000),
+        'SingBridge 연습: ' + shareTitle(selectedLyricRecord), 'https://youtu.be/' + activeVideoId].join('\n');
+      if (message.length > 2000) return;
+      if (sharePort) sharePort.postMessage(message);
+      else window.webkit.messageHandlers.share.postMessage(message);
+    });
+    // Returns null without a code, { invalid: true } for a bad or conflicting code, or the one code's fields.
+    function sharedPracticeCode(text) {
+      const markers = [...text.matchAll(/singbridge:/g)];
+      if (!markers.length) return null;
+      const codes = new Map();
+      for (const marker of markers) {
+        // Pasted lines may be joined without a separator, so the offset ends at the first character that cannot continue it.
+        const match = /^singbridge:([^:\s]*):([^:\s]*):([^:\s]*):(-?[0-9]+)(?![0-9.:])/.exec(text.slice(marker.index));
+        if (!match) return { invalid: true };
+        const [, version, videoId, lyric, offset] = match;
+        const lyricId = Number(lyric), milliseconds = Number(offset);
+        if (version !== '1' || !/^[A-Za-z0-9_-]{11}$/.test(videoId) || !/^[1-9][0-9]*$/.test(lyric) ||
+            !Number.isSafeInteger(lyricId) || !/^-?(0|[1-9][0-9]*)$/.test(offset) || Math.abs(milliseconds) > 600000) return { invalid: true };
+        codes.set(videoId + ':' + lyricId + ':' + milliseconds, { videoId, lyricId, offset: milliseconds / 1000 });
+      }
+      return codes.size === 1 ? [...codes.values()][0] : { invalid: true };
     }
     function saveCurrentPractice(includePronunciation = false) {
       if (!ready || !activeVideoId || !selectedLyricRecord || pronunciationBusy) return false;

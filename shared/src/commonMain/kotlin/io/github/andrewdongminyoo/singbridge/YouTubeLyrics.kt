@@ -57,6 +57,7 @@ internal fun youtubeLyricsHtml(): String = """
     </details>
     __PRONUNCIATION__
     <button id="save-practice" class="button-primary" type="button" disabled>이 연습 저장</button>
+    <button id="share-practice" type="button" hidden disabled>이 연습 공유</button>
     <p id="save-status" role="status" aria-live="polite"></p>
     </dialog>
     </section>
@@ -472,16 +473,21 @@ internal fun youtubeLyricsHtml(): String = """
           lyricRetryAt = Date.now() + (Number.isFinite(delay) && delay > 0 ? delay : 60000);
           throw new Error('요청이 많아요. ' + Math.ceil((lyricRetryAt - Date.now()) / 1000) + '초 뒤에 다시 검색해 주세요.');
         }
-        if (saved && response.status === 404) throw new Error('저장한 가사를 찾을 수 없어요. 다른 가사를 선택해 주세요.');
+        if (saved && response.status === 404) throw new Error(saved.shared ? '공유받은 가사를 찾을 수 없어요. 다른 가사를 선택해 주세요.' : '저장한 가사를 찾을 수 없어요. 다른 가사를 선택해 주세요.');
         if (!response.ok) throw new Error('가사를 불러오지 못했어요. 잠시 후 다시 검색해 주세요.');
         const records = await readBoundedJson(response);
         if (videoGeneration !== generation || controller.signal.aborted) return;
         if (saved) {
           const record = normalizeLyricRecord(records);
-          if (!record || record.id !== saved.lyricId || record.instrumental) throw new Error('저장한 가사 응답이 올바르지 않아요. 다른 가사를 선택해 주세요.');
+          if (!record || record.id !== saved.lyricId || record.instrumental) throw new Error(saved.shared ? '공유받은 가사 응답이 올바르지 않아요. 다른 가사를 선택해 주세요.' : '저장한 가사 응답이 올바르지 않아요. 다른 가사를 선택해 주세요.');
           if (chooseLyrics(record, videoGeneration)) {
             lyricAdjustment = lyricLines.length ? saved.offset : 0;
             lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
+            if (saved.shared) {
+              // The fetched record, not the pasted message, names a shared practice.
+              songResult.textContent = record.artistName + ' - ' + record.trackName;
+              document.getElementById('save-status').textContent = '공유받은 연습을 열었어요. 저장하려면 이 연습 저장을 눌러 주세요.';
+            }
           }
           return;
         }

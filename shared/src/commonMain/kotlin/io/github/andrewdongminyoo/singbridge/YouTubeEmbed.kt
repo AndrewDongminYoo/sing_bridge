@@ -123,7 +123,8 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         <form id="open">
         <label for="video-url">YouTube 영상 링크 또는 ID</label>
         <input id="video-url" type="text" inputmode="url" autocapitalize="none" autocomplete="off" autocorrect="off"
-          spellcheck="false" placeholder="https://youtu.be/…" maxlength="2048">
+          spellcheck="false" placeholder="https://youtu.be/…" maxlength="2048" aria-describedby="video-url-help">
+        <p id="video-url-help" class="candidate-detail">YouTube 링크, 영상 ID, 받은 공유 메시지를 붙여 넣을 수 있어요.</p>
         <button type="submit">영상 열기</button>
         </form>
         <div id="saved-library"></div>
@@ -222,11 +223,16 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         }, 15000);
         document.getElementById('open').addEventListener('submit', function(event) {
           event.preventDefault();
-          const id = videoId(input.value);
+          const shared = sharedPracticeCode(input.value);
+          if (shared?.invalid) { songStatus.textContent = '공유 코드를 읽지 못했어요. 받은 메시지를 그대로 붙여 넣어 주세요.'; return; }
+          const id = shared ? shared.videoId : videoId(input.value);
           if (!id) { songStatus.textContent = '올바른 YouTube 영상 링크나 11자리 ID를 입력해 주세요.'; return; }
           if (!apiReady) { songStatus.textContent = 'YouTube 연결을 기다리고 있어요. 잠시 후 다시 시도해 주세요.'; return; }
           cancelSongSearch();
-          openVideo(id);
+          if (!shared) { openVideo(id); return; }
+          // A shared code opens like a saved entry: lyrics by ID, then the offset; nothing is saved.
+          input.value = 'https://www.youtube.com/watch?v=' + id;
+          openVideo(id, null, searchSequence, null, '노래 연습', { lyricId: shared.lyricId, offset: shared.offset, shared: true });
         });
         function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null, videoLabel = '노래 연습', saved = null) {
           if (lyricQuery && !pendingRecovery && ready && activeVideoId) pendingRecovery = {
