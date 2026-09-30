@@ -23,14 +23,14 @@ The app has two practice surfaces built on different technologies.
 
 ### Local practice: Compose
 
-The **홈** and **내 노래** tabs are Compose Multiplatform screens in `shared/src/commonMain`.
+The **연습** and **내 노래** tabs are Compose Multiplatform screens in `shared/src/commonMain`.
 `PracticeSession` holds line highlighting, seeking, and repeat decisions against the `AudioPlayer` interface, which `AndroidAudioPlayer` (Media3) and `IosAudioPlayer` (AVPlayer) implement.
 `commonTest` drives `PracticeSession` with a controlled `AudioPlayer`, so practice behavior is tested on the JVM target without a device.
 `SongLibrary` switches between the bundled sample and an imported song; the platform hosts own file picking and persistence (`androidApp/.../LastSongStore.kt`, `iosApp/SingBridge/LastSongStore.swift`, `SongImporter.swift`).
 
 ### YouTube practice: one WebView page stored in Kotlin strings
 
-The **YouTube** tab is not Compose.
+The **노래 찾기** tab, where the app opens, is not Compose.
 It is a single HTML/JS page that lives in Kotlin raw strings:
 
 - `YouTubeEmbed.kt` holds the page template and replaces the placeholders `__SEARCH__`, `__LYRICS__`, `__PRONUNCIATION__`, and `__LIBRARY__` with the fragments from `YouTubeSearch.kt`, `YouTubeLyrics.kt`, `YouTubePronunciation.kt`, and `YouTubeLibrary.kt`.
@@ -56,7 +56,8 @@ page script → Android WebMessagePort / iOS WKScriptMessageHandler (Pronunciati
 
 The bottom tabs are assembled natively on each platform, not in Compose.
 Android `MainActivity` switches between native views and uses the Compose `AppNavigationBar` only for the bar.
-iOS `SingBridgeApp.swift` builds a `UITabBarController` from `MainViewController(tabbed: true)`, the SwiftUI `YouTubeScreen`, and `ImportViewController`.
+iOS `SingBridgeApp.swift` builds a `UITabBarController` from the SwiftUI `YouTubeScreen`, `MainViewController(tabbed: true)`, and `ImportViewController`, in that order.
+Both hosts name the tab positions (`SEARCH_TAB`/`PRACTICE_TAB`, `searchTab`/`practiceTab`), and the order must match `AppNavigationBar`.
 
 ## Docs
 

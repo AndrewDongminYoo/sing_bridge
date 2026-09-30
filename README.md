@@ -26,8 +26,8 @@ Commercial lyric licensing, accounts, recording, speed adjustment, and persisten
 
 ## YouTube playback and lyrics
 
-Choose the **YouTube** bottom tab, search with **가수 - 제목**, or paste an HTTPS YouTube link or video ID.
-The **홈** tab keeps the current local practice, and **내 노래** contains audio/LRC importing.
+The app opens on the **노래 찾기** bottom tab: search with **가수 - 제목**, or paste an HTTPS YouTube link or video ID.
+The **연습** tab keeps the sample and the last imported song for local practice, and **내 노래** contains audio/LRC importing.
 Switching tabs pauses the hidden player and retains the existing view state; returning does not start playback automatically.
 Search opens the highest-ranked embedded-video candidate and searches LRCLIB with the original artist and title after player readiness.
 Search and link entry are on a separate discovery screen.
@@ -108,7 +108,7 @@ See [song-search scope](docs/specs/2026-09-28-song-search.md) and [verification]
 ## Import a song
 
 Choose the **내 노래** bottom tab, select an audio file, then select the matching LRC.
-Successful importing returns to **홈** without autoplay.
+Successful importing returns to **연습** without autoplay.
 Audio must be decodable by the native platform and at most 256 MiB; LRC must be UTF-8 and at most 1 MiB.
 The app copies audio into private storage and uses its measured duration.
 The original files are not modified, and broad storage permissions are not requested.
