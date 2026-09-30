@@ -34,3 +34,5 @@ Please distinguish rights included in the standard API terms from those requirin
 
 Thank you,
 SingBridge project
+
+Superseded on 2026-09-30 by the [revised inquiry](2026-09-30-lyrics-license-inquiry.md), which also records the contact routes checked that day and what was sent.
