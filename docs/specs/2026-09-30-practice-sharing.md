@@ -24,7 +24,8 @@ Only the saved-practice reference: the YouTube video ID, the LRCLIB lyric ID, an
 - The page builds the message and hands it to a new share bridge, which opens the operating system's share sheet: `UIActivityViewController` on iOS through a `WKScriptMessageHandler` named `share`, and an `Intent.ACTION_SEND` chooser with `text/plain` on Android through a `WebMessagePort`, following the pattern of `PronunciationBridge.kt` and `PronunciationBridge.swift`.
 - The app targets iPhone and iPad (`TARGETED_DEVICE_FAMILY: 1,2` in `iosApp/project.yml`), and on iPad a `UIActivityViewController` must be presented as a popover, so the iOS bridge sets its `popoverPresentationController` `sourceView` and `sourceRect` to the web view before presenting it.
 - Unlike the pronunciation bridge, the share bridge is registered in every build, because sharing needs no development server.
-- The bridge accepts only a string of at most 2,000 characters and passes it to the share sheet unchanged; it never reads storage or makes network calls.
+- The bridge accepts messages only from the app's own page, as `PronunciationBridge.swift` and `PronunciationBridge.kt` already do: on iOS it rejects a message unless `frameInfo.isMainFrame` is true and the security origin is `https` with the app's bundle identifier as host, so the embedded YouTube player or any other frame cannot open the share sheet; on Android the message port is posted only to the app origin.
+- It accepts only a string of at most 2,000 characters and passes it to the share sheet unchanged; it never reads storage or makes network calls.
 - When the bridge is missing, the button stays hidden.
 
 ## Message
@@ -76,6 +77,6 @@ Other failures (network, timeout, rate limit) reuse the existing lyric messages.
 ## Acceptance
 
 1. Page tests in `tools/test-youtube.mjs` cover: a valid code opens the video, fetches that lyric ID, and applies the offset after lyrics load; a code inside joined or multi-line text is found; each invalid field (ID length and characters, zero or unsafe lyric ID, offset outside ±600000, unknown version) and input with two different codes are rejected without a network request; an offset such as 1.25 seconds survives the round trip; a plain YouTube link still opens as before; nothing is saved until the save button is pressed; a stale lyric response from an earlier open cannot apply its offset.
-2. The share button builds the three-line message with the current offset, flattens the title to one line without colons, so even a title that nests one code marker inside another yields no code, and is hidden without the bridge.
+2. The share bridge ignores a message from a frame other than the main page or from another origin, and the share button builds the three-line message with the current offset, flattens the title to one line without colons, so even a title that nests one code marker inside another yields no code, and is hidden without the bridge.
 3. On an iPhone simulator, an iPad simulator, and an Android emulator, the share sheet opens with the message (on iPad as an anchored popover), and pasting that message on the other platform opens the same video, record, and offset; the check is recorded in a dated note.
 4. Existing page, server, and JVM tests, Android build and lint, the iOS host build, and scoped Trunk checks pass.
