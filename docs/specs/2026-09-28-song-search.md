@@ -11,8 +11,8 @@ Video discovery does not authorize audio extraction or bypassing the official vi
 Use an explicit search action, not a request on every keystroke.
 Parse the first spaced hyphen delimiter so names such as G-Dragon remain intact.
 Require both artist and title, trim surrounding whitespace, and bound input length.
-Send the combined artist/title terms to the official YouTube Data API search.list endpoint with part=snippet, type=video, order=relevance, videoEmbeddable=true, videoSyndicated=true, and maxResults=1.
-Since #70 the search asks for up to five candidates and reads their age ratings with one videos.list call (part=contentDetails), because the embedded player refuses `ytAgeRestricted` videos and no search filter excludes them; the first candidate not rated `ytAgeRestricted` is opened, all-restricted results show the empty-result state, and a failed rating lookup keeps the first candidate.
+Send the combined artist/title terms to the official YouTube Data API search.list endpoint with part=snippet, type=video, order=relevance, videoEmbeddable=true, videoSyndicated=true, and maxResults=5 (1 before #70).
+The page reads the candidates' age ratings with one videos.list call (part=contentDetails), because the embedded player refuses `ytAgeRestricted` videos and no search filter excludes them; the first candidate not rated `ytAgeRestricted` is opened, all-restricted results show the empty-result state, and a failed rating lookup keeps the first candidate.
 Treat the result as the highest-ranked candidate, not proof of the correct recording.
 Display the chosen video title and channel, and preserve the direct-link fallback.
 Keep autoplay disabled; the user starts playback in the official player.
