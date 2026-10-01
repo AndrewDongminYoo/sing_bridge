@@ -191,7 +191,7 @@ def preview_svg() -> str:
 
 def write(path: Path, content: str | bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(content if isinstance(content, bytes) else content.encode())
+    path.write_bytes(content if isinstance(content, bytes) else content.encode("utf-8"))
 
 
 if __name__ == "__main__":
