@@ -61,7 +61,7 @@ The agent prepared Gmail drafts on 2026-09-30 and sent nothing; Andrew sent both
 The Musixmatch message went to `apisupport@musixmatch.com` instead of the web form, because Andrew was told that Musixmatch takes API requests at that address.
 Send times below are read from the Sent folder.
 
-| Vendor     | Sent (UTC)           | Route                                | Answer  |
-| ---------- | -------------------- | ------------------------------------ | ------- |
-| LyricFind  | 2026-09-30T01:03:03Z | Email to `sales@lyricfind.com`       | Not yet |
-| Musixmatch | 2026-09-30T01:09:45Z | Email to `apisupport@musixmatch.com` | Not yet |
+| Vendor     | Sent (UTC)           | Route                                | Answer                                              |
+| ---------- | -------------------- | ------------------------------------ | --------------------------------------------------- |
+| LyricFind  | 2026-09-30T01:03:03Z | Email to `sales@lyricfind.com`       | See [replies](2026-10-01-lyrics-license-replies.md) |
+| Musixmatch | 2026-09-30T01:09:45Z | Email to `apisupport@musixmatch.com` | See [replies](2026-10-01-lyrics-license-replies.md) |
