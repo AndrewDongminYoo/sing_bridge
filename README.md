@@ -327,7 +327,7 @@ It does not log or cache lyric bodies and requests provider `store: false`; prov
 
 Each provider response that reports usage adds one JSON line to `server/build/pronunciation-usage/<start time>.jsonl`, which Git ignores and the server creates on the first response.
 A record holds a per-process sequence number, the page request ID forwarded by the native bridge, the model, the target language, the line count, the provider token counts (input, cached input, output, reasoning), and whether the result was accepted; it never holds lyric text, credentials, or video IDs.
-Incomplete, refused, and invalid provider results are billed, so they are recorded with `ok: false`.
+Incomplete, refused, and invalid provider results are billed, so they are recorded with `ok: false` and a `reason`: the fixed message of the rule that failed (for example `Source changed` or `Provider incomplete`), `Invalid JSON output`, or `Unknown error`, never model text.
 Requests that end before a provider response, including cancellations, timeouts, and provider HTTP errors, have no usage to record and leave a gap in the sequence.
 Sum one server run per song and in total, as a Markdown table:
 

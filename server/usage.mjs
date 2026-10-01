@@ -16,7 +16,7 @@ export const usageDirectory = new URL(
 );
 const count = (value) =>
   Number.isSafeInteger(value) && value >= 0 ? value : null;
-export function usageRecord(sequence, requestId, request, usage, ok) {
+export function usageRecord(sequence, requestId, request, usage, ok, reason) {
   return {
     sequence,
     requestId:
@@ -33,6 +33,8 @@ export function usageRecord(sequence, requestId, request, usage, ok) {
     outputTokens: count(usage.output_tokens),
     reasoningTokens: count(usage.output_tokens_details?.reasoning_tokens),
     ok,
+    // A rejection reason is a fixed rule message or category from rejectionReason, never model text.
+    ...(ok ? {} : { reason: typeof reason === 'string' ? reason : null }),
   };
 }
 export function usageLog(file) {

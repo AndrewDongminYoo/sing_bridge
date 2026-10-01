@@ -1,7 +1,11 @@
 import { createServer } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { apiKey } from './config.mjs';
-import { generatePronunciation, validateRequest } from './pronunciation.mjs';
+import {
+  generatePronunciation,
+  rejectionReason,
+  validateRequest,
+} from './pronunciation.mjs';
 import { usageDirectory, usageLog, usageRecord } from './usage.mjs';
 
 // Development only: loopback binding, native clients, no browser CORS access.
@@ -61,7 +65,8 @@ export function createPronunciationServer(
         }
         calls++;
         let usage = null,
-          ok = false;
+          ok = false,
+          reason = null;
         try {
           const { result } = await generate(input, key, {
             signal: controller.signal,
@@ -69,6 +74,9 @@ export function createPronunciationServer(
           });
           ok = true;
           send(200, result);
+        } catch (error) {
+          reason = rejectionReason(error);
+          throw error;
         } finally {
           if (usage)
             record(
@@ -78,6 +86,7 @@ export function createPronunciationServer(
                 input,
                 usage,
                 ok,
+                reason,
               ),
             );
         }
