@@ -26,6 +26,7 @@ Existing research recommends separating source reading/G2P from target rendering
 - Accept Japanese, Korean, English, and romanized Japanese, including mixed phrases within one lyric row.
 - Start with Korean and English-oriented pronunciation output; this is a quality boundary, not support for every locale.
 - Derive the initial target from the native preferred locale and let the user change it in lyric settings.
+  Since #74 the user's last supported choice is kept on the device and wins over the locale on later page loads; choosing no language clears it, and a saved practice still opens in its own target.
 - Do not silently treat an unsupported locale as English; require an explicit supported target choice.
 - Preserve source text, line IDs, ordering, timestamps, selected lyric ID, and the existing sync offset exactly.
 - Display pronunciation as an optional secondary layer; a failure must leave original practice usable.

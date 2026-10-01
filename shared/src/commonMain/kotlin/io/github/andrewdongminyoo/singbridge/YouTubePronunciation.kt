@@ -37,12 +37,20 @@ internal fun youtubePronunciationHtml(): String = """
     let pronunciationAvailable = false, pronunciationBusy = false, pronunciationVisible = true;
     let pronunciationPort = null, pronunciationPortNonce = null;
     window.singBridgePreparePronunciationPort = nonce => { pronunciationPortNonce = nonce; };
+    // The user's reading language choice outlives the page; the device locale applies only without one (#74).
+    const pronunciationTargetKey = 'singbridge.pronunciation-target.v1';
+    function storedPronunciationTarget() {
+      try {
+        const value = localStorage.getItem(pronunciationTargetKey);
+        return ['ko', 'en'].includes(value) ? value : '';
+      } catch (_) { return ''; }
+    }
     function initialPronunciationTarget(locale) {
       const language = String(locale).toLowerCase().split(/[-_]/)[0];
       return ['ko', 'en'].includes(language) ? language : '';
     }
     window.singBridgeConfigurePronunciation = function(locale, available) {
-      pronunciationTarget.value = initialPronunciationTarget(locale);
+      pronunciationTarget.value = storedPronunciationTarget() || initialPronunciationTarget(locale);
       pronunciationAvailable = available;
       resetPronunciation(); restorePronunciation();
     };
@@ -254,7 +262,13 @@ internal fun youtubePronunciationHtml(): String = """
       if (pronunciationSave.disabled) return;
       pronunciationStatus.textContent = saveCurrentPractice(true) ? '음차와 수정 내용을 이 기기에 저장했어요.' : '저장하지 못했어요. 저장 공간과 입력 내용을 확인해 주세요. 기존 저장본은 유지됩니다.';
     });
-    pronunciationTarget.addEventListener('change', function() { resetPronunciation(); restorePronunciation(false); });
+    pronunciationTarget.addEventListener('change', function() {
+      try {
+        if (['ko', 'en'].includes(pronunciationTarget.value)) localStorage.setItem(pronunciationTargetKey, pronunciationTarget.value);
+        else localStorage.removeItem(pronunciationTargetKey);
+      } catch (_) { /* Without storage the choice lasts for this page only. */ }
+      resetPronunciation(); restorePronunciation(false);
+    });
     pronunciationToggle.addEventListener('click', function() {
       pronunciationVisible = !pronunciationVisible; renderPronunciation(); updatePronunciationControl();
     });
