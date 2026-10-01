@@ -350,6 +350,13 @@ internal fun youtubeLyricsHtml(): String = """
         instrumental: item.instrumental === true, syncedLyrics: typeof item.syncedLyrics === 'string' ? item.syncedLyrics : '',
         plainLyrics: typeof item.plainLyrics === 'string' ? item.plainLyrics : '' };
     }
+    // Some LRCLIB track names already start with the artist ("Novelbright - Walking with you"), so the artist is not added twice.
+    function practiceTitle(record) {
+      const artist = record.artistName.trim(), track = record.trackName.trim();
+      const repeated = artist && track.slice(0, artist.length).toLowerCase() === artist.toLowerCase() &&
+        /^\s*[-–—]\s*\S/.test(track.slice(artist.length));
+      return repeated ? track : record.artistName + ' - ' + record.trackName;
+    }
 
     function renderLyricCandidates(videoGeneration) {
       const duration = ready && player ? player.getDuration() : 0;
@@ -485,7 +492,7 @@ internal fun youtubeLyricsHtml(): String = """
             lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
             if (saved.shared) {
               // The fetched record, not the pasted message, names a shared practice.
-              songResult.textContent = record.artistName + ' - ' + record.trackName;
+              songResult.textContent = practiceTitle(record);
               document.getElementById('save-status').textContent = '공유받은 연습을 열었어요. 저장하려면 이 연습 저장을 눌러 주세요.';
             }
           }

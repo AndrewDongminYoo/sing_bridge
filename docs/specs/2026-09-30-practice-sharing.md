@@ -35,7 +35,7 @@ Only the saved-practice reference: the YouTube video ID, the LRCLIB lyric ID, an
 Three lines:
 
 1. The code: `singbridge:1:<videoId>:<lyricId>:<offset>`.
-2. A line for people, proposed wording: `SingBridge 연습: <title>`, where the title is the selected record's `artistName - trackName`, as the save button stores it.
+2. A line for people, proposed wording: `SingBridge 연습: <title>`, where the title is the selected record's `artistName - trackName`, as the save button stores it, or `trackName` alone when it already starts with the artist followed by a dash (LRCLIB 35549827 is stored as `Novelbright - Walking with you`).
    The title comes from LRCLIB, so before building the line the page replaces control characters, format characters such as bidirectional overrides and isolates, and line or paragraph separators (`\p{Cc}`, `\p{Cf}`, `\p{Zl}`, `\p{Zp}`) with spaces (#64), replaces every `:` with a space, and collapses runs of whitespace; since a code needs colons, provider text can then neither add a line nor form a second code, however it is built.
 3. `https://youtu.be/<videoId>`, so a recipient without the app can still open the video.
 

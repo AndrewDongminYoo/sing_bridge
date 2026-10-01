@@ -3023,6 +3023,46 @@ test('a pasted share code opens the video, fetches that lyric record, and applie
   assert.equal(saved.offset, 1.25);
 });
 
+test('a track name that already starts with the artist is not prefixed again', async () => {
+  // LRCLIB 35549827 is stored this way: artistName Novelbright, trackName "Novelbright - Walking with you".
+  const prefixed = {
+    ...record,
+    artistName: 'Novelbright',
+    trackName: 'Novelbright - Walking with you',
+  };
+  const storage = memoryStorage();
+  const receiver = sharedReceiver(
+    (url) => (url.includes('/api/get/') ? response(prefixed) : response()),
+    storage,
+  );
+  await openShared(receiver, sharedMessage);
+  assert.equal(
+    receiver.element('song-result').textContent,
+    'Novelbright - Walking with you',
+  );
+  receiver.element('save-practice').click();
+  assert.equal(
+    JSON.parse(storage.getItem('singbridge.practice.v1')).items[0].title,
+    'Novelbright - Walking with you',
+  );
+
+  const sender = await sharingSender([prefixed]);
+  const sent = shareBridge(sender);
+  sender.element('share-practice').click();
+  assert.equal(
+    sent[0].split('\n')[1],
+    'SingBridge 연습: Novelbright - Walking with you',
+  );
+
+  // An artist that only begins a word of the track name is still added.
+  const partial = await sharingSender([
+    { ...record, artistName: 'U2', trackName: 'U2gether' },
+  ]);
+  const partialSent = shareBridge(partial);
+  partial.element('share-practice').click();
+  assert.equal(partialSent[0].split('\n')[1], 'SingBridge 연습: U2 - U2gether');
+});
+
 test('a share code is found when a messenger or the input joins the lines', async () => {
   for (const text of [
     sharedMessage.replaceAll('\n', ''),
