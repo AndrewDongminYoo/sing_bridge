@@ -77,7 +77,7 @@ internal fun youtubeLibraryHtml(): String = """
     }
     function shareTitle(record) {
       // Provider text can add neither a line nor a code: separators, controls, format characters, and colons go.
-      const flat = (record.artistName + ' - ' + record.trackName)
+      const flat = practiceTitle(record)
         .replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}:]/gu, ' ').replace(/\s+/g, ' ').trim();
       return [...flat].slice(0, 500).join('').trim();
     }
@@ -111,7 +111,7 @@ internal fun youtubeLibraryHtml(): String = """
       const draft = includePronunciation ? pronunciationSnapshot() : null;
       if (includePronunciation && !draft) return false;
       const entry = { videoId: activeVideoId, lyricId: selectedLyricRecord.id,
-        title: (selectedLyricRecord.artistName + ' - ' + selectedLyricRecord.trackName).slice(0, 1000), offset: lyricAdjustment };
+        title: practiceTitle(selectedLyricRecord).slice(0, 1000), offset: lyricAdjustment };
       const previous = savedPractices.find(item => item.videoId === entry.videoId && item.lyricId === entry.lyricId);
       if (previous?.pronunciations) entry.pronunciations = previous.pronunciations;
       if (previous?.pronunciationTarget) entry.pronunciationTarget = previous.pronunciationTarget;
