@@ -15,6 +15,7 @@ import {
   validateRequest,
   validateResult,
   generatePronunciation,
+  rejectionReason,
 } from './pronunciation.mjs';
 import { summarizeUsage, usageLog, usageRecord } from './usage.mjs';
 
@@ -388,6 +389,8 @@ test('provider reports usage before result checks, including billed failures', a
 
 test('server records token counts per request without lyric text', async (t) => {
   const { createPronunciationServer } = await import('./index.mjs');
+  const changed = result();
+  changed.lines[0].segments[0].source = '오늘 ';
   const usage = {
     input_tokens: 1200,
     input_tokens_details: { cached_tokens: 1024 },
@@ -402,6 +405,24 @@ test('server records token counts per request without lyric text', async (t) => 
     }),
     new Response('', { status: 500 }),
     Response.json(completed(usage)),
+    Response.json({
+      ...completed(usage),
+      output: [
+        {
+          type: 'message',
+          content: [{ type: 'output_text', text: JSON.stringify(changed) }],
+        },
+      ],
+    }),
+    Response.json({
+      ...completed(usage),
+      output: [
+        {
+          type: 'message',
+          content: [{ type: 'output_text', text: '{"오늘도 Hello!' }],
+        },
+      ],
+    }),
   ];
   const records = [];
   const server = createPronunciationServer(
@@ -432,6 +453,8 @@ test('server records token counts per request without lyric text', async (t) => 
   assert.equal(await post('1-1'), 502);
   assert.equal(await post('2-1'), 502);
   assert.equal(await post('video-dQw4w9WgXcQ'), 200);
+  assert.equal(await post('3-1'), 502);
+  assert.equal(await post('3-2'), 502);
   const common = {
     model: 'gpt-5.4-mini-2026-03-17',
     target: 'ko',
@@ -457,6 +480,7 @@ test('server records token counts per request without lyric text', async (t) => 
       outputTokens: 6000,
       reasoningTokens: null,
       ok: false,
+      reason: 'Provider incomplete',
     },
     {
       sequence: 4,
@@ -468,10 +492,58 @@ test('server records token counts per request without lyric text', async (t) => 
       reasoningTokens: 100,
       ok: true,
     },
+    {
+      sequence: 5,
+      requestId: '3-1',
+      ...common,
+      inputTokens: 1200,
+      cachedInputTokens: 1024,
+      outputTokens: 300,
+      reasoningTokens: 100,
+      ok: false,
+      reason: 'Source changed',
+    },
+    {
+      sequence: 6,
+      requestId: '3-2',
+      ...common,
+      inputTokens: 1200,
+      cachedInputTokens: 1024,
+      outputTokens: 300,
+      reasoningTokens: 100,
+      ok: false,
+      reason: 'Invalid JSON output',
+    },
   ]);
   const text = JSON.stringify(records);
   for (const secret of ['오늘도', 'Hello', 'fixture-key', 'dQw4w9WgXcQ'])
     assert.ok(!text.includes(secret), secret);
+});
+
+test('a billed rejection names its rule, and other errors name only a category', () => {
+  // Every rule validateResult can break is recorded under its own message (#77).
+  const rules = [
+    ...validateResult.toString().matchAll(/throw new Error\('([^']+)'\)/g),
+  ].map((match) => match[1]);
+  assert.ok(rules.includes('Source changed'));
+  for (const message of [
+    ...rules,
+    'Invalid fields',
+    'Invalid text',
+    'Provider incomplete',
+    'Provider refused',
+  ])
+    assert.equal(rejectionReason(new Error(message)), message);
+  // A JSON error can quote model output, so only its category is kept.
+  let syntax;
+  try {
+    JSON.parse('{"오늘도 Hello!');
+  } catch (error) {
+    syntax = error;
+  }
+  assert.equal(rejectionReason(syntax), 'Invalid JSON output');
+  assert.equal(rejectionReason(new Error('오늘도 Hello!')), 'Unknown error');
+  assert.equal(rejectionReason(undefined), 'Unknown error');
 });
 
 test('usage report sums adjacent page runs as songs', () => {

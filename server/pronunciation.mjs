@@ -129,6 +129,26 @@ export function validateResult(request, value, { normalize = false } = {}) {
   });
   return value;
 }
+// Usage records name why a billed result was rejected (#77). Fixed rule messages are kept as they are;
+// any other error, such as a JSON error that can quote model output, keeps only its category.
+const rejectionRules = new Set([
+  'Provider incomplete',
+  'Provider refused',
+  'Invalid fields',
+  'Invalid text',
+  'Invalid result',
+  'Invalid line',
+  'Invalid phrase',
+  'Unknown or same-language phrase must retain source',
+  'Unknown language requires review',
+  'Pronunciation must not be blank',
+  'Foreign phrase requires pronunciation',
+  'Source changed',
+]);
+export function rejectionReason(error) {
+  if (error instanceof SyntaxError) return 'Invalid JSON output';
+  return rejectionRules.has(error?.message) ? error.message : 'Unknown error';
+}
 const strictObject = (properties) => ({
   type: 'object',
   properties,
