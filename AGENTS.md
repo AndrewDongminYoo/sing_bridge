@@ -31,6 +31,7 @@ Store specs in `docs/specs`, plans in `docs/plans`, and evidence in `docs/notes`
 Keep dependency versions pinned and regenerate Gradle lockfiles when dependencies change.
 Change `iosApp/project.yml` before regenerating the Xcode project with XcodeGen.
 Change `tools/generate_sample.py` before regenerating sample audio.
+Change `tools/generate_app_icon.py` before regenerating the Android and iOS app icons.
 Do not commit generated build output or machine-specific SDK paths.
 For hosted Linux x86_64 containers, run `bash ./setup.sh` and source `.singbridge-env` before invoking Gradle in a later shell.
 Keep `.singbridge-env` and `.android-sdk/` out of Git.
