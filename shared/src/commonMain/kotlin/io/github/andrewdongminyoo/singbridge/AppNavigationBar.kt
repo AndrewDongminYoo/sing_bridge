@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -19,7 +20,15 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AppNavigationBar(selectedIndex: Int, onSelect: (Int) -> Unit) {
     MaterialTheme(colorScheme = lightColorScheme(primary = Color(0xFF235E52), secondaryContainer = Color(0xFFDFEAE3))) {
-        NavigationBar(containerColor = Color(0xFFFAF7F0)) {
+        // The bar shares the screens' paper color, so a hairline in the page border color marks where it starts (#75).
+        NavigationBar(
+            modifier = Modifier.drawWithContent {
+                drawContent()
+                val line = 1.dp.toPx()
+                drawLine(Color(0xFFC6D0C9), Offset(0f, line / 2), Offset(size.width, line / 2), line)
+            },
+            containerColor = Color(0xFFFAF7F0),
+        ) {
             listOf("노래 찾기", "연습", "내 노래").forEachIndexed { index, title ->
                 NavigationBarItem(
                     selected = selectedIndex == index,

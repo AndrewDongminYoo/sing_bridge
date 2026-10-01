@@ -3,6 +3,7 @@ package io.github.andrewdongminyoo.singbridge
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -20,6 +21,8 @@ internal class YouTubePlayerView(private val activity: ComponentActivity) : Fram
 
     init {
         webView = WebView(activity).apply {
+            // No stretch at the scroll ends (#75).
+            overScrollMode = View.OVER_SCROLL_NEVER
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.mediaPlaybackRequiresUserGesture = true

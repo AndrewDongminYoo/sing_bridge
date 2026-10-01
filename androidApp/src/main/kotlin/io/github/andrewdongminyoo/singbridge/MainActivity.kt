@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
         restoreSong()
         val home = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
+            setScreen {
                 LibraryApp(
                     library,
                     onPickAudio = { audioPicker.launch(arrayOf("audio/*")) },
@@ -75,7 +76,7 @@ class MainActivity : ComponentActivity() {
         youtube = YouTubePlayerView(this)
         val songs = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
+            setScreen {
                 ImportScreen(
                     library,
                     onPickAudio = { audioPicker.launch(arrayOf("audio/*")) },
@@ -234,3 +235,5 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 }
+
+private fun ComposeView.setScreen(content: @Composable () -> Unit) = setContent { NoOverscroll(content) }
