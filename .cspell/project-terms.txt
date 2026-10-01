@@ -29,6 +29,7 @@ dongminyu
 doublearray
 drawables
 drawscope
+dumpsys
 exoplayer
 FEFF
 Firestore
@@ -37,6 +38,7 @@ gachi
 georeoyo
 gradlew
 halfwidth
+hotseat
 ICOT
 IDAT
 IEND

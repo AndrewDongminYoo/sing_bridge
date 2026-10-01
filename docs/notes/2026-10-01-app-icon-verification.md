@@ -33,9 +33,17 @@
 iPhone 18 Pro simulator on iOS 27.0, with the Debug build installed over the existing app.
 The home screen shows the SingBridge icon with the system corner mask, the arch opening, and the gold note head.
 
+## Emulator check
+
+Pixel_10 emulator on Android 17 (1080x2424, density 420), headless, with the debug APK installed over the existing app by `adb install -r`.
+
+- The system App info page shows the icon in a circle mask with the Pine background, the arch opening, and the gold note head.
+- In the launcher dock the icon has an extra light ring around a slightly smaller icon.
+  `dumpsys activity` for the launcher lists SingBridge in `shownHotseatItems`, the predicted-app slot, and the Messages icon beside it has no ring, so the ring is the launcher's prediction marker and not part of the icon.
+  The ring stayed after a launcher restart and after launching the app.
+
 ## Not checked
 
-- The Android launcher on an emulator or device, including the themed (monochrome) icon.
-  The load average rose above 70 after the simulator shut down, so no emulator was booted.
+- The themed (monochrome) icon; this check did not turn on the launcher's themed icons.
 - iOS dark and tinted home screen appearances; the icon set provides no dark or tinted variant.
 - A trademark search for the mark.
