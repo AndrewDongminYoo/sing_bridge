@@ -25,10 +25,13 @@ Once implemented, this spec replaces the save rules in [saved practice](2026-09-
 
 ### Timing on a saved practice
 
-- When the open video and lyric record are already in the library, every offset change from **0.5초 일찍**, **0.5초 늦게**, **초기화**, or **시간 직접 입력** writes the new offset to that entry at once.
-- The automatic write changes only the offset: it never adds an entry, never writes a pronunciation layer or edit, and never changes the title.
+- Automatic writes follow how the practice was opened, not whether its video and lyric pair is in the library.
+  They apply only when the open practice was opened from 저장한 연습, or was saved with **이 연습 저장** after it was opened.
+  Then every offset change from **0.5초 일찍**, **0.5초 늦게**, **초기화**, or **시간 직접 입력** writes the new offset to that entry at once.
+- A practice opened from a share code or chosen through search never qualifies, even when the same pair is already saved: the share code carries its own offset and a newly chosen record starts at 0, so writing either would silently replace the offset the user saved.
+  **이 연습 저장** stays the way to keep it, and once pressed, later timing changes are written automatically.
+- The automatic write changes only the offset: it never adds an entry, never writes a pronunciation layer or edit, and never changes the title; if the entry was deleted meanwhile, nothing is written.
 - A status line inside **가사 싱크 조절** reports the result, proposed wording 싱크를 저장했어요 and, on a storage error, 싱크를 저장하지 못했어요. 가사·설정에서 다시 저장해 주세요.; the offset stays applied on screen either way.
-- A practice that is not in the library, including one opened from a share code, is never saved automatically; its offset is saved by **이 연습 저장** as today.
 
 ### Limits and existing rules
 
@@ -45,7 +48,7 @@ Once implemented, this spec replaces the save rules in [saved practice](2026-09-
 
 ## Acceptance
 
-1. Page tests in `tools/test-youtube.mjs` fail first and then cover: one button saving the reference with and without a generated layer, an invalid edit saving the reference but not the layer, the other target's layer preserved, the label states including a pronunciation-only change, an offset change on a saved practice written without opening settings, no automatic write for an unsaved or shared practice, the automatic write never adding an entry or a layer, and a storage error on the automatic write.
+1. Page tests in `tools/test-youtube.mjs` fail first and then cover: one button saving the reference with and without a generated layer, an invalid edit saving the reference but not the layer, the other target's layer preserved, the label states including a pronunciation-only change, an offset change written without opening settings for a practice opened from 저장한 연습 and for one saved after opening, no automatic write for an unsaved practice or for a shared or searched practice whose pair is already saved (the saved offset stays), the automatic write never adding an entry or a layer nor recreating a deleted entry, and a storage error on the automatic write.
 2. Existing saved-practice, pronunciation, and sharing tests pass, updated only where they press **음차 저장**.
 3. The README and the two older specs point to this spec for the save rules.
 4. A simulator or emulator check confirms a timing change on a saved practice survives reopening it from 저장한 연습 without opening lyric settings.
