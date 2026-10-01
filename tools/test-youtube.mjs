@@ -58,6 +58,7 @@ function memoryStorage() {
   return {
     getItem: (key) => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, value),
+    removeItem: (key) => values.delete(key),
     values,
   };
 }
@@ -2433,6 +2434,74 @@ test('target switching restores the matching saved layer and keeps user edits se
     next.element('lyrics-timing').children[1].textContent,
     /둘째 줄 수정/,
   );
+});
+
+// The reading language is the user's choice, not the device language on every load (#74).
+const targetKey = 'singbridge.pronunciation-target.v1';
+
+test('a chosen reading language is kept across page loads instead of the device locale', () => {
+  const storage = memoryStorage();
+  const first = fixture(undefined, 'fixture-key', storage);
+  first.window.singBridgeConfigurePronunciation('en-US', true);
+  assert.equal(first.element('pronunciation-target').value, 'en');
+  assert.equal(storage.getItem(targetKey), null);
+  first.element('pronunciation-target').value = 'ko';
+  first.element('pronunciation-target').change();
+  assert.equal(storage.getItem(targetKey), 'ko');
+
+  const second = fixture(undefined, 'fixture-key', storage);
+  second.window.singBridgeConfigurePronunciation('en-US', true);
+  assert.equal(second.element('pronunciation-target').value, 'ko');
+
+  // Choosing no language clears the choice, so the device locale applies again.
+  second.element('pronunciation-target').value = '';
+  second.element('pronunciation-target').change();
+  assert.equal(storage.getItem(targetKey), null);
+  const third = fixture(undefined, 'fixture-key', storage);
+  third.window.singBridgeConfigurePronunciation('en-US', true);
+  assert.equal(third.element('pronunciation-target').value, 'en');
+});
+
+test('a missing or invalid stored reading language falls back to the device locale', () => {
+  for (const stored of [null, 'fr', '', 'ko-KR', '{"target":"ko"}']) {
+    const storage = memoryStorage();
+    if (stored !== null) storage.setItem(targetKey, stored);
+    const f = fixture(undefined, 'fixture-key', storage);
+    f.window.singBridgeConfigurePronunciation('en-US', true);
+    assert.equal(f.element('pronunciation-target').value, 'en', String(stored));
+  }
+});
+
+test('a saved practice still opens in its own reading language and keeps the stored choice', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('pronunciation-save').click();
+  storage.setItem(targetKey, 'en');
+  const second = await reopenPronunciation(storage);
+  assert.equal(second.element('pronunciation-target').value, 'ko');
+  assert.equal(storage.getItem(targetKey), 'en');
+});
+
+test('unavailable storage does not break the reading language choice', () => {
+  const broken = {
+    getItem() {
+      throw new Error('SecurityError');
+    },
+    setItem() {
+      throw new Error('QuotaExceededError');
+    },
+    removeItem() {
+      throw new Error('SecurityError');
+    },
+  };
+  const f = fixture(undefined, 'fixture-key', broken);
+  f.window.singBridgeConfigurePronunciation('ko-KR', true);
+  assert.equal(f.element('pronunciation-target').value, 'ko');
+  f.element('pronunciation-target').value = 'en';
+  f.element('pronunciation-target').change();
+  assert.equal(f.element('pronunciation-target').value, 'en');
+  f.element('pronunciation-target').value = '';
+  f.element('pronunciation-target').change();
 });
 
 test('timestamp-like and markup-like edits stay literal and never enter the LRC parser', async () => {
