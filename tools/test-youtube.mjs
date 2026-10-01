@@ -1543,7 +1543,8 @@ test('stale saved lyric response cannot replace a newer video selection', async 
   assert.equal(f.requests[0].options.signal.aborted, true);
 });
 
-test('saving exposes unsaved timing changes instead of retaining a success message', async () => {
+test('a timing change after saving is kept and reported instead of retaining the save message', async () => {
+  // Since #76 a practice saved after it was opened keeps timing changes at once.
   const f = fixture(() => response());
   f.ready();
   await f.search();
@@ -1551,7 +1552,8 @@ test('saving exposes unsaved timing changes instead of retaining a success messa
   f.element('save-practice').click();
   f.element('lyrics-later').click();
   assert.equal(f.element('save-status').textContent, '');
-  assert.match(f.element('save-practice').textContent, /변경/);
+  assert.equal(f.element('sync-status').textContent, '싱크를 저장했어요.');
+  assert.equal(f.element('save-practice').textContent, '저장됨');
 });
 
 test('kana prolonged marks do not create a spurious other-script label', async () => {
@@ -2024,7 +2026,7 @@ test('a review-flagged phrase shows its pronunciation with a visible review labe
       ),
     ),
   );
-  first.element('pronunciation-save').click();
+  first.element('save-practice').click();
   const second = await reopenPronunciation(storage);
   assert.match(
     second.element('lyrics-timing').children[0].textContent,
@@ -2170,7 +2172,7 @@ test('Spanish pronunciation shows a visible experimental label and restores from
         child.textContent === '스페인어(실험)',
     ),
   );
-  first.element('pronunciation-save').click();
+  first.element('save-practice').click();
   const second = await reopenPronunciation(storage);
   assert.match(
     second.element('lyrics-timing').children[0].textContent,
@@ -2194,46 +2196,43 @@ test('rows without Spanish or with an edited line show no experimental label', a
   assert.doesNotMatch(row.textContent, /실험/);
 });
 
-test('generic practice saves never persist unsaved pronunciation or edits', async () => {
+test('automatic timing saves keep the stored layer, and only the practice save stores an edit', async () => {
+  // Since #76 the practice save stores the layer; automatic timing saves never write pronunciation.
   const storage = memoryStorage();
   const f = await generatedPractice(storage);
   f.element('save-practice').click();
-  let saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
-  assert.equal(
-    saved.pronunciations,
-    undefined,
-    'Reference save must not store generated lyrics',
-  );
-  f.element('pronunciation-save').click();
   const original = JSON.stringify(
     JSON.parse(storage.getItem('singbridge.practice.v1')).items[0]
       .pronunciations,
   );
-  f.element('pronunciation-edit-text').value = 'Unsaved draft';
+  f.element('pronunciation-edit-line').value = 'line-0';
+  f.element('pronunciation-edit-line').change();
+  f.element('pronunciation-edit-text').value = 'Saved draft';
   f.element('pronunciation-edit-text').input();
   f.element('lyrics-later').click();
-  assert.equal(f.element('save-practice').disabled, false);
-  f.element('save-practice').click();
-  saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
+  let saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
   assert.equal(saved.offset, 0.5);
   assert.equal(
     JSON.stringify(saved.pronunciations),
     original,
-    'Timing save must retain the previously saved layer',
+    'A timing save must retain the previously saved layer',
   );
-  f.element('pronunciation-edit-text').value = 'one\ntwo';
-  f.element('pronunciation-edit-text').input();
-  f.element('lyrics-later').click();
-  assert.equal(
-    f.element('save-practice').disabled,
-    false,
-    'Invalid pronunciation must not block a reference-only save',
-  );
-  assert.equal(f.element('pronunciation-save').disabled, true);
+  assert.equal(f.element('save-practice').disabled, false);
   f.element('save-practice').click();
   saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
+  assert.equal(saved.pronunciations.ko.edits['line-0'], 'Saved draft');
+  const withEdit = JSON.stringify(saved.pronunciations);
+  f.element('pronunciation-edit-text').value = 'one\ntwo';
+  f.element('pronunciation-edit-text').input();
+  assert.equal(
+    f.element('save-practice').disabled,
+    true,
+    'An invalid edit is not a change to save',
+  );
+  f.element('lyrics-later').click();
+  saved = JSON.parse(storage.getItem('singbridge.practice.v1')).items[0];
   assert.equal(saved.offset, 1);
-  assert.equal(JSON.stringify(saved.pronunciations), original);
+  assert.equal(JSON.stringify(saved.pronunciations), withEdit);
 });
 
 test('saved pronunciation and line edits survive a new page without an AI bridge', async () => {
@@ -2245,7 +2244,7 @@ test('saved pronunciation and line edits survive a new page without an AI bridge
   first.element('pronunciation-edit-line').change();
   first.element('pronunciation-edit-text').value = '내가 고친 발음';
   first.element('pronunciation-edit-text').input();
-  first.element('pronunciation-save').click();
+  first.element('save-practice').click();
   const second = await reopenPronunciation(storage);
   assert.equal(second.element('pronunciation-target').value, 'ko');
   assert.match(
@@ -2268,7 +2267,7 @@ test('saved pronunciation and line edits survive a new page without an AI bridge
 test('changed lyric text or timestamps cannot receive saved pronunciation', async () => {
   const storage = memoryStorage();
   const first = await generatedPractice(storage);
-  first.element('pronunciation-save').click();
+  first.element('save-practice').click();
   for (const syncedLyrics of [
     '[00:02.00]Changed',
     record.syncedLyrics.replace('00:02', '00:03'),
@@ -2285,7 +2284,7 @@ test('changed lyric text or timestamps cannot receive saved pronunciation', asyn
 test('failed pronunciation save preserves stored result and keeps edits retryable', async () => {
   const storage = memoryStorage();
   const f = await generatedPractice(storage);
-  f.element('pronunciation-save').click();
+  f.element('save-practice').click();
   const before = storage.getItem('singbridge.practice.v1');
   f.element('pronunciation-edit-line').value = 'line-0';
   f.element('pronunciation-edit-line').change();
@@ -2294,14 +2293,14 @@ test('failed pronunciation save preserves stored result and keeps edits retryabl
   storage.setItem = () => {
     throw new Error('Quota');
   };
-  f.element('pronunciation-save').click();
+  f.element('save-practice').click();
   assert.equal(storage.getItem('singbridge.practice.v1'), before);
-  assert.match(f.element('pronunciation-status').textContent, /저장하지 못/);
+  assert.match(f.element('save-status').textContent, /저장하지 못/);
   assert.match(
     f.element('lyrics-timing').children[0].textContent,
     /<b>edited<\/b>/,
   );
-  assert.equal(f.element('pronunciation-save').disabled, false);
+  assert.equal(f.element('save-practice').disabled, false);
   const next = await reopenPronunciation(storage);
   assert.doesNotMatch(
     next.element('lyrics-timing').children[0].textContent,
@@ -2309,9 +2308,9 @@ test('failed pronunciation save preserves stored result and keeps edits retryabl
   );
 });
 
-test('invalid edits cannot alter rendered lines, timing, or either save action', async () => {
+test('invalid edits cannot alter rendered lines, timing, or the save action', async () => {
   const f = await generatedPractice();
-  f.element('pronunciation-save').click();
+  f.element('save-practice').click();
   f.element('pronunciation-edit-line').value = 'line-0';
   f.element('pronunciation-edit-line').change();
   const times = vm.runInContext('JSON.stringify(lyricLines)', f.context);
@@ -2329,11 +2328,10 @@ test('invalid edits cannot alter rendered lines, timing, or either save action',
     f.element('pronunciation-edit-text').value = invalid;
     f.element('pronunciation-edit-text').input();
     assert.equal(
-      f.element('pronunciation-save').disabled,
+      f.element('save-practice').disabled,
       true,
       JSON.stringify(invalid.slice(0, 30)),
     );
-    assert.equal(f.element('save-practice').disabled, true);
     assert.equal(
       f.element('lyrics-timing').children[0].children[0].textContent,
       '테스트 발음',
@@ -2345,7 +2343,7 @@ test('invalid edits cannot alter rendered lines, timing, or either save action',
   }
   f.element('pronunciation-edit-text').value = '가'.repeat(2000);
   f.element('pronunciation-edit-text').input();
-  assert.equal(f.element('pronunciation-save').disabled, false);
+  assert.equal(f.element('save-practice').disabled, false);
   f.element('pronunciation-edit-reset').click();
   assert.equal(f.element('pronunciation-edit-text').value, '테스트 발음');
   assert.doesNotMatch(
@@ -2357,7 +2355,7 @@ test('invalid edits cannot alter rendered lines, timing, or either save action',
 test('tampered stored edits and mappings cannot replace valid source or execute markup', async () => {
   const storage = memoryStorage();
   const f = await generatedPractice(storage);
-  f.element('pronunciation-save').click();
+  f.element('save-practice').click();
   const good = storage.getItem('singbridge.practice.v1');
   const changes = [
     (d) => {
@@ -2407,7 +2405,7 @@ test('tampered stored edits and mappings cannot replace valid source or execute 
 test('target switching restores the matching saved layer and keeps user edits separate', async () => {
   const storage = memoryStorage();
   const f = await generatedPractice(storage);
-  f.element('pronunciation-save').click();
+  f.element('save-practice').click();
   f.element('pronunciation-target').value = 'en';
   f.element('pronunciation-target').change();
   assert.equal(vm.runInContext('pronunciationResults.size', f.context), 0);
@@ -2424,7 +2422,7 @@ test('target switching restores the matching saved layer and keeps user edits se
   assert.equal(f.element('pronunciation-edit-text').value, '테스트 발음');
   f.element('pronunciation-edit-text').value = '둘째 줄 수정';
   f.element('pronunciation-edit-text').input();
-  f.element('pronunciation-save').click();
+  f.element('save-practice').click();
   const next = await reopenPronunciation(storage);
   assert.match(
     next.element('lyrics-timing').children[0].textContent,
@@ -2475,7 +2473,7 @@ test('a missing or invalid stored reading language falls back to the device loca
 test('a saved practice still opens in its own reading language and keeps the stored choice', async () => {
   const storage = memoryStorage();
   const first = await generatedPractice(storage);
-  first.element('pronunciation-save').click();
+  first.element('save-practice').click();
   storage.setItem(targetKey, 'en');
   const second = await reopenPronunciation(storage);
   assert.equal(second.element('pronunciation-target').value, 'ko');
@@ -2511,7 +2509,7 @@ test('timestamp-like and markup-like edits stay literal and never enter the LRC 
   f.element('pronunciation-edit-text').value =
     '[99:59.99]<script>wrong()</script>';
   f.element('pronunciation-edit-text').input();
-  f.element('pronunciation-save').click();
+  f.element('save-practice').click();
   const next = await reopenPronunciation(storage);
   assert.equal(
     vm.runInContext('JSON.stringify(lyricLines)', next.context),
@@ -2957,7 +2955,7 @@ test('opening a video link is a secondary action beside the primary song search'
 test('saving a reopened practice does not report its saved 음차 as unsaved', async () => {
   const storage = memoryStorage();
   const first = await generatedPractice(storage);
-  first.element('pronunciation-save').click();
+  first.element('save-practice').click();
   const f = await reopenPronunciation(storage);
   assert.match(
     f.element('lyrics-timing').children[0].textContent,
@@ -2970,7 +2968,7 @@ test('saving a reopened practice does not report its saved 음차 as unsaved', a
   assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
 });
 
-test('saving the practice still says 음차 is unsaved while a 음차 edit is invalid', async () => {
+test('saving the practice says 음차 was not saved while a 음차 edit is invalid', async () => {
   const f = await generatedPractice(memoryStorage());
   f.element('pronunciation-edit-line').value = 'line-0';
   f.element('pronunciation-edit-line').change();
@@ -2978,19 +2976,21 @@ test('saving the practice still says 음차 is unsaved while a 음차 edit is in
   f.element('pronunciation-edit-text').input();
   assert.equal(f.element('save-practice').disabled, false);
   f.element('save-practice').click();
-  assert.match(f.element('save-status').textContent, /저장했어요/);
-  assert.match(f.element('save-status').textContent, /음차 저장/);
+  assert.match(f.element('save-status').textContent, /싱크를 저장했어요/);
+  assert.match(
+    f.element('save-status').textContent,
+    /음차는 저장하지 않았어요/,
+  );
 });
 
-test('saving the practice says when generated 음차 is not saved yet', async () => {
+test('saving the practice says when its generated 음차 was saved with it', async () => {
   const f = await generatedPractice(memoryStorage());
   f.element('save-practice').click();
-  assert.match(f.element('save-status').textContent, /음차 저장/);
-  f.element('pronunciation-save').click();
-  f.element('lyrics-later').click();
-  f.element('save-practice').click();
-  assert.match(f.element('save-status').textContent, /저장했어요/);
-  assert.doesNotMatch(f.element('save-status').textContent, /음차 저장/);
+  assert.match(
+    f.element('save-status').textContent,
+    /싱크와 음차를 저장했어요/,
+  );
+  assert.doesNotMatch(f.element('save-status').textContent, /음차 저장을/);
 });
 
 test('taps on controls never start a text selection, while lyrics and form fields stay selectable', () => {
@@ -3337,4 +3337,250 @@ test('a very long title keeps the shared message within the bridge limit', async
   f.element('share-practice').click();
   assert.ok(sent[0].length <= 2000, String(sent[0].length));
   assert.equal(sent[0].split('\n').length, 3);
+});
+
+// One practice save, and timing kept without reopening settings: docs/specs/2026-10-01-single-practice-save.md (#76).
+const practiceKey = 'singbridge.practice.v1';
+const savedItems = (storage) => JSON.parse(storage.getItem(practiceKey)).items;
+
+test('one save button keeps the practice, and its pronunciation when one exists', async () => {
+  const plain = fixture(() => response());
+  plain.ready();
+  await plain.search();
+  plain.select();
+  plain.element('save-practice').click();
+  assert.match(
+    plain.element('save-status').textContent,
+    /영상·가사 선택·싱크를 저장했어요/,
+  );
+
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage);
+  assert.equal(f.element('save-practice').textContent, '이 연습 저장');
+  f.element('save-practice').click();
+  const [saved] = savedItems(storage);
+  assert.equal(saved.pronunciationTarget, 'ko');
+  assert.equal(saved.pronunciations.ko.lines.length, 2);
+  assert.match(f.element('save-status').textContent, /음차를 저장했어요/);
+  assert.equal(f.element('save-practice').textContent, '저장됨');
+  assert.equal(f.element('save-practice').disabled, true);
+});
+
+test('a reopened practice with its pronunciation reads 저장됨 until something changes', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('save-practice').click();
+  const second = await reopenPronunciation(storage);
+  assert.equal(second.element('save-practice').textContent, '저장됨');
+  assert.equal(second.element('save-practice').disabled, true);
+  // A pronunciation edit alone is a change to save.
+  second.element('pronunciation-edit-line').value = 'line-0';
+  second.element('pronunciation-edit-line').change();
+  second.element('pronunciation-edit-text').value = '고친 발음';
+  second.element('pronunciation-edit-text').input();
+  assert.equal(second.element('save-practice').textContent, '변경 내용 저장');
+  assert.equal(second.element('save-practice').disabled, false);
+  second.element('save-practice').click();
+  assert.equal(
+    savedItems(storage)[0].pronunciations.ko.edits['line-0'],
+    '고친 발음',
+  );
+});
+
+test('an invalid pronunciation edit saves the practice but not the pronunciation', async () => {
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage);
+  f.element('pronunciation-edit-line').value = 'line-0';
+  f.element('pronunciation-edit-line').change();
+  f.element('pronunciation-edit-text').value = '줄\n바꿈';
+  f.element('pronunciation-edit-text').input();
+  f.element('save-practice').click();
+  const [saved] = savedItems(storage);
+  assert.equal(saved.pronunciations, undefined);
+  assert.match(
+    f.element('save-status').textContent,
+    /음차는 저장하지 않았어요/,
+  );
+});
+
+test('the timing save status stays visible when short screens hide the sync caption', () => {
+  assert.match(html, /#lyrics-sync p:not\(#sync-status\) \{ display: none; \}/);
+  assert.doesNotMatch(html, /#lyrics-sync p \{ display: none; \}/);
+  assert.match(
+    lyricsHtml,
+    /<p id="sync-status" role="status" aria-live="polite"><\/p>/,
+  );
+});
+
+test('the pronunciation save button is gone', async () => {
+  const f = await generatedPractice();
+  assert.doesNotMatch(
+    html + lyricsHtml + pronunciationHtml,
+    /id="pronunciation-save"/,
+  );
+  assert.equal(f.element('save-practice').disabled, false);
+});
+
+test('a practice opened from 저장한 연습 keeps timing changes without opening settings', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('save-practice').click();
+  const second = await reopenPronunciation(storage);
+  second.element('lyrics-later').click();
+  assert.equal(savedItems(storage)[0].offset, 0.5);
+  assert.equal(second.element('sync-status').textContent, '싱크를 저장했어요.');
+  // The automatic write keeps the pronunciation layer and adds nothing.
+  assert.equal(savedItems(storage).length, 1);
+  assert.equal(savedItems(storage)[0].pronunciations.ko.lines.length, 2);
+  second.element('lyrics-offset').value = '-2';
+  second.element('lyrics-offset').change();
+  assert.equal(savedItems(storage)[0].offset, -2);
+  second.element('lyrics-reset').click();
+  assert.equal(savedItems(storage)[0].offset, 0);
+});
+
+test('a practice saved after it was opened keeps later timing changes', async () => {
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage);
+  f.element('lyrics-later').click();
+  assert.equal(
+    storage.getItem(practiceKey),
+    null,
+    'an unsaved practice is not saved automatically',
+  );
+  assert.equal(f.element('sync-status').textContent, '');
+  f.element('save-practice').click();
+  f.element('lyrics-later').click();
+  assert.equal(savedItems(storage)[0].offset, 1);
+});
+
+test('a searched or shared practice whose pair is already saved does not replace the saved offset', async () => {
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage);
+  for (let i = 0; i < 6; i++) f.element('lyrics-later').click();
+  f.element('save-practice').click();
+  assert.equal(savedItems(storage)[0].offset, 3);
+  // Choosing the same record again through search starts at 0.
+  f.select();
+  f.element('lyrics-later').click();
+  assert.equal(savedItems(storage)[0].offset, 3);
+
+  const receiver = sharedReceiver(sharedRespond, storage);
+  await openShared(receiver, sharedMessage);
+  receiver.element('lyrics-later').click();
+  assert.equal(savedItems(storage)[0].offset, 3);
+  assert.equal(receiver.element('sync-status').textContent, '');
+});
+
+test('a deleted practice is not recreated by a timing change', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('save-practice').click();
+  const second = await reopenPronunciation(storage);
+  second.element('saved-practices').children[0].children[1].click();
+  assert.deepEqual(savedItems(storage), []);
+  second.element('lyrics-later').click();
+  assert.deepEqual(savedItems(storage), []);
+});
+
+test('a storage error on a timing save is reported and the offset stays applied', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('save-practice').click();
+  const second = await reopenPronunciation(storage);
+  storage.setItem = () => {
+    throw new Error('QuotaExceededError');
+  };
+  second.element('lyrics-later').click();
+  assert.equal(vm.runInContext('lyricAdjustment', second.context), 0.5);
+  assert.equal(savedItems(storage)[0].offset, 0);
+  assert.match(
+    second.element('sync-status').textContent,
+    /싱크를 저장하지 못했어요/,
+  );
+});
+
+test('a pronunciation layer that storage cannot hold does not block the practice save', async () => {
+  // A layer whose source has more rows than storage accepts is left out, and the practice is still saved.
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage);
+  vm.runInContext('validStoredPronunciation = () => false', f.context);
+  f.element('save-practice').click();
+  const [saved] = savedItems(storage);
+  assert.equal(saved.videoId, 'M7lc1UVf-VE');
+  assert.equal(saved.pronunciations, undefined);
+  assert.match(
+    f.element('save-status').textContent,
+    /음차는 저장하지 않았어요/,
+  );
+});
+
+test('switching to the other saved reading language is a change to save', async () => {
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage, 'ja');
+  f.element('save-practice').click();
+  f.element('pronunciation-target').value = 'en';
+  f.element('pronunciation-target').change();
+  const sent = [];
+  f.window.webkit = {
+    messageHandlers: { pronunciation: { postMessage: (m) => sent.push(m) } },
+  };
+  const pending = f.element('pronunciation-generate').click();
+  f.window.singBridgePronunciationResult({
+    id: sent[0].id,
+    result: {
+      target: 'en',
+      lines: sent[0].request.lines.map((line) => ({
+        id: line.id,
+        segments: [
+          {
+            source: line.text,
+            language: 'ja',
+            reading: null,
+            pronunciation: 'test reading',
+            needsReview: false,
+          },
+        ],
+      })),
+    },
+  });
+  await pending;
+  f.element('save-practice').click();
+  assert.equal(savedItems(storage)[0].pronunciationTarget, 'en');
+  assert.deepEqual(Object.keys(savedItems(storage)[0].pronunciations).sort(), [
+    'en',
+    'ko',
+  ]);
+  f.element('pronunciation-target').value = 'ko';
+  f.element('pronunciation-target').change();
+  assert.equal(f.element('save-practice').textContent, '변경 내용 저장');
+  f.element('save-practice').click();
+  assert.equal(savedItems(storage)[0].pronunciationTarget, 'ko');
+  assert.equal(f.element('save-practice').textContent, '저장됨');
+});
+
+test('a practice restored after a failed new song keeps its automatic timing saves', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('save-practice').click();
+  const f = fixture(
+    (url) =>
+      new URL(url).hostname === 'www.googleapis.com'
+        ? youtubeResponse()
+        : response(record),
+    'fixture-key',
+    storage,
+  );
+  f.window.onYouTubeIframeAPIReady();
+  f.visibility(1);
+  f.element('saved-practices').children[0].children[0].click();
+  f.players[0].options.events.onReady();
+  await vm.runInContext('lyricFinished', f.context);
+  await f.song();
+  f.players.at(-1).options.events.onError({ data: 150 });
+  assert.equal(f.players.at(-1).options.videoId, 'M7lc1UVf-VE');
+  f.players.at(-1).options.events.onReady();
+  f.element('lyrics-later').click();
+  assert.equal(savedItems(storage)[0].offset, 0.5);
+  assert.equal(f.element('sync-status').textContent, '싱크를 저장했어요.');
 });

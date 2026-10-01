@@ -48,12 +48,29 @@ internal fun youtubeLibraryHtml(): String = """
         const raw = JSON.stringify({ version: 1, items: next });
         if (raw.length > 2097152 || !next.every(validSavedEntry)) throw new Error('Storage too large or invalid');
         localStorage.setItem(savedKey, raw);
-        savedPractices = next; renderSavedPractices(); return true;
+        savedPractices = next; renderSavedPractices(); updatePronunciationSaveState(); return true;
       } catch (_) { return false; }
+    }
+    // The current layer as it would be saved, or null when there is none or it cannot be saved: an invalid edit has no
+    // snapshot, and storage rejects some generated layers, such as one whose source has more rows than it holds (#76).
+    function storablePronunciation() {
+      const snapshot = pronunciationResults.size ? pronunciationSnapshot() : null;
+      return snapshot && validStoredPronunciation(snapshot, snapshot.target) ? snapshot : null;
+    }
+    // Whether the current target has a savable layer that differs from the saved entry, including a switch to another
+    // saved target. It is computed when the pronunciation or the library changes, not in updateSaveControl, which runs
+    // on every playback tick.
+    let pronunciationUnsaved = false;
+    function updatePronunciationSaveState() {
+      const selected = savedPractices.find(entry => entry.videoId === activeVideoId && entry.lyricId === selectedLyricRecord?.id);
+      const current = storablePronunciation();
+      pronunciationUnsaved = !!current && (selected?.pronunciationTarget !== current.target ||
+        JSON.stringify(current) !== JSON.stringify(selected?.pronunciations?.[current.target]));
+      updateSaveControl();
     }
     function updateSaveControl() {
       const selected = savedPractices.find(entry => entry.videoId === activeVideoId && entry.lyricId === selectedLyricRecord?.id);
-      const unchanged = selected && selected.offset === lyricAdjustment;
+      const unchanged = selected && selected.offset === lyricAdjustment && !pronunciationUnsaved;
       saveButton.disabled = !ready || !activeVideoId || !selectedLyricRecord || !!unchanged || pronunciationBusy;
       saveButton.textContent = unchanged ? '저장됨' : selected ? '변경 내용 저장' : '이 연습 저장';
       updateShareControl();
@@ -106,10 +123,12 @@ internal fun youtubeLibraryHtml(): String = """
       }
       return codes.size === 1 ? [...codes.values()][0] : { invalid: true };
     }
-    function saveCurrentPractice(includePronunciation = false) {
+    // One save keeps the practice and, when a generated layer has only valid edits, that layer too (#76).
+    function saveCurrentPractice() {
       if (!ready || !activeVideoId || !selectedLyricRecord || pronunciationBusy) return false;
-      const draft = includePronunciation ? pronunciationSnapshot() : null;
-      if (includePronunciation && !draft) return false;
+      const draft = storablePronunciation();
+      // A layer that cannot be saved stays unsaved while the practice is saved.
+      const skipped = pronunciationResults.size > 0 && !draft;
       const entry = { videoId: activeVideoId, lyricId: selectedLyricRecord.id,
         title: practiceTitle(selectedLyricRecord).slice(0, 1000), offset: lyricAdjustment };
       const previous = savedPractices.find(item => item.videoId === entry.videoId && item.lyricId === entry.lyricId);
@@ -119,18 +138,26 @@ internal fun youtubeLibraryHtml(): String = """
       if (!validSavedEntry(entry)) { saveStatus.textContent = '이 연습을 저장하지 못했어요.'; return false; }
       const remaining = savedPractices.filter(item => item.videoId !== entry.videoId || item.lyricId !== entry.lyricId);
       if (remaining.length >= 20) { saveStatus.textContent = '최대 20개까지 저장할 수 있어요. 노래 찾기에서 저장한 연습을 삭제해 주세요.'; return false; }
-      // An invalid edit has no snapshot, but the generated layer and the edit are still unsaved.
-      const current = !includePronunciation && pronunciationResults.size ? pronunciationSnapshot() : null;
-      const unsaved = !includePronunciation && pronunciationResults.size > 0 &&
-        (!current || JSON.stringify(current) !== JSON.stringify(entry.pronunciations?.[current.target]));
       const saved = writeSavedPractices([entry, ...remaining]);
+      if (saved) timingSaveKey = entry.videoId + ':' + entry.lyricId;
       saveStatus.textContent = saved
-        ? '영상·가사 선택·싱크를 저장했어요. 노래 찾기에서 다시 열 수 있어요.' +
-          (unsaved ? ' 만든 음차는 음차 저장을 눌러야 저장돼요.' : '')
+        ? (draft ? '영상·가사 선택·싱크와 음차를 저장했어요.' : '영상·가사 선택·싱크를 저장했어요.') + ' 노래 찾기에서 다시 열 수 있어요.' +
+          (skipped ? ' 음차에 저장할 수 없는 내용이 있어 음차는 저장하지 않았어요.' : '')
         : '저장하지 못했어요. 저장 공간이나 기기 설정을 확인해 주세요.';
       updateSaveControl(); return saved;
     }
     saveButton.addEventListener('click', function() { saveCurrentPractice(); });
+    // Writes only the offset of the entry this practice was opened from or saved as; it never adds or recreates one (#76).
+    function saveTiming() {
+      const status = document.getElementById('sync-status'); status.textContent = '';
+      const key = activeVideoId + ':' + selectedLyricRecord?.id;
+      if (!selectedLyricRecord || timingSaveKey !== key) return;
+      const index = savedPractices.findIndex(entry => entry.videoId + ':' + entry.lyricId === key);
+      if (index < 0 || savedPractices[index].offset === lyricAdjustment) return;
+      const next = savedPractices.map((entry, i) => i === index ? { ...entry, offset: lyricAdjustment } : entry);
+      status.textContent = writeSavedPractices(next) ? '싱크를 저장했어요.' : '싱크를 저장하지 못했어요. 가사·설정에서 다시 저장해 주세요.';
+      updateSaveControl();
+    }
     function renderSavedPractices() {
       const list = document.getElementById('saved-practices'); list.replaceChildren();
       if (storageReadable) savedStatus.textContent = savedPractices.length ? '' : '아직 저장한 연습이 없어요.';

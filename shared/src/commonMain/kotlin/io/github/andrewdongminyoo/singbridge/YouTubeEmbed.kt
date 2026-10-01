@@ -81,9 +81,12 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         #lyrics-sync { border-top: 1px solid var(--control-border); }
         #lyrics-sync summary { min-height: 44px; padding: 12px 4px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
         #lyrics-sync p { margin: 0 0 8px; color: var(--control-muted); font-size: 0.75rem; }
+        #sync-status { margin-top: 8px; }
+        #sync-status:empty { display: none; }
         @media (max-width: 599px) and (max-height: 620px) {
           .practice-controls:has(#lyrics-sync[open]) > .control-row { display: none; }
-          #lyrics-sync p { display: none; }
+          /* The caption hides on short screens; the timing save result stays visible. */
+          #lyrics-sync p:not(#sync-status) { display: none; }
         }
         .practice-controls button { min-width: 0; padding: 8px 4px; font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
         .transport-controls button { background: var(--control-tint); }
@@ -237,7 +240,8 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null, videoLabel = '노래 연습', saved = null) {
           if (lyricQuery && !pendingRecovery && ready && activeVideoId) pendingRecovery = {
             id: activeVideoId, record: selectedLyricRecord, adjustment: lyricAdjustment,
-            query: lyricsQuery.value, position: player.getCurrentTime(), label: songResult.textContent
+            query: lyricsQuery.value, position: player.getCurrentTime(), label: songResult.textContent,
+            timingSaveKey
           };
           if (!lyricQuery) pendingRecovery = restoration;
           let fallback = lyricQuery ? pendingRecovery : null;
@@ -270,6 +274,8 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
                     chooseLyrics(restoration.record, current);
                     lyricAdjustment = restoration.adjustment;
                     lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
+                    // A restored practice keeps automatic timing saves only if it had them before (#76).
+                    timingSaveKey = restoration.timingSaveKey ?? null;
                   }
                 }
                 if (saved && !lyricsStarted) {
