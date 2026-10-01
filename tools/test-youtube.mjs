@@ -644,6 +644,12 @@ const youtubeResponse = () =>
       },
     ],
   });
+// Answers the age-rating lookup (#70) at once with no ratings, so tests about search order and restoration
+// control only the search responses.
+const withoutRatings = (respond) => (url, options) =>
+  new URL(url).pathname === '/youtube/v3/videos'
+    ? response({ items: [] })
+    : respond(url, options);
 
 test('song search opens the top embeddable video and hands original terms to lyrics once ready', async () => {
   const f = fixture((url) =>
@@ -654,7 +660,8 @@ test('song search opens the top embeddable video and hands original terms to lyr
   f.window.onYouTubeIframeAPIReady();
   f.visibility(1);
   await f.song('G-Dragon - A Song - Live');
-  assert.equal(f.requests.length, 1);
+  // A search reads up to five candidates, then one videos.list call reads their age ratings (#70).
+  assert.equal(f.requests.length, 2);
   const request = f.requests[0],
     query = new URL(request.url).searchParams;
   assert.equal(query.get('q'), 'G-Dragon A Song - Live');
@@ -664,23 +671,119 @@ test('song search opens the top embeddable video and hands original terms to lyr
     order: 'relevance',
     videoEmbeddable: 'true',
     videoSyndicated: 'true',
-    maxResults: '1',
+    maxResults: '5',
   }))
     assert.equal(query.get(name), value);
   assert.equal(request.options.headers['X-Goog-Api-Key'], 'fixture-key');
   assert.equal(query.has('key'), false);
+  const ratings = new URL(f.requests[1].url);
+  assert.equal(ratings.pathname, '/youtube/v3/videos');
+  assert.equal(ratings.searchParams.get('part'), 'contentDetails');
+  assert.equal(ratings.searchParams.get('id'), '7HgJIAUtICU');
+  assert.equal(ratings.searchParams.has('key'), false);
+  assert.equal(f.requests[1].options.headers['X-Goog-Api-Key'], 'fixture-key');
   assert.equal(f.players[0].options.videoId, '7HgJIAUtICU');
   assert.equal(f.players[0].options.playerVars.autoplay, 0);
   assert.match(f.element('song-result').textContent, /<Song>.*Official artist/);
   f.players[0].options.events.onReady();
   f.players[0].options.events.onReady();
   await new Promise((resolve) => setImmediate(resolve));
-  assert.equal(f.requests.length, 2);
+  assert.equal(f.requests.length, 3);
   assert.equal(
-    new URL(f.requests[1].url).searchParams.get('q'),
+    new URL(f.requests[2].url).searchParams.get('q'),
     'G-Dragon A Song - Live',
   );
-  assert.equal(f.requests[1].options.headers['X-Goog-Api-Key'], undefined);
+  assert.equal(f.requests[2].options.headers['X-Goog-Api-Key'], undefined);
+});
+
+// Age-restricted results are skipped (#70): x8VYWazR5mE was the first result for YOASOBI 夜に駆ける and the player refused it.
+const candidates = (...ids) =>
+  response({
+    items: ids.map((id) => ({
+      id: { videoId: id },
+      snippet: { title: 'Title ' + id, channelTitle: 'Channel' },
+    })),
+  });
+const ratingsFor = (restricted) => (url) =>
+  response({
+    items: new URL(url).searchParams
+      .get('id')
+      .split(',')
+      .map((id) => ({
+        id,
+        contentDetails: {
+          contentRating: restricted.includes(id)
+            ? { ytRating: 'ytAgeRestricted' }
+            : {},
+        },
+      })),
+  });
+function songFixture(search, ratings) {
+  const f = fixture((url, options) => {
+    const { hostname, pathname } = new URL(url);
+    if (hostname !== 'www.googleapis.com') return response();
+    return pathname === '/youtube/v3/videos' ? ratings(url, options) : search;
+  });
+  f.window.onYouTubeIframeAPIReady();
+  f.visibility(1);
+  return f;
+}
+
+test('an age-restricted first result is skipped for the next playable video', async () => {
+  const f = songFixture(
+    candidates('x8VYWazR5mE', 'by4SYYWlhEs', 'M7lc1UVf-VE'),
+    ratingsFor(['x8VYWazR5mE']),
+  );
+  await f.song('YOASOBI - 夜に駆ける');
+  assert.equal(
+    new URL(f.requests[1].url).searchParams.get('id'),
+    'x8VYWazR5mE,by4SYYWlhEs,M7lc1UVf-VE',
+  );
+  assert.equal(f.players.length, 1);
+  assert.equal(f.players[0].options.videoId, 'by4SYYWlhEs');
+  assert.match(f.element('song-result').textContent, /Title by4SYYWlhEs/);
+});
+
+test('a search whose results are all age-restricted opens nothing', async () => {
+  const f = songFixture(
+    candidates('x8VYWazR5mE', 'by4SYYWlhEs'),
+    ratingsFor(['x8VYWazR5mE', 'by4SYYWlhEs']),
+  );
+  await f.song('YOASOBI - 夜に駆ける');
+  assert.equal(f.players.length, 0);
+  assert.match(
+    f.element('song-status').textContent,
+    /재생할 수 있는 영상을 찾지 못했어요/,
+  );
+});
+
+test('a failed age-rating request still opens the first result', async () => {
+  const f = songFixture(candidates('x8VYWazR5mE', 'by4SYYWlhEs'), () => {
+    return new Response('', { status: 500 });
+  });
+  await f.song('YOASOBI - 夜に駆ける');
+  assert.equal(f.players.length, 1);
+  assert.equal(f.players[0].options.videoId, 'x8VYWazR5mE');
+});
+
+test('a search that times out during the age-rating lookup says so and opens nothing', async () => {
+  const f = songFixture(
+    candidates('x8VYWazR5mE', 'by4SYYWlhEs'),
+    (_url, options) =>
+      new Promise((_, reject) =>
+        options.signal.addEventListener('abort', () =>
+          reject(new Error('aborted')),
+        ),
+      ),
+  );
+  const pending = f.song('YOASOBI - 夜に駆ける');
+  while (f.requests.length < 2)
+    await new Promise((resolve) => setImmediate(resolve));
+  f.timeouts.at(-1)();
+  await pending;
+  assert.equal(f.players.length, 0);
+  assert.match(f.element('song-status').textContent, /검색 시간이 초과됐어요/);
+  assert.equal(f.element('song-search-button').disabled, false);
 });
 
 test('missing configuration, API readiness, or artist/title does not issue a song request', async () => {
@@ -765,7 +868,9 @@ test('an ignored manual lyric request does not lose the pending request before s
 
 test('only the newest song search may replace the player', async () => {
   const completions = [];
-  const f = fixture(() => new Promise((resolve) => completions.push(resolve)));
+  const f = fixture(
+    withoutRatings(() => new Promise((resolve) => completions.push(resolve))),
+  );
   f.ready();
   const old = f.song('Artist - Old');
   const latest = f.song('Artist - New');
@@ -789,8 +894,10 @@ test('only the newest song search may replace the player', async () => {
 
 test('a newer search invalidates a previous video readiness lyric handoff', async () => {
   let count = 0;
-  const f = fixture(() =>
-    ++count === 1 ? youtubeResponse() : response({ items: [] }),
+  const f = fixture(
+    withoutRatings(() =>
+      ++count === 1 ? youtubeResponse() : response({ items: [] }),
+    ),
   );
   f.window.onYouTubeIframeAPIReady();
   await f.song();
@@ -798,7 +905,8 @@ test('a newer search invalidates a previous video readiness lyric handoff', asyn
   await f.song('Artist - Other');
   previous.options.events.onReady();
   await new Promise((resolve) => setImmediate(resolve));
-  assert.equal(f.requests.length, 2);
+  // Two searches and the first one's age-rating lookup; no lyric request.
+  assert.equal(f.requests.length, 3);
   assert.ok(
     f.requests.every((r) => new URL(r.url).hostname === 'www.googleapis.com'),
   );
@@ -879,7 +987,8 @@ test('searched player readiness timeout restores once and ignores late candidate
   candidate.options.events.onError({ data: 150 });
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(f.players.length, 3);
-  assert.equal(f.requests.length, 1);
+  // The search and its age-rating lookup; no lyric request.
+  assert.equal(f.requests.length, 2);
 });
 
 test('errors after successful playback do not revert a deliberately played video', async () => {
@@ -1229,12 +1338,14 @@ test('chained loading candidates retain the last usable practice snapshot', asyn
 test('background candidate restoration preserves discovery and a newer search', async () => {
   let hold = false,
     resolve;
-  const f = fixture(() =>
-    hold
-      ? new Promise((r) => {
-          resolve = r;
-        })
-      : youtubeResponse(),
+  const f = fixture(
+    withoutRatings(() =>
+      hold
+        ? new Promise((r) => {
+            resolve = r;
+          })
+        : youtubeResponse(),
+    ),
   );
   f.ready();
   await f.song();

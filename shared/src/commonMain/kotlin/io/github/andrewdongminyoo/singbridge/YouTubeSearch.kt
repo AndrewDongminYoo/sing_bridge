@@ -17,6 +17,22 @@ internal fun youtubeSearchHtml(): String = """
     let searchSequence = 0, songRequest = null, songRetryAt = 0;
     if (!youtubeApiKey) songStatus.textContent = '이 빌드에서는 노래 검색을 사용할 수 없어요. 아래에 영상 링크를 입력해 주세요.';
 
+    // The embedded player refuses age-restricted videos, and search filters cannot exclude them (#70). One videos.list
+    // call costs 1 unit of the shared daily quota, while search.list has its own bucket of 100 calls a day. Only videos
+    // rated ytAgeRestricted are skipped; if the ratings cannot be read, the results are used as they are.
+    async function ageRestrictedVideos(ids, signal) {
+      try {
+        const url = new URL('https://www.googleapis.com/youtube/v3/videos');
+        for (const [name, value] of Object.entries({ part: 'contentDetails', id: ids.join(','), maxResults: String(ids.length) })) url.searchParams.set(name, value);
+        const response = await fetch(url.toString(), { headers: { 'X-Goog-Api-Key': youtubeApiKey }, credentials: 'omit', redirect: 'error', signal });
+        if (!response.ok) return new Set();
+        const data = await readBoundedJson(response);
+        if (!Array.isArray(data?.items)) return new Set();
+        return new Set(data.items.filter(video => ids.includes(video?.id) &&
+          video?.contentDetails?.contentRating?.ytRating === 'ytAgeRestricted').map(video => video.id));
+      } catch (_) { return new Set(); }
+    }
+
     function cancelSongSearch() {
       searchSequence++;
       if (songRequest) songRequest.abort();
@@ -42,7 +58,7 @@ internal fun youtubeSearchHtml(): String = """
       const timeout = setTimeout(() => controller.abort(), 15000);
       try {
         const url = new URL('https://www.googleapis.com/youtube/v3/search');
-        for (const [name, value] of Object.entries({ part: 'snippet', type: 'video', order: 'relevance', videoEmbeddable: 'true', videoSyndicated: 'true', maxResults: '1', q: query })) url.searchParams.set(name, value);
+        for (const [name, value] of Object.entries({ part: 'snippet', type: 'video', order: 'relevance', videoEmbeddable: 'true', videoSyndicated: 'true', maxResults: '5', q: query })) url.searchParams.set(name, value);
         const response = await fetch(url.toString(), { headers: { 'X-Goog-Api-Key': youtubeApiKey }, credentials: 'omit', redirect: 'error', signal: controller.signal });
         if (sequence !== searchSequence) return;
         if (response.status === 429) {
@@ -56,9 +72,16 @@ internal fun youtubeSearchHtml(): String = """
         const data = await readBoundedJson(response);
         if (sequence !== searchSequence || controller.signal.aborted) return;
         if (!Array.isArray(data?.items)) throw new Error('Invalid search response');
-        if (!data.items.length) { songStatus.textContent = '재생할 수 있는 영상을 찾지 못했어요. 검색어를 바꾸거나 영상 링크로 열어 주세요.'; return; }
-        const item = data.items[0];
-        if (!/^[A-Za-z0-9_-]{11}$/.test(item?.id?.videoId || '') || typeof item?.snippet?.title !== 'string' || typeof item?.snippet?.channelTitle !== 'string') throw new Error('Invalid video');
+        const noResult = '재생할 수 있는 영상을 찾지 못했어요. 검색어를 바꾸거나 영상 링크로 열어 주세요.';
+        if (!data.items.length) { songStatus.textContent = noResult; return; }
+        const results = data.items.slice(0, 5);
+        if (!results.every(item => /^[A-Za-z0-9_-]{11}$/.test(item?.id?.videoId || '') && typeof item?.snippet?.title === 'string' && typeof item?.snippet?.channelTitle === 'string')) throw new Error('Invalid video');
+        const restricted = await ageRestrictedVideos(results.map(item => item.id.videoId), controller.signal);
+        if (sequence !== searchSequence) return;
+        // A timeout during the lookup ends the search with the timeout message below.
+        if (controller.signal.aborted) throw new Error('Timed out');
+        const item = results.find(item => !restricted.has(item.id.videoId));
+        if (!item) { songStatus.textContent = noResult; return; }
         const videoLabel = item.snippet.title.slice(0, 500) + ' · ' + item.snippet.channelTitle.slice(0, 500);
         songStatus.textContent = '가장 관련성 높은 영상을 열었어요. 다른 곡이면 검색어를 바꾸거나 링크로 열어 주세요.';
         input.value = 'https://www.youtube.com/watch?v=' + item.id.videoId;
