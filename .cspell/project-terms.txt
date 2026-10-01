@@ -3,6 +3,8 @@ allprojects
 anata
 andrewdongminyoo
 androidx
+anydpi
+appiconset
 APPL
 ARCHS
 arukou
@@ -25,7 +27,9 @@ dists
 Dongmin
 dongminyu
 doublearray
+drawables
 drawscope
+dumpsys
 exoplayer
 FEFF
 Firestore
@@ -34,7 +38,11 @@ gachi
 georeoyo
 gradlew
 halfwidth
+hotseat
 ICOT
+IDAT
+IEND
+IHDR
 imase
 INFOPLIST
 IPADIC
@@ -80,6 +88,7 @@ spotube
 SPYAIR
 SRCROOT
 sudachi
+supersample
 Tani
 temurin
 tensification
@@ -94,6 +103,7 @@ viewports
 Vocaloid
 watashi
 WWDC
+xcassets
 xcodegen
 xcodeproj
 xcrun
