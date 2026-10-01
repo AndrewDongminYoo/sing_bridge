@@ -14,6 +14,7 @@ import org.json.JSONObject
 internal class YouTubePlayerView(private val activity: ComponentActivity) : FrameLayout(activity) {
     private val webView: WebView
     private val pronunciation = PronunciationBridge()
+    private val share = ShareBridge(activity)
     private var active = false
     private val packageName = activity.packageName
 
@@ -29,6 +30,7 @@ internal class YouTubePlayerView(private val activity: ComponentActivity) : Fram
                     if (url != "https://$packageName/") return
                     val debug = activity.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
                     if (debug) pronunciation.attach(view, "https://$packageName")
+                    share.attach(view, "https://$packageName")
                     val locale = resources.configuration.locales[0].toLanguageTag()
                     view.evaluateJavascript(
                         "window.singBridgeConfigurePronunciation(${JSONObject.quote(locale)}, $debug)",
@@ -67,6 +69,7 @@ internal class YouTubePlayerView(private val activity: ComponentActivity) : Fram
 
     fun release() {
         pronunciation.close()
+        share.close()
         webView.stopLoading()
         webView.loadUrl("about:blank")
         webView.removeAllViews()

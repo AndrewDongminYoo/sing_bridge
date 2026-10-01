@@ -26,6 +26,8 @@ private struct YouTubeWebView: UIViewRepresentable {
         #if DEBUG && targetEnvironment(simulator)
         configuration.userContentController.add(context.coordinator.pronunciation, name: "pronunciation")
         #endif
+        // Sharing needs no development server, so it is registered in every build.
+        configuration.userContentController.add(context.coordinator.share, name: "share")
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
         let appId = Bundle.main.bundleIdentifier!
@@ -44,6 +46,7 @@ private struct YouTubeWebView: UIViewRepresentable {
     static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
         coordinator.pronunciation.close()
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "pronunciation")
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "share")
         webView.pauseAllMediaPlayback()
         webView.setAllMediaPlaybackSuspended(true)
         webView.stopLoading()
@@ -53,6 +56,7 @@ private struct YouTubeWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         let pronunciation = PronunciationBridge()
+        let share = ShareBridge()
         var active = false
 
         func updatePlayback(_ webView: WKWebView) {
