@@ -9,7 +9,8 @@ Issue: #76.
 
 - The new page tests failed first: 7 of 9 failed against `main` (the two that guard a saved offset from a shared or searched practice and from a deleted entry passed, as they assert behavior that already held), then all passed with the change.
 - Tests written against the old contract were updated and are listed in the PR: clicks on the removed **음차 저장** became **이 연습 저장**, and the tests that asserted the old hint, the reference-only save, and the timing save that waited for a button now assert the new behavior.
-- `node --test tools/test-youtube.mjs server/pronunciation.test.mjs`: 172 tests pass.
+- A local Codex review then found three P2 cases; a test for each failed first and passes after the fix: a layer that storage rejects no longer blocks the practice save, a switch to the other saved reading language counts as a change, and a practice restored after a failed new song keeps its automatic timing saves.
+- `node --test tools/test-youtube.mjs server/pronunciation.test.mjs`: 175 tests pass.
 - `./gradlew :androidApp:assembleDebug :shared:jvmTest` passed.
 
 ## Emulator check
@@ -32,4 +33,4 @@ Pixel_10 emulator, this branch's debug APK installed over the app with `adb inst
 ## Not checked
 
 - iOS, which runs the same page script.
-- Restoring a practice after a failed new search (`pendingRecovery`): it does not keep automatic timing saves, and 변경 내용 저장 stays available instead.
+- The three cases fixed after the local Codex review (a layer that storage rejects, a switch to the other saved reading language, and a practice restored after a failed new song) are covered by page tests only; the emulator check above ran before those fixes.

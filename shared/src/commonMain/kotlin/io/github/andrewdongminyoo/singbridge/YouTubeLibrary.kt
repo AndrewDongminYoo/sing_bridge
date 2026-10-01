@@ -51,14 +51,21 @@ internal fun youtubeLibraryHtml(): String = """
         savedPractices = next; renderSavedPractices(); updatePronunciationSaveState(); return true;
       } catch (_) { return false; }
     }
-    // Whether the current target has a savable layer that differs from the saved entry (#76); an invalid edit has no
-    // snapshot and is not a savable change. It is computed when the pronunciation or the library changes, not in
-    // updateSaveControl, which runs on every playback tick.
+    // The current layer as it would be saved, or null when there is none or it cannot be saved: an invalid edit has no
+    // snapshot, and storage rejects some generated layers, such as one whose source has more rows than it holds (#76).
+    function storablePronunciation() {
+      const snapshot = pronunciationResults.size ? pronunciationSnapshot() : null;
+      return snapshot && validStoredPronunciation(snapshot, snapshot.target) ? snapshot : null;
+    }
+    // Whether the current target has a savable layer that differs from the saved entry, including a switch to another
+    // saved target. It is computed when the pronunciation or the library changes, not in updateSaveControl, which runs
+    // on every playback tick.
     let pronunciationUnsaved = false;
     function updatePronunciationSaveState() {
       const selected = savedPractices.find(entry => entry.videoId === activeVideoId && entry.lyricId === selectedLyricRecord?.id);
-      const current = pronunciationSnapshot();
-      pronunciationUnsaved = !!current && JSON.stringify(current) !== JSON.stringify(selected?.pronunciations?.[current.target]);
+      const current = storablePronunciation();
+      pronunciationUnsaved = !!current && (selected?.pronunciationTarget !== current.target ||
+        JSON.stringify(current) !== JSON.stringify(selected?.pronunciations?.[current.target]));
       updateSaveControl();
     }
     function updateSaveControl() {
@@ -119,8 +126,8 @@ internal fun youtubeLibraryHtml(): String = """
     // One save keeps the practice and, when a generated layer has only valid edits, that layer too (#76).
     function saveCurrentPractice() {
       if (!ready || !activeVideoId || !selectedLyricRecord || pronunciationBusy) return false;
-      const draft = pronunciationResults.size ? pronunciationSnapshot() : null;
-      // An invalid edit has no snapshot, so the layer and the edit stay unsaved while the practice is saved.
+      const draft = storablePronunciation();
+      // A layer that cannot be saved stays unsaved while the practice is saved.
       const skipped = pronunciationResults.size > 0 && !draft;
       const entry = { videoId: activeVideoId, lyricId: selectedLyricRecord.id,
         title: practiceTitle(selectedLyricRecord).slice(0, 1000), offset: lyricAdjustment };
@@ -135,7 +142,7 @@ internal fun youtubeLibraryHtml(): String = """
       if (saved) timingSaveKey = entry.videoId + ':' + entry.lyricId;
       saveStatus.textContent = saved
         ? (draft ? '영상·가사 선택·싱크와 음차를 저장했어요.' : '영상·가사 선택·싱크를 저장했어요.') + ' 노래 찾기에서 다시 열 수 있어요.' +
-          (skipped ? ' 수정한 음차에 저장할 수 없는 내용이 있어 음차는 저장하지 않았어요.' : '')
+          (skipped ? ' 음차에 저장할 수 없는 내용이 있어 음차는 저장하지 않았어요.' : '')
         : '저장하지 못했어요. 저장 공간이나 기기 설정을 확인해 주세요.';
       updateSaveControl(); return saved;
     }

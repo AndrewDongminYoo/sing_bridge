@@ -3499,3 +3499,88 @@ test('a storage error on a timing save is reported and the offset stays applied'
     /싱크를 저장하지 못했어요/,
   );
 });
+
+test('a pronunciation layer that storage cannot hold does not block the practice save', async () => {
+  // A layer whose source has more rows than storage accepts is left out, and the practice is still saved.
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage);
+  vm.runInContext('validStoredPronunciation = () => false', f.context);
+  f.element('save-practice').click();
+  const [saved] = savedItems(storage);
+  assert.equal(saved.videoId, 'M7lc1UVf-VE');
+  assert.equal(saved.pronunciations, undefined);
+  assert.match(
+    f.element('save-status').textContent,
+    /음차는 저장하지 않았어요/,
+  );
+});
+
+test('switching to the other saved reading language is a change to save', async () => {
+  const storage = memoryStorage();
+  const f = await generatedPractice(storage, 'ja');
+  f.element('save-practice').click();
+  f.element('pronunciation-target').value = 'en';
+  f.element('pronunciation-target').change();
+  const sent = [];
+  f.window.webkit = {
+    messageHandlers: { pronunciation: { postMessage: (m) => sent.push(m) } },
+  };
+  const pending = f.element('pronunciation-generate').click();
+  f.window.singBridgePronunciationResult({
+    id: sent[0].id,
+    result: {
+      target: 'en',
+      lines: sent[0].request.lines.map((line) => ({
+        id: line.id,
+        segments: [
+          {
+            source: line.text,
+            language: 'ja',
+            reading: null,
+            pronunciation: 'test reading',
+            needsReview: false,
+          },
+        ],
+      })),
+    },
+  });
+  await pending;
+  f.element('save-practice').click();
+  assert.equal(savedItems(storage)[0].pronunciationTarget, 'en');
+  assert.deepEqual(Object.keys(savedItems(storage)[0].pronunciations).sort(), [
+    'en',
+    'ko',
+  ]);
+  f.element('pronunciation-target').value = 'ko';
+  f.element('pronunciation-target').change();
+  assert.equal(f.element('save-practice').textContent, '변경 내용 저장');
+  f.element('save-practice').click();
+  assert.equal(savedItems(storage)[0].pronunciationTarget, 'ko');
+  assert.equal(f.element('save-practice').textContent, '저장됨');
+});
+
+test('a practice restored after a failed new song keeps its automatic timing saves', async () => {
+  const storage = memoryStorage();
+  const first = await generatedPractice(storage);
+  first.element('save-practice').click();
+  const f = fixture(
+    (url) =>
+      new URL(url).hostname === 'www.googleapis.com'
+        ? youtubeResponse()
+        : response(record),
+    'fixture-key',
+    storage,
+  );
+  f.window.onYouTubeIframeAPIReady();
+  f.visibility(1);
+  f.element('saved-practices').children[0].children[0].click();
+  f.players[0].options.events.onReady();
+  await vm.runInContext('lyricFinished', f.context);
+  await f.song();
+  f.players.at(-1).options.events.onError({ data: 150 });
+  assert.equal(f.players.at(-1).options.videoId, 'M7lc1UVf-VE');
+  f.players.at(-1).options.events.onReady();
+  f.element('lyrics-later').click();
+  assert.equal(savedItems(storage)[0].offset, 0.5);
+  assert.equal(f.element('sync-status').textContent, '싱크를 저장했어요.');
+});

@@ -240,7 +240,8 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
         function openVideo(id, lyricQuery = null, searchVersion = searchSequence, restoration = null, videoLabel = '노래 연습', saved = null) {
           if (lyricQuery && !pendingRecovery && ready && activeVideoId) pendingRecovery = {
             id: activeVideoId, record: selectedLyricRecord, adjustment: lyricAdjustment,
-            query: lyricsQuery.value, position: player.getCurrentTime(), label: songResult.textContent
+            query: lyricsQuery.value, position: player.getCurrentTime(), label: songResult.textContent,
+            timingSaveKey
           };
           if (!lyricQuery) pendingRecovery = restoration;
           let fallback = lyricQuery ? pendingRecovery : null;
@@ -273,6 +274,8 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
                     chooseLyrics(restoration.record, current);
                     lyricAdjustment = restoration.adjustment;
                     lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
+                    // A restored practice keeps automatic timing saves only if it had them before (#76).
+                    timingSaveKey = restoration.timingSaveKey ?? null;
                   }
                 }
                 if (saved && !lyricsStarted) {
