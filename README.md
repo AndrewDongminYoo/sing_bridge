@@ -70,13 +70,13 @@ Lyrics stay in screen memory and are not saved in the imported-song library.
 Lyric candidates separate titles, artist/album metadata, script and sync badges, duration differences, and a two-line preview.
 Kana-bearing lyrics group Kana and Han characters under **일본어**; Han-only lyrics retain **한자**, and mixed Latin text stays visible.
 This is a display heuristic rather than language identification: Latin text can be English, romanized Japanese, or another language.
-Use **이 연습 저장** in lyric settings to save a video ID, chosen LRCLIB ID, title, and timing offset on this device.
+Use **이 연습 저장** in lyric settings to save a video ID, chosen LRCLIB ID, title, and timing offset on this device, together with the generated pronunciation and line edits for the current reading language.
 **저장한 연습** on discovery offers open and delete actions; up to 20 combinations are stored without automatic eviction.
-After changing a saved offset, use **변경 내용 저장** to update it.
+A practice opened from **저장한 연습**, or saved since it was opened, keeps each timing change at once and reports it under **가사 싱크 조절**; one opened from a share code or chosen again through search needs **이 연습 저장** first, so it cannot replace a saved offset.
 Reopening fetches the exact lyric ID and restores its offset without autoplay; internet access is required and changed or removed provider records can affect the result.
 No lyric body, credentials, playback position, or account data is stored by this feature.
 Invalid storage is preserved and reported; failed writes do not report success.
-See [saved practice scope](docs/specs/2026-09-28-saved-practice.md).
+See [saved practice scope](docs/specs/2026-09-28-saved-practice.md) and [one practice save](docs/specs/2026-10-01-single-practice-save.md).
 
 To open a practice someone shared, paste the whole received message into the **노래 찾기** link field and tap **영상 열기**.
 The message carries a code (`singbridge:1:<video ID>:<LRCLIB ID>:<offset in ms>`) and no lyrics; the app opens the video, fetches that lyric ID, and applies the offset, and nothing is saved until **이 연습 저장** is used.
@@ -302,8 +302,8 @@ The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction
 A pronunciation with no letter of the chosen script (Hangul for Korean, Latin letters for English) is dropped, and its phrase is shown as original text marked for review.
 Results are optional and may need correction for sung readings.
 A phrase the model marks for review keeps its pronunciation with a dotted underline, or its original text when the model gave none, and its row shows `음차 확인 필요`.
-Use **음차 저장** to save the current practice, generated pronunciation, and line edits on this device.
-The ordinary practice save button updates video, lyric selection, and timing only; it preserves previously saved pronunciation without storing unsaved generated text or edits.
+**이 연습 저장** saves the generated pronunciation and line edits with the practice; when an edit is invalid, it saves the practice without them and says so.
+Automatic timing saves never store pronunciation, and pronunciation saved for the other reading language is kept.
 Use **음차 수정** to edit one existing pronunciation line or restore its generated text; original lyrics and timestamps remain unchanged.
 Edits reject blank text, line breaks, control characters, and more than 2,000 characters per line or 30,000 edited characters overall.
 Saving is explicit; ending the app session or switching lyrics or target languages discards unsaved edits.

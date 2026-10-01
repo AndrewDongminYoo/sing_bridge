@@ -14,6 +14,7 @@ Keep the approved timed-scrolling behavior.
 - Separate candidate title, artist/album details, badges, duration difference, and two-line preview; omit percentage noise and duplicate album/title text.
 - Treat Latin letters as Latin, not as confirmed English or romanized Japanese.
 - Save through an explicit button in lyric settings; repeated saves of the same video and lyric ID update the existing entry.
+  Since #76, [one practice save](2026-10-01-single-practice-save.md) owns the save rules, including automatic timing saves.
 - Store only a versioned video ID, LRCLIB ID, display title, and offset in WebView local storage.
 - Offer open and remove actions in a saved-practice list on discovery.
 - Opening a saved entry cues the video without autoplay, fetches that exact LRCLIB ID, and applies the offset only after valid lyrics load.

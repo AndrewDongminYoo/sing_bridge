@@ -10,7 +10,6 @@ internal fun youtubePronunciationHtml(): String = """
     <p class="candidate-detail">선택한 가사를 서버와 OpenAI에 보내 음차를 만듭니다. 번역이 아니며, 노래에서 부르는 발음과 다를 수 있어요. 밑줄 친 구절은 음차 확인이 필요한 구절이에요. 만들어진 음차가 있으면 그 음차를, 없으면 원문을 보여 줘요.</p>
     <button id="pronunciation-generate" type="button" disabled>음차 만들기</button>
     <button id="pronunciation-toggle" type="button" aria-pressed="false" disabled>음차 숨기기</button>
-    <button id="pronunciation-save" type="button" disabled>음차 저장</button>
     <details id="pronunciation-editor" hidden>
     <summary>음차 수정</summary>
     <label for="pronunciation-edit-line">수정할 가사</label>
@@ -19,7 +18,7 @@ internal fun youtubePronunciationHtml(): String = """
     <label for="pronunciation-edit-text">내가 읽을 음차</label>
     <textarea id="pronunciation-edit-text" rows="3" maxlength="2000" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
     <button id="pronunciation-edit-reset" type="button">생성한 음차로 되돌리기</button>
-    <p class="candidate-detail">수정한 뒤 음차 저장을 눌러 주세요. 원문과 싱크는 바뀌지 않아요.</p>
+    <p class="candidate-detail">수정한 뒤 이 연습 저장을 눌러 주세요. 원문과 싱크는 바뀌지 않아요.</p>
     </details>
     <p id="pronunciation-status" role="status" aria-live="polite"></p>
     </section>
@@ -28,7 +27,6 @@ internal fun youtubePronunciationHtml(): String = """
     const pronunciationButton = document.getElementById('pronunciation-generate');
     const pronunciationToggle = document.getElementById('pronunciation-toggle');
     const pronunciationStatus = document.getElementById('pronunciation-status');
-    const pronunciationSave = document.getElementById('pronunciation-save');
     const pronunciationEditLine = document.getElementById('pronunciation-edit-line');
     const pronunciationEditText = document.getElementById('pronunciation-edit-text');
     let pronunciationEdits = {};
@@ -71,12 +69,12 @@ internal fun youtubePronunciationHtml(): String = """
     function updatePronunciationControl() {
       pronunciationButton.disabled = !pronunciationAvailable || !pronunciationTarget.value || !lyricLines.some(line => line.text) || pronunciationBusy || pronunciationResults.size === lyricLines.filter(line => line.text).length;
       pronunciationToggle.disabled = !pronunciationResults.size;
-      pronunciationSave.disabled = pronunciationBusy || !pronunciationResults.size || !validPronunciationEdits();
       document.getElementById('pronunciation-editor').hidden = !pronunciationResults.size;
       pronunciationEditLine.disabled = pronunciationBusy; pronunciationEditText.disabled = pronunciationBusy;
       document.getElementById('pronunciation-edit-reset').disabled = pronunciationBusy || !Object.hasOwn(pronunciationEdits, pronunciationEditLine.value);
       pronunciationToggle.textContent = pronunciationVisible ? '음차 숨기기' : '음차 보기';
       pronunciationToggle.setAttribute('aria-pressed', String(pronunciationVisible && pronunciationResults.size > 0));
+      updatePronunciationSaveState();
     }
     function resetPronunciation() {
       pronunciationVersion++;
@@ -257,10 +255,6 @@ internal fun youtubePronunciationHtml(): String = """
       pronunciationEdits[id] = pronunciationEditText.value;
       pronunciationStatus.textContent = validPronunciationEdits() ? '수정한 음차를 아직 저장하지 않았어요.' : '줄바꿈이나 제어문자 없이 1~2,000자로 입력해 주세요. 수정 문구는 전체 30,000자까지 저장할 수 있어요.';
       renderPronunciation(); updatePronunciationControl(); updateSaveControl();
-    });
-    pronunciationSave.addEventListener('click', function() {
-      if (pronunciationSave.disabled) return;
-      pronunciationStatus.textContent = saveCurrentPractice(true) ? '음차와 수정 내용을 이 기기에 저장했어요.' : '저장하지 못했어요. 저장 공간과 입력 내용을 확인해 주세요. 기존 저장본은 유지됩니다.';
     });
     pronunciationTarget.addEventListener('change', function() {
       try {

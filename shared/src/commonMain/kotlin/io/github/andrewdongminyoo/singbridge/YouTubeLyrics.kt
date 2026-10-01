@@ -28,6 +28,7 @@ internal fun youtubeLyricsHtml(): String = """
     <button id="lyrics-later" type="button" disabled>0.5초 늦게</button>
     <button id="lyrics-reset" type="button" disabled>초기화</button>
     </div>
+    <p id="sync-status" role="status" aria-live="polite"></p>
     </details>
     </footer>
     <dialog id="lyrics-panel" aria-labelledby="lyrics-panel-heading">
@@ -118,6 +119,9 @@ internal fun youtubeLyricsHtml(): String = """
     let lyricLines = [], lyricAdjustment = 0, lyricRequest = null, lyricBusy = false, lyricRetryAt = 0;
 
     let lyricFinished = Promise.resolve(), selectedLyricRecord = null;
+    // The saved entry ('videoId:lyricId') whose offset follows timing changes at once: set only when the practice was
+    // opened from 저장한 연습 or saved since it was opened, never for a shared or searched one (#76).
+    let timingSaveKey = null;
 
     function resetLyrics() {
       document.getElementById('lyrics-sync').open = false;
@@ -126,6 +130,7 @@ internal fun youtubeLyricsHtml(): String = """
       if (lyricRequest) lyricRequest.abort();
       resetPronunciation();
       selectedLyricRecord = null; lyricLines = []; renderTimedLyrics(); updatePronunciationControl(); lyricAdjustment = 0; lyricsOffset.value = '0'; lyricsOffset.disabled = true;
+      timingSaveKey = null; document.getElementById('sync-status').textContent = '';
       lyricCandidates = []; rankedDuration = 0;
       document.getElementById('lyrics-ranking').textContent = '';
       lyricsResults.replaceChildren();
@@ -255,7 +260,7 @@ internal fun youtubeLyricsHtml(): String = """
       if (!ready || !lyricLines.length) return;
       saveStatus.textContent = '';
       lyricAdjustment = Math.max(-600, Math.min(600, Number(value.toFixed(1))));
-      lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
+      lyricsOffset.value = String(lyricAdjustment); refreshLyrics(); saveTiming();
     }
     lyricsEarlier.addEventListener('click', () => adjustLyrics(lyricAdjustment - 0.5));
     lyricsLater.addEventListener('click', () => adjustLyrics(lyricAdjustment + 0.5));
@@ -269,7 +274,7 @@ internal fun youtubeLyricsHtml(): String = """
         return;
       }
       saveStatus.textContent = '';
-      lyricAdjustment = value; refreshLyrics();
+      lyricAdjustment = value; refreshLyrics(); saveTiming();
     });
 
     function chooseLyrics(record, videoGeneration) {
@@ -279,6 +284,7 @@ internal fun youtubeLyricsHtml(): String = """
         if (!lines.length && !record.plainLyrics) throw new Error('이 결과에는 표시할 가사가 없어요.');
         resetPronunciation();
         selectedLyricRecord = record; lyricLines = lines; lyricAdjustment = 0; lyricsOffset.value = '0';
+        timingSaveKey = null; document.getElementById('sync-status').textContent = '';
         renderTimedLyrics(); restorePronunciation();
         lyricsOffset.disabled = !lines.length;
         document.getElementById('lyrics-timing').hidden = !lines.length;
@@ -490,6 +496,7 @@ internal fun youtubeLyricsHtml(): String = """
           if (chooseLyrics(record, videoGeneration)) {
             lyricAdjustment = lyricLines.length ? saved.offset : 0;
             lyricsOffset.value = String(lyricAdjustment); refreshLyrics();
+            if (!saved.shared) timingSaveKey = activeVideoId + ':' + record.id;
             if (saved.shared) {
               // The fetched record, not the pasted message, names a shared practice.
               songResult.textContent = practiceTitle(record);
