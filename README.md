@@ -62,6 +62,7 @@ Playback requires the visible foreground player; targets at or beyond the video 
 See [tap playback verification](docs/notes/2026-09-28-lyric-tap-seek-verification.md) for automated checks and remaining native-device coverage.
 **가사 선택** or **가사·설정** opens a separate scrollable panel for lyric search, metadata, and precise timing entry.
 Opening that panel pauses playback; choosing lyrics, closing it, or pressing Escape does not resume automatically.
+After a song search, the panel opens on its own when the player is ready, so the lyric candidates appear without a tap; a direct link, a share code, or a saved practice leaves it closed ([fewer panel reopenings](docs/specs/2026-10-03-fewer-panel-reopenings.md)).
 In short landscape viewports, video and lyric controls sit side by side.
 Search and link inputs disable automatic correction.
 The player stays visible while scrolling through lyrics.
@@ -297,6 +298,7 @@ Source phrases can be Japanese, Korean, English, or Spanish; Spanish is experime
 The user's last **읽을 언어** choice is kept in WebView `localStorage` and used on later page loads; without one, the initial target follows the native preferred language, and other locales require an explicit choice.
 A saved practice still opens in the target it was saved with, without changing the kept choice.
 Tap **음차 만들기** to send the selected timed lyrics to the local server and OpenAI.
+When pronunciation is available, choosing a timed lyric candidate keeps the panel open with **음차 만들기** in view, unless a saved pronunciation already covers every line.
 The page sends batches of up to 12 lines and 3,000 characters, each with up to two non-blank neighbor lines on each side as read-only context; context lines are never returned or saved from that request.
 The server uses `gpt-5.4-mini-2026-03-17`, validates exact source reconstruction, and leaves original lyrics usable on failure.
 A pronunciation with no letter of the chosen script (Hangul for Korean, Latin letters for English) is dropped, and its phrase is shown as original text marked for review.
