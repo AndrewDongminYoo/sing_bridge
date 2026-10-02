@@ -287,6 +287,8 @@ internal fun buildYoutubeEmbedHtml(appId: String, apiKey: String): String {
                 }
                 if (lyricQuery && !lyricsStarted) {
                   lyricsStarted = true;
+                  // A song search goes straight to the lyric candidates unless the user moved on before the player was ready (#86).
+                  if (searchVersion === searchSequence && !practiceScreen.hidden && foreground && !document.hidden && !lyricsPanel.open) openLyricsPanel();
                   lyricFinished.then(function() {
                     if (current !== generation || searchVersion !== searchSequence || !ready) return;
                     lyricsQuery.value = lyricQuery;

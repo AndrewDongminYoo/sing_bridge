@@ -89,6 +89,12 @@ function fixture(
         this.scrolls.push(options);
         this.scrollTop = options.top;
       },
+      scrollIntoView(options) {
+        this.scrolledIntoView = options;
+      },
+      focus() {
+        document.activeElement = this;
+      },
       value: '',
       _text: '',
       get textContent() {
@@ -3694,4 +3700,172 @@ test('a practice restored after a failed new song keeps its automatic timing sav
   f.element('lyrics-later').click();
   assert.equal(savedItems(storage)[0].offset, 0.5);
   assert.equal(f.element('sync-status').textContent, '싱크를 저장했어요.');
+});
+
+// Fewer lyric settings reopenings before the first sung line (#86).
+function songSearchFixture() {
+  const f = fixture(
+    withoutRatings((url) =>
+      new URL(url).hostname === 'www.googleapis.com'
+        ? youtubeResponse()
+        : response(),
+    ),
+  );
+  f.window.onYouTubeIframeAPIReady();
+  f.visibility(1);
+  return f;
+}
+
+test('a song search opens lyric settings when the player is ready, with playback paused', async () => {
+  const f = songSearchFixture();
+  await f.song();
+  assert.equal(f.element('lyrics-panel').open, false);
+  const p = f.players[0];
+  p.options.events.onReady();
+  assert.equal(f.element('lyrics-panel').open, true);
+  assert.ok(p.pauses > 0);
+  assert.match(
+    f.element('video-details').textContent,
+    /<Song>.*Official artist/,
+  );
+  await new Promise((resolve) => setImmediate(resolve));
+  await vm.runInContext('lyricFinished', f.context);
+  assert.equal(f.element('lyrics-results').children.length, 1);
+  assert.equal(f.element('lyrics-panel').open, true);
+  f.element('lyrics-panel-close').click();
+  assert.equal(p.seek, undefined);
+  assert.equal(p.plays ?? 0, 0);
+});
+
+test('a direct link, a share code, a saved practice, and the previous-video fallback leave lyric settings closed', async () => {
+  const direct = fixture(() => response());
+  direct.ready();
+  assert.equal(direct.element('lyrics-panel').open, false);
+
+  const shared = sharedReceiver();
+  shared.submit(sharedMessage);
+  shared.players[0].options.events.onReady();
+  assert.equal(shared.element('lyrics-panel').open, false);
+
+  const storage = memoryStorage();
+  const saving = fixture(() => response(), 'fixture-key', storage);
+  saving.ready();
+  await saving.search();
+  saving.select();
+  saving.element('save-practice').click();
+  const reopened = fixture(() => response(record), 'fixture-key', storage);
+  reopened.window.onYouTubeIframeAPIReady();
+  reopened.visibility(1);
+  reopened.window.singBridgeConfigurePronunciation('ko', true);
+  reopened.element('saved-practices').children[0].children[0].click();
+  reopened.players[0].options.events.onReady();
+  assert.equal(reopened.element('lyrics-panel').open, false);
+  // Opened by the user while the saved record loads, the panel still closes, because no candidate was chosen.
+  reopened.element('lyrics-panel-open').click();
+  await vm.runInContext('lyricFinished', reopened.context);
+  assert.match(reopened.element('lyrics-source').textContent, /LRCLIB #42/);
+  assert.equal(reopened.element('lyrics-panel').open, false);
+
+  const f = fixture((url) =>
+    url.includes('googleapis.com') ? youtubeResponse() : response(),
+  );
+  f.ready();
+  await f.search();
+  f.select();
+  await f.song();
+  const candidate = f.players.at(-1);
+  candidate.options.events.onReady();
+  candidate.options.events.onError({ data: 150 });
+  f.players.at(-1).options.events.onReady();
+  assert.match(f.element('lyrics-source').textContent, /LRCLIB #42/);
+  assert.equal(f.element('lyrics-panel').open, false);
+});
+
+test('lyric settings stay closed when the user left, searched again, or went to the background before the player was ready', async () => {
+  const left = songSearchFixture();
+  await left.song();
+  left.element('find-another-song').click();
+  left.players[0].options.events.onReady();
+  assert.equal(left.element('lyrics-panel').open, false);
+
+  let resolve;
+  const again = fixture(
+    withoutRatings((url) => {
+      if (new URL(url).hostname !== 'www.googleapis.com') return response();
+      if (!resolve) return youtubeResponse();
+      return new Promise((r) => {
+        resolve = r;
+      });
+    }),
+  );
+  again.window.onYouTubeIframeAPIReady();
+  again.visibility(1);
+  await again.song();
+  resolve = () => {};
+  again.element('find-another-song').click();
+  const pending = again.song('Another - Song');
+  again.element('return-to-practice').click();
+  again.players[0].options.events.onReady();
+  assert.equal(again.element('lyrics-panel').open, false);
+  resolve(youtubeResponse());
+  await pending;
+
+  const background = songSearchFixture();
+  await background.song();
+  background.window.singBridgePause();
+  background.players[0].options.events.onReady();
+  assert.equal(background.element('lyrics-panel').open, false);
+});
+
+test('choosing a candidate keeps lyric settings open on 음차 만들기 when pronunciation can be made', async () => {
+  const f = fixture(() => response());
+  f.window.singBridgeConfigurePronunciation('ko', true);
+  f.ready();
+  f.element('lyrics-panel-open').click();
+  await f.search();
+  f.select();
+  assert.equal(f.element('lyrics-panel').open, true);
+  assert.equal(f.element('lyrics-settings').open, false);
+  assert.equal(f.element('pronunciation-generate').disabled, false);
+  assert.equal(f.document.activeElement, f.element('pronunciation-generate'));
+  assert.ok(f.element('pronunciation-generate').scrolledIntoView);
+  f.element('lyrics-panel-close').click();
+  assert.equal(f.players[0].seek, undefined);
+
+  const unchosen = fixture(() => response());
+  unchosen.window.singBridgeConfigurePronunciation('fr', true);
+  unchosen.ready();
+  unchosen.element('lyrics-panel-open').click();
+  await unchosen.search();
+  unchosen.select();
+  assert.equal(unchosen.element('lyrics-panel').open, true);
+  assert.equal(
+    unchosen.document.activeElement,
+    unchosen.element('pronunciation-target'),
+  );
+});
+
+test('choosing a candidate closes lyric settings without pronunciation, with plain lyrics, or with a complete restored layer', async () => {
+  const unavailable = fixture(() => response());
+  unavailable.ready();
+  unavailable.element('lyrics-panel-open').click();
+  await unavailable.search();
+  unavailable.select();
+  assert.equal(unavailable.element('lyrics-panel').open, false);
+
+  const plain = fixture(() => response([{ ...record, syncedLyrics: null }]));
+  plain.window.singBridgeConfigurePronunciation('ko', true);
+  plain.ready();
+  plain.element('lyrics-panel-open').click();
+  await plain.search();
+  plain.select();
+  assert.equal(plain.element('lyrics-panel').open, false);
+
+  const f = await generatedPractice();
+  f.element('save-practice').click();
+  f.element('lyrics-panel-open').click();
+  await f.search();
+  f.select();
+  assert.equal(vm.runInContext('pronunciationResults.size', f.context), 2);
+  assert.equal(f.element('lyrics-panel').open, false);
 });
