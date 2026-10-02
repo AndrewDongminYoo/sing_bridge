@@ -57,3 +57,12 @@ Selecting a saved video and lyric pair restores its pronunciation, which skips o
 Use the same five songs on each platform.
 Record the device or simulator, OS version, network, and whether the video, lyrics, and pronunciation all loaded.
 Evaluate each platform separately: the Gate A target is met on a platform when its median is under 60 seconds and no step fails, and one platform's runs must not offset the other's.
+
+## Addendum, 2026-10-03: steps 3 and 4 after #86
+
+With the [fewer panel reopenings](../specs/2026-10-03-fewer-panel-reopenings.md) change, the protocol above no longer matches the app in two places:
+
+- Step 3: after the song search, the lyric settings panel opens on its own when the player is ready, so there is no **가사 선택** tap.
+- Step 4: in the Debug builds that can generate pronunciation, choosing a timed record keeps the panel open with **음차 만들기** in view, so there is no second **가사·설정** tap; confirm **읽을 언어**, tap **음차 만들기**, and close the panel as before.
+
+The runs recorded in [the iOS note](2026-09-30-first-sing-timing-ios.md) and [the Android note](2026-10-01-first-sing-timing-android.md) include both reopenings; compare later runs with them as a different flow, not as the same protocol.
