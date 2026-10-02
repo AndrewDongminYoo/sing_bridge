@@ -301,11 +301,11 @@ internal fun youtubeLyricsHtml(): String = """
         document.getElementById('lyric-window').scrollTop = 0;
         lyricsStatus.textContent = lines.length ? '영상과 가사가 어긋나면 시간을 조정해 주세요.' : '시간표시가 없는 가사예요. 영상에 맞춰 자동으로 움직이지 않아요.';
         refreshLyrics();
-        if (pronounceHere) {
-          const control = pronunciationTarget.value ? pronunciationButton : pronunciationTarget;
-          control.scrollIntoView?.({ block: 'nearest' });
-          control.focus?.();
-        }
+        // Without a reading language the select is only scrolled to, so that no picker opens without a tap.
+        if (pronounceHere && pronunciationTarget.value) {
+          pronunciationButton.scrollIntoView?.({ block: 'nearest' });
+          pronunciationButton.focus?.();
+        } else if (pronounceHere) pronunciationTarget.scrollIntoView?.({ block: 'nearest' });
         return true;
       } catch (error) { lyricsStatus.textContent = error.message; return false; }
     }

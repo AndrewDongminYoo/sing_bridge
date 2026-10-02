@@ -3839,7 +3839,8 @@ test('choosing a candidate keeps lyric settings open on 음차 만들기 when pr
   await unchosen.search();
   unchosen.select();
   assert.equal(unchosen.element('lyrics-panel').open, true);
-  assert.equal(
+  assert.ok(unchosen.element('pronunciation-target').scrolledIntoView);
+  assert.notEqual(
     unchosen.document.activeElement,
     unchosen.element('pronunciation-target'),
   );
