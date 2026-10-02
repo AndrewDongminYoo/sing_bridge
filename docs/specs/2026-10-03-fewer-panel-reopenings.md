@@ -33,7 +33,7 @@ Steps 3 and 4 of the manual protocol in [first-sing timing](../notes/2026-09-29-
   - the chosen record has timed lines with text;
   - the restored pronunciation layer, if any, does not already cover every line.
 - The request limits (240 lines, 500 characters per line, 30,000 characters) are not part of this rule, because they do not disable the button today: lyrics over a limit keep the dialog open, and pressing **음차 만들기** reports 가사가 너무 길어요 next to it, as it does now after a reopening.
-- The candidate list collapses as today, the pronunciation section scrolls into view, and focus moves to **음차 만들기**, or to **읽을 언어** when no reading language is chosen yet.
+- The candidate list collapses as today and the pronunciation section scrolls into view. Focus moves to **음차 만들기** when a reading language is chosen; otherwise **읽을 언어** is scrolled into view without focus, so that no picker opens without a tap.
 - Otherwise the dialog closes as today. This covers release builds and the physical iPhone, where pronunciation is unavailable, plain lyrics without timing, and a fully restored layer.
 - Restoring a practice after a failed video, opening 저장한 연습, and opening a share code keep closing the dialog, because the user did not choose a candidate there.
 - The user closes the dialog with **닫기** after tapping **음차 만들기**, as today; generation continues and its lines appear in the practice screen.
@@ -47,7 +47,7 @@ Steps 3 and 4 of the manual protocol in [first-sing timing](../notes/2026-09-29-
 
 ## Acceptance
 
-1. Page tests in `tools/test-youtube.mjs` fail first and then cover: the dialog opening after a song search with playback paused and video details filled in; no opening for a direct link, a share code, a saved practice, or the fallback to the previous video; no opening when the user left the practice screen, started another search, or the app went to the background before the player was ready; the dialog staying open after a candidate is chosen with pronunciation available, with focus on **음차 만들기** or **읽을 언어**; the dialog closing after a candidate is chosen without pronunciation, with plain lyrics, or with a complete restored layer; and the dialog closing for a restored or saved record.
+1. Page tests in `tools/test-youtube.mjs` fail first and then cover: the dialog opening after a song search with playback paused and video details filled in; no opening for a direct link, a share code, a saved practice, or the fallback to the previous video; no opening when the user left the practice screen, started another search, or the app went to the background before the player was ready; the dialog staying open after a candidate is chosen with pronunciation available, with focus on **음차 만들기**, or **읽을 언어** in view without focus; the dialog closing after a candidate is chosen without pronunciation, with plain lyrics, or with a complete restored layer; and the dialog closing for a restored or saved record.
 2. Existing tests pass. Tests that choose a candidate and then assert the dialog is closed keep passing because the default fixture has pronunciation unavailable; any test changed on purpose is named in the implementation PR.
 3. The README describes both openings where it describes **가사 선택** and **음차 만들기**.
 4. On the iOS simulator Debug build and the Android emulator debug build, a song search opens the dialog without a tap, the keyboard does not appear, choosing a candidate leaves **음차 만들기** in view, and closing the dialog does not start playback.
