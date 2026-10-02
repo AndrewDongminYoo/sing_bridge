@@ -26,12 +26,13 @@ Steps 3 and 4 of the manual protocol in [first-sing timing](../notes/2026-09-29-
 - Opening a video from a direct link, a share code, or 저장한 연습, and returning to the previous video after a searched video fails to play, keep today's behavior: the dialog stays closed.
 - If the lyric search fails or finds nothing, the dialog stays open with the status message and the search form, as it does today when the user opens it.
 
-### The dialog stays open after a lyric record is chosen, when pronunciation can be made there
+### The dialog stays open after a lyric record is chosen, when 음차 만들기 can be pressed
 
-- After the user taps a lyric candidate, the dialog stays open when all of these hold:
+- After the user taps a lyric candidate, the dialog stays open when **음차 만들기** is enabled, or would be once a reading language is chosen, which is when all of these hold:
   - pronunciation is available in this build (the debug transports today);
   - the chosen record has timed lines with text;
   - the restored pronunciation layer, if any, does not already cover every line.
+- The request limits (240 lines, 500 characters per line, 30,000 characters) are not part of this rule, because they do not disable the button today: lyrics over a limit keep the dialog open, and pressing **음차 만들기** reports 가사가 너무 길어요 next to it, as it does now after a reopening.
 - The candidate list collapses as today, the pronunciation section scrolls into view, and focus moves to **음차 만들기**, or to **읽을 언어** when no reading language is chosen yet.
 - Otherwise the dialog closes as today. This covers release builds and the physical iPhone, where pronunciation is unavailable, plain lyrics without timing, and a fully restored layer.
 - Restoring a practice after a failed video, opening 저장한 연습, and opening a share code keep closing the dialog, because the user did not choose a candidate there.
