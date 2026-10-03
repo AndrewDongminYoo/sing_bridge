@@ -64,11 +64,12 @@ internal fun youtubeLyricsHtml(): String = """
     </section>
     <script>
     const lyricsPanel = document.getElementById('lyrics-panel');
-    document.getElementById('lyrics-panel-open').addEventListener('click', function() {
+    function openLyricsPanel() {
       pause();
       document.getElementById('video-details').textContent = document.getElementById('song-result').textContent;
       lyricsPanel.showModal();
-    });
+    }
+    document.getElementById('lyrics-panel-open').addEventListener('click', openLyricsPanel);
     document.getElementById('lyrics-panel-close').addEventListener('click', () => lyricsPanel.close());
     const lyricsQuery = document.getElementById('lyrics-query');
     const lyricsStatus = document.getElementById('lyrics-status');
@@ -277,7 +278,8 @@ internal fun youtubeLyricsHtml(): String = """
       lyricAdjustment = value; refreshLyrics(); saveTiming();
     });
 
-    function chooseLyrics(record, videoGeneration) {
+    // A candidate the user chose keeps lyric settings open on 음차 만들기 when pronunciation can be made there (#86).
+    function chooseLyrics(record, videoGeneration, chosen = false) {
       if (videoGeneration !== generation || !ready) return false;
       try {
         const lines = record.syncedLyrics ? parseTimedLyrics(record.syncedLyrics) : [];
@@ -293,10 +295,18 @@ internal fun youtubeLyricsHtml(): String = """
         document.getElementById('lyrics-scripts').textContent = '표기: ' + lyricDescription(record).scripts;
         document.getElementById('save-status').textContent = '';
         document.getElementById('lyrics-settings').open = false;
-        if (lyricsPanel.open) lyricsPanel.close();
+        const textLines = lines.filter(line => line.text).length;
+        const pronounceHere = chosen && pronunciationAvailable && pronunciationResults.size < textLines;
+        if (!pronounceHere && lyricsPanel.open) lyricsPanel.close();
         document.getElementById('lyric-window').scrollTop = 0;
         lyricsStatus.textContent = lines.length ? '영상과 가사가 어긋나면 시간을 조정해 주세요.' : '시간표시가 없는 가사예요. 영상에 맞춰 자동으로 움직이지 않아요.';
-        refreshLyrics(); return true;
+        refreshLyrics();
+        // Without a reading language the select is only scrolled to, so that no picker opens without a tap.
+        if (pronounceHere && pronunciationTarget.value) {
+          pronunciationButton.scrollIntoView?.({ block: 'nearest' });
+          pronunciationButton.focus?.();
+        } else if (pronounceHere) pronunciationTarget.scrollIntoView?.({ block: 'nearest' });
+        return true;
       } catch (error) { lyricsStatus.textContent = error.message; return false; }
     }
 
@@ -393,7 +403,7 @@ internal fun youtubeLyricsHtml(): String = """
         part('candidate-detail candidate-duration', duration + difference);
         if (hasLyrics) part('candidate-preview', lyricDescription(record).preview);
         button.disabled = !hasLyrics;
-        button.addEventListener('click', () => chooseLyrics(record, videoGeneration));
+        button.addEventListener('click', () => chooseLyrics(record, videoGeneration, true));
         lyricsResults.append(button);
       }
       // The song-title hint describes the displayed candidates, so a re-ranking by a refined duration can change it.
