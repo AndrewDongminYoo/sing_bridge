@@ -40,5 +40,6 @@ The default fixture has pronunciation unavailable, so the existing tests that ch
   After **닫기**, the dialog was closed and the player stayed at state 5 and 0:00, so playback did not start.
   No pronunciation was generated, so the development server was not needed.
 
-Acceptance item 4 of the spec is met: the dialog opening, the absent keyboard, and playback staying stopped were checked on the iOS device and the Android emulator, and **음차 만들기** staying in view and focused was checked on the Android emulator.
-The iOS Debug simulator check was not done.
+Acceptance item 4 of the spec is met on the Android emulator and stays open on iOS.
+The spec names the iOS Debug simulator; after two simulator attempts failed on memory pressure, the operator chose to check on his iPhone instead, and that check cannot reach the branch that keeps the dialog open on **음차 만들기**, because a physical iPhone has no pronunciation bridge.
+The iOS simulator run, including **음차 만들기** staying in view, is still to be done.
