@@ -33,7 +33,12 @@ The default fixture has pronunciation unavailable, so the existing tests that ch
 - iOS device: the Debug build of `main` at `dd7872f` (the #88 merge, the same tree as `fb23d4c`) was installed over the existing app on the operator's iPhone 16 Pro, iOS 27.0.1, with `xcrun devicectl device install app`; the output had no uninstall step.
   The operator checked it on 2026-10-03 against five items given to him and reported that it works as intended; the items were: a song search opens the dialog without a tap and without the keyboard, playback does not run while it is open or start when it closes, choosing a candidate closes the dialog, and a direct link or saved practice leaves it closed.
   A physical iPhone has no pronunciation bridge (`DEBUG && targetEnvironment(simulator)`), so this covers the closing branch of the candidate rule, not the branch that keeps the dialog open on **음차 만들기**.
-- Android: not started.
+- Android emulator, 2026-10-04: a debug APK built from `main` at `7f2f92e` (same page code as `dd7872f`) was installed on the Pixel_10 AVD (Android 17, en-US, 1080x2424), where the app was not installed before.
+  After a search for `Vaundy - odoriko`, the dialog opened without a tap once the player was ready, the keyboard was down, and the video details and candidates were shown.
+  Choosing the synced LRCLIB record 35923881 kept the dialog open with the candidate list collapsed and **음차 만들기** enabled and in view.
+  The page state was read through the WebView DevTools socket of the debug build: `document.activeElement` was `pronunciation-generate`, the reading language was `en`, and the player state was 5 (cued).
+  After **닫기**, the dialog was closed and the player stayed at state 5 and 0:00, so playback did not start.
+  No pronunciation was generated, so the development server was not needed.
 
-Acceptance item 4 of the spec is met on an iOS device except for **음차 만들기** staying in view, which needs the iOS Debug simulator or an Android debug build; the page tests cover that branch.
-Android is still open.
+Acceptance item 4 of the spec is met: the dialog opening, the absent keyboard, and playback staying stopped were checked on the iOS device and the Android emulator, and **음차 만들기** staying in view and focused was checked on the Android emulator.
+The iOS Debug simulator check was not done.
