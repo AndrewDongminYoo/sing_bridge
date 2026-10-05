@@ -355,3 +355,9 @@ Run contract and interaction tests without paid requests:
 ```sh
 node --test tools/test-youtube.mjs server/pronunciation.test.mjs
 ```
+
+## License
+
+Copyright (c) 2026 Dongmin Yu. All rights reserved.
+The source is public for reference only and is not open source.
+Using, copying, modifying, or redistributing it requires written permission from the copyright holder; see [`LICENSE`](LICENSE).
