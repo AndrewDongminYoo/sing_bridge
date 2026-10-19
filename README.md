@@ -75,7 +75,9 @@ Use **이 연습 저장** in lyric settings to save a video ID, chosen LRCLIB ID
 **저장한 연습** on discovery offers open and delete actions; up to 20 combinations are stored without automatic eviction.
 A practice opened from **저장한 연습**, or saved since it was opened, keeps each timing change at once and reports it under **가사 싱크 조절**; one opened from a share code or chosen again through search needs **이 연습 저장** first, so it cannot replace a saved offset.
 Reopening fetches the exact lyric ID and restores its offset without autoplay; internet access is required and changed or removed provider records can affect the result.
-No lyric body, credentials, playback position, or account data is stored by this feature.
+Saving a pronunciation layer stores the chosen record's full lyric text and timestamps as its source snapshot, and the generated segments repeat that text, so such a practice keeps a complete copy of the lyrics on this device for each saved reading language.
+A practice saved without pronunciation stores no lyric text.
+No credentials, playback position, or account data is stored by this feature.
 Invalid storage is preserved and reported; failed writes do not report success.
 See [saved practice scope](docs/specs/2026-09-28-saved-practice.md) and [one practice save](docs/specs/2026-10-01-single-practice-save.md).
 
