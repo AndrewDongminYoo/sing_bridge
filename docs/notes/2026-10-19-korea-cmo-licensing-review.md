@@ -37,7 +37,7 @@ Copyright applies where the use happens, so showing lyrics to users in Korea is 
 
 - **JASRAC works:** KOMCA administers them in Korea under the reciprocal agreement in force since 2008-01-01 ([JASRAC 2008 statement](https://www.jasrac.or.jp/ejhp/release/2008/0123.html)).
   The JASRAC–KOSCAP agreement from 2025-01-01 is one-way: JASRAC administers KOSCAP works in Japan, and KOMCA keeps JASRAC works in Korea ([JASRAC notice](https://www.jasrac.or.jp/information/topics/25/250106.html)).
-- **NexTone works:** a research agent reported that NexTone collects Korean royalties through KOSCAP from July 2025 ([NexTone note](https://note.com/nextone_corp/n/n04578c4aff2a)); this review did not verify it, so confirm it with KOSCAP.
+- **NexTone works:** NexTone's note of 2026-05-08 says it has collected Korean royalties through KOSCAP since July 2025 ([NexTone note](https://note.com/nextone_corp/n/n04578c4aff2a)); it does not say whether KOSCAP also licenses.
 
 Under the narrowed scope, KOSCAP is needed only for NexTone repertoire; Korean songs no longer justify it.
 
@@ -80,6 +80,10 @@ It holds only if all of these are confirmed in writing:
 3. The target songs are not registered with KOMCA through a Korean sub-publisher (SE); a registered song would also need KOMCA.
 4. The target songs are entrusted to JASRAC or NexTone for this use; songs outside both need their publishers directly.
 
+Condition 1 may not hold: for publishing a songbook of JASRAC works abroad, JASRAC's FAQ says few foreign societies handle print rights, so permission comes from the right holders, though JASRAC can license some cases ([JASRAC FAQ, international network](https://secure.okbiz.jp/faq-jasrac/category/show/229?site_domain=jp), accessed 2026-10-19).
+If lyric display is treated the same way, JASRAC works would need their publishers rather than JASRAC.
+The [JASRAC and NexTone inquiry](2026-10-19-japan-society-inquiry.md) asks both points.
+
 Even then, transliteration consent stays per work with the right holders, outside both societies.
 Collecting societies in Japan, as in Korea, do not normally administer adaptation rights or moral rights, so the same per-work question applies; this review did not confirm JASRAC's or NexTone's policy on it.
 
@@ -108,7 +112,7 @@ At the LyricFind figure, the ceiling is USD 7,200 per year before any AI scope i
 1. Measure what a major-publisher exclusion removes: map the [curated 30-song list](2026-09-29-lyrics-coverage-song-list.md) to publishers through the JASRAC and NexTone work databases and the KOMCA work search (SE field), and count songs whose publishers are Universal or Sony affiliates.
    That count turns the LyricFind offer into a cost per covered song instead of a catalog-wide price.
 2. Ask LyricFind in writing which entities the exclusion covers (for example whether Japanese affiliates are included) and whether its catalog licenses Japanese publishers for display in Korea.
-3. Send JASRAC and NexTone a written inquiry first, since they decide whether the preferred target holds; then send KOMCA and KOSCAP the questions below for whatever the first answers leave open.
+3. Send JASRAC and NexTone a written inquiry first (prepared on 2026-10-19; see the [inquiry note](2026-10-19-japan-society-inquiry.md)), since they decide whether the preferred target holds; then send KOMCA and KOSCAP the questions below for whatever the first answers leave open.
 4. For the 30-song list, record each song's society (JASRAC or NexTone) and any Korean sub-publisher, so the inquiries can name real works.
 5. Keep the user-supplied lyrics path as the fallback release scope while answers are pending.
 
