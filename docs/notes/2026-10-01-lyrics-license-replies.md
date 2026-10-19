@@ -27,8 +27,20 @@ Until the vendors answer, LRCLIB access still does not establish commercial righ
   - He gave the same market and on-demand retrieval summary as to Musixmatch.
   - He asked to discuss a plan covering synchronized lyrics, phonetic transliteration, third-party LLM processing, and offline storage, with pricing and minimum fees.
 
+## Update 2026-10-19
+
+Reported by Andrew on 2026-10-19.
+A call with LyricFind took place on 2026-10-08, per #17; whether the offer below came on that call or in a later message, and the date of the Musixmatch proposal, were not recorded here.
+
+- **LyricFind:** offered support up to USD 600 per month, assuming the major publishers Andrew named as Universal and Sony are excluded; the exact excluded entities need written confirmation.
+  LyricFind will research the detailed scope, including AI use, once SingBridge states a workable budget.
+- **Musixmatch:** proposed only a price similar to LyricFind's figure with the major publishers included; no meeting took place.
+- Andrew judges both too expensive for a Japanese-song scope; the [Korean collecting society review](2026-10-19-korea-cmo-licensing-review.md) compares the options.
+
+Neither vendor has yet confirmed in writing the transliteration, AI-processing, or offline-storage scope.
+
 ## Next
 
-- Record LyricFind's proposed time and, after the call, what was said; Andrew attends.
-- Record Musixmatch's routing or answer.
+- Ask LyricFind in writing which entities the major-publisher exclusion covers and how much Japanese repertoire remains.
+- Record Musixmatch's written terms if they arrive.
 - Keep #17 open until each vendor has answered the licensing questions or this note records that no answer arrived.
