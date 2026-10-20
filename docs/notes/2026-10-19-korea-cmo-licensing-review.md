@@ -108,6 +108,47 @@ On 2026-10-20 Andrew told LyricFind in writing that the budget in the first mont
 | KOMCA, KOSCAP, and JASRAC as split above     | Negotiated; no lyric-display tariff found   | Which society holds each work, per-work transliteration consent, and a lyric source.                   |
 | User-supplied lyrics only (local LRC import) | No licensing fee for operator-provided text | Weaker experience; sending user-supplied lyrics to OpenAI still needs review.                          |
 
+## LyricFind as a bundle against the society route
+
+On 2026-10-20 the operator reframed the LyricFind minimum.
+On the society route, display rights split across KOMCA, JASRAC, and KOSCAP or NexTone, as the [split above](#who-licenses-what-on-the-society-route) shows, and transliteration can need consent per work from its right holders.
+So the USD 600 monthly minimum is worth judging as the cost of one contract that bundles these pieces, not only as a catalog price.
+
+### What LyricFind supplies that the society route does not
+
+- **Lyric text and synchronized timing.**
+  A society licenses the use only, so the society route still needs a lyric source ([gap 4](#gaps-a-society-agreement-may-not-close)).
+  This difference holds whatever LyricFind answers.
+- **One contract and one contact.**
+  The society route can need separate agreements with up to three societies, plus per-work requests to publishers.
+  For an independent developer, that negotiation effort can cost more than the difference in fees.
+
+### What decides the value of the bundle
+
+The [2026-10-20 follow-up](2026-10-01-lyrics-license-replies.md#lyricfind-follow-up-2026-10-20) asks each point:
+
+1. **Japanese repertoire after the exclusion** (questions 1 and 3).
+   If the exclusion removes the Japanese affiliates of the major publishers, such as Sony Music Publishing Japan, many top Japanese songs on Melon can fall outside the catalog.
+   The per-song answer for the 30-song list gives a cost per covered song.
+2. **Display rights in Korea for Japanese publishers** (question 2).
+   LyricFind must hold the right to show these works to users in South Korea.
+3. **Transliteration and AI processing** (question 4).
+   This is the hardest piece on the society route.
+   LyricFind said it would research AI scope separately, so the base tier may exclude it.
+
+### How to read the answer
+
+- **Points 1 to 3 all hold:** the minimum buys display rights, lyric data, and transliteration consent in one contract.
+  Compare it with the society route's fees plus its negotiation effort and a separate lyric source; the bundle is likely the better route.
+- **Transliteration is excluded:** the minimum buys display rights and lyric data only.
+  Transliteration consent then stays a per-work task on every route, so compare the two routes on display rights and lyric data alone.
+- **Little Japanese repertoire remains after the exclusion:** use the cost per covered song; the society route is likely better for the remaining songs.
+- **LyricFind declines any option below the minimum:** record the answer.
+  It settles the vendor route at this budget, and the society route continues.
+
+The request has value even if LyricFind declines it.
+It replaces the silence after the 2026-10-08 call with a pending written request, and the stated budget tests whether LyricFind will take a customer of this size.
+
 ## Next steps
 
 1. Measure what a major-publisher exclusion removes: map the [curated 30-song list](2026-09-29-lyrics-coverage-song-list.md) to publishers through the JASRAC and NexTone work databases and the KOMCA work search (SE field), and count songs whose publishers are Universal or Sony affiliates.
