@@ -32,7 +32,8 @@ Until the vendors answer, LRCLIB access still does not establish commercial righ
 Reported by Andrew on 2026-10-19.
 A call with LyricFind took place on 2026-10-08, per #17; whether the offer below came on that call or in a later message, and the date of the Musixmatch proposal, were not recorded here.
 
-- **LyricFind:** offered support up to USD 600 per month, assuming the major publishers Andrew named as Universal and Sony are excluded; the exact excluded entities need written confirmation.
+- **LyricFind:** stated USD 600 per month as the minimum payment for a catalog that excludes the major publishers, among them Universal and Sony; the exact excluded entities need written confirmation.
+  This line first said "up to USD 600"; Andrew corrected it on 2026-10-20.
   LyricFind will research the detailed scope, including AI use, once SingBridge states a workable budget.
 - **Musixmatch:** proposed only a price similar to LyricFind's figure with the major publishers included; no meeting took place.
 - Andrew judges both too expensive for a Japanese-song scope; the [Korean collecting society review](2026-10-19-korea-cmo-licensing-review.md) compares the options.
@@ -44,9 +45,8 @@ Neither vendor has yet confirmed in writing the transliteration, AI-processing, 
 Andrew emailed the LyricFind account executive at about 2026-10-20T15:07Z (00:07 KST on 2026-10-21), as he reported, with the English 30-song list attached as CSV.
 The CSV holds the songs of `tools/lyrics-coverage/songs-2026-09.json` with title, artist, and Melon J-POP rank, and empty columns for LyricFind to fill: in catalog, publishers, licensable in South Korea at the USD 600 tier, licensable with the majors included, and synchronized lyrics available.
 
-The message describes the offer as pricing that **starts at** USD 600 per month for a catalog without the major publishers.
-The 2026-10-19 update above records it as support **up to** USD 600 per month.
-LyricFind's written answer should settle whether USD 600 is a floor or a ceiling.
+The message restates LyricFind's figure correctly: USD 600 per month is the minimum payment for the catalog without the major publishers.
+Andrew knew the narrower scope and lower budget asked for here fall below that stated minimum, and sent the request anyway so that LyricFind can answer it rather than SingBridge ruling it out.
 
 What the message states:
 
@@ -67,6 +67,6 @@ Questions, summarized:
 
 ## Next
 
-- Record LyricFind's answer to the 2026-10-20 follow-up, including whether USD 600 is a floor or a ceiling.
+- Record LyricFind's answer to the 2026-10-20 follow-up, especially whether any option exists below the USD 600 minimum.
 - Record Musixmatch's written terms if they arrive.
 - Keep #17 open until each vendor has answered the licensing questions or this note records that no answer arrived.

@@ -91,19 +91,19 @@ Collecting societies in Japan, as in Korea, do not normally administer adaptatio
 
 The operator reported the following on 2026-10-19; see the [replies note](2026-10-01-lyrics-license-replies.md#update-2026-10-19) for the record.
 
-- **LyricFind:** offered support up to USD 600 per month, assuming the major publishers the operator named as Universal and Sony are excluded.
+- **LyricFind:** stated USD 600 per month as the minimum payment for a catalog that excludes the major publishers, among them Universal and Sony.
   It will research the detailed scope, including AI use, once SingBridge states a workable budget.
 - **Musixmatch:** proposed only a price similar to LyricFind's figure with the major publishers included; no meeting took place.
 
 The operator judges both too expensive for this scope: both are priced for broad catalog coverage, while the target is a narrow set of Japanese songs popular in Korea.
-At the LyricFind figure, that is USD 7,200 per year before any AI scope is priced.
-On 2026-10-20 Andrew asked LyricFind in writing whether USD 600 is a floor or a ceiling, and told it that the budget in the first months after launch will be well below USD 600 per month ([follow-up](2026-10-01-lyrics-license-replies.md#lyricfind-follow-up-2026-10-20)).
+At the LyricFind minimum, that is at least USD 7,200 per year before any AI scope is priced.
+On 2026-10-20 Andrew told LyricFind in writing that the budget in the first months after launch will be well below USD 600 per month, and asked for a smaller, usage-based, or ramped option despite the stated minimum ([follow-up](2026-10-01-lyrics-license-replies.md#lyricfind-follow-up-2026-10-20)).
 
 ## Options
 
 | Option                                       | Cost signal                                 | What it leaves open                                                                                    |
 | -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| LyricFind without major publishers           | USD 600/month quoted; floor or ceiling TBD  | How much Japanese repertoire remains after the exclusion; AI and transliteration scope still unpriced. |
+| LyricFind without major publishers           | USD 600/month minimum quoted                | How much Japanese repertoire remains after the exclusion; AI and transliteration scope still unpriced. |
 | JASRAC and NexTone (preferred)               | Unknown; inquiries sent, no answer yet      | The four conditions above, per-work transliteration consent, and a lyric source.                       |
 | KOMCA, KOSCAP, and JASRAC as split above     | Negotiated; no lyric-display tariff found   | Which society holds each work, per-work transliteration consent, and a lyric source.                   |
 | User-supplied lyrics only (local LRC import) | No licensing fee for operator-provided text | Weaker experience; sending user-supplied lyrics to OpenAI still needs review.                          |
