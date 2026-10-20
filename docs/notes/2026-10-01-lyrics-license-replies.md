@@ -39,8 +39,34 @@ A call with LyricFind took place on 2026-10-08, per #17; whether the offer below
 
 Neither vendor has yet confirmed in writing the transliteration, AI-processing, or offline-storage scope.
 
+## LyricFind follow-up 2026-10-20
+
+Andrew emailed the LyricFind account executive at about 2026-10-20T15:07Z (00:07 KST on 2026-10-21), as he reported, with the English 30-song list attached as CSV.
+The CSV holds the songs of `tools/lyrics-coverage/songs-2026-09.json` with title, artist, and Melon J-POP rank, and empty columns for LyricFind to fill: in catalog, publishers, licensable in South Korea at the USD 600 tier, licensable with the majors included, and synchronized lyrics available.
+
+The message describes the offer as pricing that **starts at** USD 600 per month for a catalog without the major publishers.
+The 2026-10-19 update above records it as support **up to** USD 600 per month.
+LyricFind's written answer should settle whether USD 600 is a floor or a ceiling.
+
+What the message states:
+
+- Scope: South Korea only, Japanese songs popular in Korea, retrieved one song at a time on user selection, with no bulk delivery.
+- Planned pricing: a monthly subscription of KRW 4,900 with no advertising.
+- SingBridge is also reviewing licensing through collecting societies to compare routes; the societies are not named.
+- **Budget signal:** in the first months after launch the budget will be well below USD 600 per month, so a usage-based or ramped option would make the decision easier.
+  This is the first budget statement given to a vendor.
+
+Questions, summarized:
+
+1. Which entities the major-publisher exclusion covers, including the Japanese affiliates of Universal Music Publishing, Sony Music Publishing, and Warner Chappell Music and works they sub-publish in Korea, and the monthly price with the majors included.
+2. Whether the catalog includes rights from Japanese publishers for lyric display to users in South Korea, and whether through direct publisher deals or a collecting society.
+3. Per song in the attached list: in catalog, licensable at the USD 600 tier, licensable with the majors, synchronized lyrics available; or, failing that, the approximate share of Japanese-publisher works in the Korea catalog.
+4. Which uses the USD 600 tier includes and which need separate pricing: synchronized display with seeking and line repeat, Hangul transliteration, sending lyric lines to the OpenAI API without training use, and on-device storage when a user saves a practice; plus attribution, caching, and reporting requirements, especially limits on on-device retention.
+5. Whether a tier limited to Japanese repertoire or a selected song list exists, priced per song or per usage, or a revenue share with a lower minimum in the first months.
+6. The minimum contract term and any setup fees.
+
 ## Next
 
-- Ask LyricFind in writing which entities the major-publisher exclusion covers and how much Japanese repertoire remains.
+- Record LyricFind's answer to the 2026-10-20 follow-up, including whether USD 600 is a floor or a ceiling.
 - Record Musixmatch's written terms if they arrive.
 - Keep #17 open until each vendor has answered the licensing questions or this note records that no answer arrived.
