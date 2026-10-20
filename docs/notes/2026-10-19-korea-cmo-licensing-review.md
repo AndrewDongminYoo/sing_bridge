@@ -103,7 +103,7 @@ At the LyricFind figure, the ceiling is USD 7,200 per year before any AI scope i
 | Option                                       | Cost signal                                 | What it leaves open                                                                                    |
 | -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | LyricFind without major publishers           | Up to USD 600/month quoted                  | How much Japanese repertoire remains after the exclusion; AI and transliteration scope still unpriced. |
-| JASRAC and NexTone (preferred)               | Unknown; no inquiry sent                    | The four conditions above, per-work transliteration consent, and a lyric source.                       |
+| JASRAC and NexTone (preferred)               | Unknown; inquiries sent, no answer yet      | The four conditions above, per-work transliteration consent, and a lyric source.                       |
 | KOMCA, KOSCAP, and JASRAC as split above     | Negotiated; no lyric-display tariff found   | Which society holds each work, per-work transliteration consent, and a lyric source.                   |
 | User-supplied lyrics only (local LRC import) | No licensing fee for operator-provided text | Weaker experience; sending user-supplied lyrics to OpenAI still needs review.                          |
 
@@ -112,7 +112,7 @@ At the LyricFind figure, the ceiling is USD 7,200 per year before any AI scope i
 1. Measure what a major-publisher exclusion removes: map the [curated 30-song list](2026-09-29-lyrics-coverage-song-list.md) to publishers through the JASRAC and NexTone work databases and the KOMCA work search (SE field), and count songs whose publishers are Universal or Sony affiliates.
    That count turns the LyricFind offer into a cost per covered song instead of a catalog-wide price.
 2. Ask LyricFind in writing which entities the exclusion covers (for example whether Japanese affiliates are included) and whether its catalog licenses Japanese publishers for display in Korea.
-3. Send JASRAC and NexTone a written inquiry first (prepared on 2026-10-19; see the [inquiry note](2026-10-19-japan-society-inquiry.md)), since they decide whether the preferred target holds; then send KOMCA and KOSCAP the questions below for whatever the first answers leave open.
+3. JASRAC and NexTone were asked first, since they decide whether the preferred target holds (sent 2026-10-19 and 2026-10-20; see the [inquiry note](2026-10-19-japan-society-inquiry.md)); send KOMCA and KOSCAP the questions below for whatever their answers leave open.
 4. For the 30-song list, record each song's society (JASRAC or NexTone) and any Korean sub-publisher, so the inquiries can name real works.
 5. Keep the user-supplied lyrics path as the fallback release scope while answers are pending.
 

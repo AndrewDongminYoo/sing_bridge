@@ -7,12 +7,13 @@ Follows the [Korean collecting society review](2026-10-19-korea-cmo-licensing-re
 
 Andrew prepared both messages on 2026-10-19; this note records what he reported, not a delivery receipt.
 
-| Society | Route                                                                                                  | State on 2026-10-19                                                      |
-| ------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| JASRAC  | Email to the publishing section, `shuppan-contact@jasrac.or.jp`, with the 30-song list as CSV          | Scheduled for 2026-10-20 09:00 KST                                       |
-| NexTone | [Inquiry form](https://www.nex-tone.co.jp/inquiry/), category 「インターネット上での音楽利用について」 | Submitted at 23:00 KST, as Andrew reported; the form takes no attachment |
+| Society | Route                                                                                                  | Sent                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| JASRAC  | Email to the publishing section, `shuppan-contact@jasrac.or.jp`, with the 30-song list as CSV          | 2026-10-20 09:00 KST, scheduled send; Andrew confirmed it in the Sent folder that day |
+| NexTone | [Inquiry form](https://www.nex-tone.co.jp/inquiry/), category 「インターネット上での音楽利用について」 | 2026-10-19 23:00 KST, as Andrew reported; the form takes no attachment                |
 
-Confirm that the scheduled JASRAC email left the Sent folder, and record any answers in this note.
+As of 2026-10-20 23:57 KST, neither society has replied, as Andrew reported.
+Record any answers in this note.
 
 ## Why these routes
 
