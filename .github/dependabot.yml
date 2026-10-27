@@ -43,6 +43,26 @@ updates:
       day: monday
       timezone: Asia/Seoul
     open-pull-requests-limit: 2
+    # sing_bridge#100 (2026-10-27): Compose Multiplatform 1.12 needs compileSdk 37,
+    # and Kotlin 2.4 needs a regenerated Kotlin Native bundle lock.
+    # Both are separate migrations; patch updates stay open.
+    ignore:
+      - dependency-name: org.jetbrains.compose
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-major
+      - dependency-name: org.jetbrains.compose.*
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-major
+      - dependency-name: org.jetbrains.kotlin.multiplatform
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-major
+      - dependency-name: org.jetbrains.kotlin.plugin.compose
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-major
     groups:
       gradle-minor-patch:
         patterns:
