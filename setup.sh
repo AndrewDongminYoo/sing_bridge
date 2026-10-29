@@ -147,7 +147,7 @@ if [[ ! $java_version_output =~ version\ \"([0-9]+) ]]; then
 fi
 jdk_major=${BASH_REMATCH[1]}
 if ((jdk_major < 17 || jdk_major > 25)); then
-	fail "JDK $jdk_major is unsupported; Gradle 9.3.1 requires JDK 17 through 25"
+	fail "JDK $jdk_major is unsupported; setup.sh accepts JDK 17 through 25"
 fi
 javac_version_output=$("$javac_command" -version 2>&1)
 if [[ ! $javac_version_output =~ javac\ ([0-9]+) ]]; then
