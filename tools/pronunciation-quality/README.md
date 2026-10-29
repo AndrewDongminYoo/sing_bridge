@@ -106,7 +106,7 @@ It supports the pronunciation-accuracy target in Gate A of the [competitive brie
 
 Protocol for a measurement:
 
-1. On the iOS Debug simulator, generate pronunciation for a song, have a fluent reviewer read every line and correct it with **음차 수정**, then save with **음차 저장**. Note the LRCLIB ID and target of each reviewed song.
+1. On the iOS Debug simulator, generate pronunciation for a song, have a fluent reviewer read every line and correct it with **음차 수정**, then use the practice save button (**이 연습 저장** or **변경 내용 저장**) and note the LRCLIB ID and target of each reviewed song.
 2. Stop the app so WebKit is not writing, take a consistent read-only snapshot of its storage into a fresh directory, and confirm the extraction wrote a file:
 
    ```sh

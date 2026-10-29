@@ -2,6 +2,9 @@
 
 ## Scope
 
+This note records the initial automation setup and its follow-up checks.
+For current versions and hook behavior, use `.trunk/trunk.yaml`, `gradle/wrapper/gradle-wrapper.properties`, `setup.sh`, and the [project workflow](../../AGENTS.md#workflow).
+
 The operator requested separate lower-model workers for CI, Trunk, and hosted container setup, each using an applicable skill.
 Three Terra workers own `.github/workflows/`, `.trunk/`, and `setup.sh` respectively.
 The root agent owns documentation and integration verification in the main workspace.
@@ -54,7 +57,7 @@ These are real local Linux-container results, not Codex-hosted or GitHub-hosted 
 
 The pinned [Google command-line tools archive](https://dl.google.com/android/repository/commandlinetools-linux-16111833_latest.zip) was checked against the official SHA-1 in [Google's repository metadata](https://dl.google.com/android/repository/repository2-1.xml), then pinned by SHA-256 in `setup.sh`.
 The SHA-256 is `0877a1d048fe4a24efe2eff536ca4223f7adeb58648bb81909d33c446918cfa8`.
-The JDK range follows [Gradle 9.3.1's compatibility table](https://docs.gradle.org/9.3.1/userguide/compatibility.html).
+The initial JDK range followed [Gradle 9.3.1's compatibility table](https://docs.gradle.org/9.3.1/userguide/compatibility.html).
 
 ## Advisory diagnostic
 
@@ -81,7 +84,7 @@ External action commits were checked against their official release tags and pin
 
 ## Trunk checks
 
-The configuration pins Trunk 1.25.0, plugin v1.11.0, Node 22.16.0, actionlint 1.7.12, markdownlint 0.45.0, and ShellCheck 0.11.0.
+The initial configuration pinned Trunk 1.25.0, plugin v1.11.0, Node 22.16.0, actionlint 1.7.12, markdownlint 0.45.0, and ShellCheck 0.11.0.
 Initial attempts with implicit system tools did not execute all linters; explicit managed versions and the Node runtime resolved that issue.
 Those initial attempts were not counted as successful checks.
 
@@ -93,7 +96,7 @@ All temporary negative fixtures were removed.
 The initial `trunk check --all --no-fix --no-progress` run exited successfully with 8 applicable files checked and no issues.
 This scans workflow, owned shell, and Markdown content; it does not compile Kotlin or exercise native audio behavior.
 The non-mutating `trunk-check-pre-push` action is enabled, and Git's local `core.hooksPath` points to Trunk's managed hooks.
-Automatic pre-commit formatting remains disabled.
+Automatic pre-commit formatting was disabled during the initial setup; the current project workflow enables it.
 
 ## Integration status
 

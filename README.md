@@ -91,7 +91,8 @@ The app pauses the video on background or when less than half the player is visi
 Embedding restrictions and network failures may prevent a video from playing.
 Search request failures keep the current video.
 If a searched candidate fails before playback starts, the previous usable video and selected lyrics are restored without autoplay.
-The native hosts identify the app through their HTML base URL and use no audio extraction or JavaScript-to-native bridge.
+The native hosts identify the app through their HTML base URL and do not extract audio.
+Separate JavaScript-to-native bridges handle development pronunciation requests and practice sharing.
 See [scope](docs/specs/2026-09-27-youtube-player.md) and [verification](docs/notes/2026-09-27-youtube-player-verification.md).
 See [lyrics scope](docs/specs/2026-09-27-youtube-lyrics.md) and [lyrics verification](docs/notes/2026-09-28-youtube-lyrics-verification.md).
 Run `node --test tools/test-youtube.mjs` to test the shipped page logic with a controlled player and network responses.
@@ -151,7 +152,8 @@ docs/notes/                  Verification evidence
 
 ## Prerequisites
 
-Use a JDK supported by Gradle 9.3.1, Android SDK 36, and Android Build Tools 36.0.0.
+Use JDK 17 (the CI version), Android SDK 36, and Android Build Tools 36.0.0.
+The Gradle version and distribution checksum are pinned in the [wrapper properties](gradle/wrapper/gradle-wrapper.properties).
 For iOS, use macOS with Xcode, an installed iOS simulator runtime, and XcodeGen.
 The deployment targets are Android API 26 or later and iOS 17.2 or later.
 Simulator builds target Apple Silicon.
@@ -216,7 +218,8 @@ Compose supplies the shared UI and resources.
 Media3 supplies Android playback and audio-focus handling.
 Coroutines poll actual playback position for lyric highlighting.
 AVPlayer is supplied by iOS.
-No third-party playback wrapper, networking client, database, or backend is required.
+Local playback and YouTube/LRCLIB search require no third-party playback wrapper, networking client, database, or backend.
+AI pronunciation uses the development server described below.
 
 When changing dependencies, resolve the tested configurations and regenerate their lockfiles:
 
@@ -229,7 +232,7 @@ Run native build jobs sequentially on memory-constrained machines.
 
 ## Hosted Linux setup
 
-`setup.sh` prepares Android SDK 36 and Build Tools 36.0.0 in a Linux x86_64 container with an existing JDK supported by Gradle 9.3.1.
+`setup.sh` prepares Android SDK 36 and Build Tools 36.0.0 in a Linux x86_64 container with an existing JDK from version 17 through 25.
 It reuses a configured Android SDK when possible and otherwise downloads checksum-pinned Android command-line tools.
 The download path requires `curl`, `unzip`, and `sha256sum`; the script reports any missing prerequisite by name.
 SDK environment overrides are normalized with GNU Coreutils `realpath`, including paths that do not exist yet.

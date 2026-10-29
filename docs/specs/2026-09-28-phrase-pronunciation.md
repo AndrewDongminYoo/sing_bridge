@@ -8,7 +8,7 @@ The initial implementation uses a local development server and native debug tran
 Public deployment, production authentication, and release enablement remain outside this slice.
 Personal project Oracle lookup for pronunciation and language detection returned `[no precedent found]`.
 
-## Current evidence
+## Initial evidence
 
 `YouTubeLyrics.kt` classifies Unicode scripts for candidate badges; it cannot distinguish English from romanized Japanese.
 Its stable `lyricLines` and rendered row IDs already drive highlighting from actual player position.
@@ -73,7 +73,7 @@ Provider selection, model, API budget, deployment target, authentication, and re
 Keep provider keys on the server; never place them in the shared HTML or reuse a YouTube key/service account as pronunciation credentials.
 Use original fixtures for the initial provider evaluation.
 Actual lyric transfer needs an explicit product action and disclosure; device-only processing remains a valid alternative if external processing is rejected.
-Preserve the existing no-lyric-body persistence boundary until pronunciation caching receives its own decision.
+The original no-lyric-body persistence boundary is superseded by [saved pronunciation and editing](2026-09-28-pronunciation-editing.md), which permits explicitly saved device-local source snapshots and pronunciation layers.
 
 ## Acceptance
 

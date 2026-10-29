@@ -2,6 +2,9 @@
 
 ## Direction
 
+This plan records the original tab integration.
+The later [search-first navigation](../specs/2026-09-30-search-first-navigation.md) spec owns the current tab order, labels, initial selection, and Android Back target.
+
 The operator requested grouping Home, YouTube, and local import into navigation tabs.
 Use retained platform tab content rather than a new navigation dependency or a rewritten player.
 iOS uses a native tab controller hosting the existing Compose practice/import controllers and SwiftUI YouTube host.

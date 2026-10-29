@@ -25,4 +25,4 @@ Android Back returns to Home from another tab before exiting the root activity.
 - Verify shared visibility behavior with TDD, both native builds, and iOS 27.0 tab interaction and screenshots.
 - Operator visual approval is required before merge.
 
-The [search-first navigation](2026-09-30-search-first-navigation.md) spec supersedes the tab order and names above.
+The [search-first navigation](2026-09-30-search-first-navigation.md) spec supersedes the tab order, names, initial selection, and Android Back target above.

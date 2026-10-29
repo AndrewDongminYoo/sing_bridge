@@ -2,11 +2,11 @@
 
 ## Status and authority
 
-Draft for the operator's approval; merging it approves the behavior below, not the start of implementation.
+Implemented in the shared page; see [verification and remaining native coverage](../notes/2026-10-01-single-practice-save-verification.md).
 Issue: #76, from the operator's feedback after the #24 Android runs on 2026-10-01.
-Once implemented, this spec replaces the save rules in [saved practice](2026-09-28-saved-practice.md) ("Save through an explicit button in lyric settings") and in [pronunciation editing](2026-09-28-pronunciation-editing.md) ("Only the pronunciation save action persists a new layer or edits; ordinary practice saving preserves existing saved layers while updating reference metadata and timing").
+This spec replaces the save rules in [saved practice](2026-09-28-saved-practice.md) ("Save through an explicit button in lyric settings") and in [pronunciation editing](2026-09-28-pronunciation-editing.md) ("Only the pronunciation save action persists a new layer or edits; ordinary practice saving preserves existing saved layers while updating reference metadata and timing").
 
-## Why
+## Behavior before implementation
 
 - Lyric settings have two save buttons: **이 연습 저장** saves the video, the lyric record, and the offset, and **음차 저장** saves the same practice plus the pronunciation layer and line edits for the current target (`saveCurrentPractice(true)` in `YouTubeLibrary.kt`). To the user they look like the same action twice.
 - The timing buttons (**0.5초 일찍**, **0.5초 늦게**, **초기화**) sit in the practice screen footer under **가사 싱크 조절**, but the only save is inside the lyric settings dialog, so keeping a new offset takes opening settings again and pressing **이 연습 저장**.

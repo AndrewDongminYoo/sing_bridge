@@ -2,11 +2,11 @@
 
 ## Status and authority
 
-Draft for the operator's approval; merging it approves the behavior below, not the start of implementation.
+Implemented in the shared page; see [verification](../notes/2026-10-03-fewer-panel-reopenings-verification.md) for Android runtime evidence and the remaining iOS simulator check.
 Issue: #86, from the operator's feedback on the #24 runs on 2026-10-03.
 The dialog rule in [song search](2026-09-28-song-search.md) ("Pause before opening it, block playback while it is open, and do not autoplay when it closes") is unchanged and applies to every opening below.
 
-## Why
+## Behavior before implementation
 
 The operator named generating pronunciation as the slowest step and two dialog reopenings as explicit delays:
 
@@ -22,7 +22,7 @@ Steps 3 and 4 of the manual protocol in [first-sing timing](../notes/2026-09-29-
 - When a song search opens a video, the dialog opens when the player reports ready and the lyric search starts, so the user sees the search progress and then the candidates without tapping **가사 선택**.
   It opens at that point, not when the candidates arrive, so that it never pauses playback the user started while the search was running.
 - It opens the same way as the **가사 선택** button: playback pauses and the video details are filled in.
-- It does not open when, by the time the player is ready, the user has started another search or opened another video, has left the practice screen with **다른 노래 찾기**, or the app is in the background or hidden.
+- It does not open when, by the time the player is ready, the user has started another search or opened another video, has left the practice screen with **곡 찾기**, or the app is in the background or hidden.
 - Opening a video from a direct link, a share code, or 저장한 연습, and returning to the previous video after a searched video fails to play, keep today's behavior: the dialog stays closed.
 - If the lyric search fails or finds nothing, the dialog stays open with the status message and the search form, as it does today when the user opens it.
 

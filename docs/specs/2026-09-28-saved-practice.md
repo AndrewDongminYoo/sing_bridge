@@ -16,6 +16,7 @@ Keep the approved timed-scrolling behavior.
 - Save through an explicit button in lyric settings; repeated saves of the same video and lyric ID update the existing entry.
   Since #76, [one practice save](2026-10-01-single-practice-save.md) owns the save rules, including automatic timing saves.
 - Store only a versioned video ID, LRCLIB ID, display title, and offset in WebView local storage.
+  [Saved pronunciation and editing](2026-09-28-pronunciation-editing.md) extends this format with explicitly saved source snapshots, generated layers, and line edits.
 - Offer open and remove actions in a saved-practice list on discovery.
 - Opening a saved entry cues the video without autoplay, fetches that exact LRCLIB ID, and applies the offset only after valid lyrics load.
 - Preserve existing request size, timeout, cancellation, retry, and generation guards.
@@ -25,9 +26,9 @@ Keep the approved timed-scrolling behavior.
 ## Non-goals and follow-up
 
 Automatic pronunciation and language identification are separate work; future conversion needs phrase-level language decisions for mixed-language lyrics and the user's target locale.
-Lyric-row seeking remains deferred.
+Lyric-row seeking is implemented by the later [lyric tap playback](2026-09-28-lyric-tap-seek.md) slice.
 The later approved button-design pass separates playback movement and lyric timing with visible captions; see `2026-09-28-practice-controls.md`.
-No backend, lyric-body persistence, progress sync, or dependency changes are included.
+No backend, lyric-body persistence, progress sync, or dependency changes were included in this initial slice; the pronunciation extension above supersedes its persistence boundary.
 
 ## Acceptance
 

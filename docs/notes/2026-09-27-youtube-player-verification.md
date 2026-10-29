@@ -10,7 +10,7 @@ No new dependencies or storage schema changes.
 - Review regression: error 153 was overwritten by the loading timeout; the new test failed before the per-generation settled flag and passes after it.
 - Final source: `./gradlew --no-daemon :shared:jvmTest :androidApp:assembleDebug :androidApp:lintDebug -Pkotlin.incremental=false` passed with 25 shared tests, zero failures, and zero errors.
   The XML report includes the passing `leavingPracticeAtTrackEndDoesNotRestartRepeat` regression.
-- Android Lint reports three warnings in unchanged configuration/source: OldTargetApi, DataExtractionRules, and UseKtx at LastSongStore.kt:50.
+- Android Lint reported three warnings in unchanged configuration/source: OldTargetApi, DataExtractionRules, and UseKtx in `LastSongStore.save`.
 - Unsigned arm64 iOS simulator host: `xcodegen generate --spec iosApp/project.yml` followed by the README's `xcodebuild` command passed.
 - Separate read-only native and shared-code reviewers completed; the timeout finding was repaired and rechecked.
 - Before the final practice-exit fix, Trunk checked 39 files successfully.
