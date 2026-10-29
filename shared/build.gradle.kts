@@ -64,6 +64,14 @@ kotlin {
     }
 }
 
+dependencies {
+    constraints {
+        add("androidMainImplementation", libs.guava) {
+            because("GHSA-xxph-c9ww-hj94 affects Media3's transitive Guava dependency")
+        }
+    }
+}
+
 compose.resources {
     packageOfResClass = "io.github.andrewdongminyoo.singbridge.resources"
 }

@@ -1,6 +1,7 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
+# To regenerate this file, run: ./gradlew :androidApp:dependencies --write-locks
 androidx.activity:activity-compose:1.12.4=debugAndroidTestCompileClasspath,debugCompileClasspath,debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestRuntimeClasspath
 androidx.activity:activity-ktx:1.12.4=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
 androidx.activity:activity:1.12.4=debugAndroidTestCompileClasspath,debugCompileClasspath,debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestRuntimeClasspath
@@ -114,8 +115,8 @@ androidx.versionedparcelable:versionedparcelable:1.1.1=debugAndroidTestCompileCl
 androidx.window:window-core-android:1.5.0=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
 androidx.window:window-core:1.5.0=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
 androidx.window:window:1.5.0=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
-com.google.guava:failureaccess:1.0.2=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
-com.google.guava:guava:33.3.1-android=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
+com.google.guava:failureaccess:1.0.3=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
+com.google.guava:guava:33.7.2-android=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
@@ -172,5 +173,6 @@ org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.7.3=debugAndroidTestCompi
 org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3=debugAndroidTestCompileClasspath,debugCompileClasspath,debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestRuntimeClasspath
 org.jetbrains:annotations:13.0=kotlinBuildToolsApiClasspath
 org.jetbrains:annotations:23.0.0=debugAndroidTestCompileClasspath,debugCompileClasspath,debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestRuntimeClasspath
-org.jspecify:jspecify:1.0.0=debugAndroidTestCompileClasspath,debugCompileClasspath,debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestRuntimeClasspath
+org.jspecify:jspecify:1.0.0=debugAndroidTestCompileClasspath,debugCompileClasspath,debugUnitTestCompileClasspath
+org.jspecify:jspecify:1.0.1=debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath
 empty=androidApis,debugAndroidTestRuntimeClasspath,debugAnnotationProcessorClasspath,debugReverseMetadataValues,kotlinCompilerPluginClasspath,lintChecks

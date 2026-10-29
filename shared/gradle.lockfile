@@ -1,6 +1,7 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
+# To regenerate this file, run: ./gradlew :shared:dependencies --write-locks
 androidx.activity:activity-compose:1.8.2=androidRuntimeClasspath
 androidx.activity:activity-ktx:1.8.2=androidRuntimeClasspath
 androidx.activity:activity:1.8.2=androidRuntimeClasspath
@@ -138,8 +139,8 @@ androidx.versionedparcelable:versionedparcelable:1.1.1=androidRuntimeClasspath
 androidx.window:window-core-android:1.5.0=androidRuntimeClasspath
 androidx.window:window-core:1.5.0=androidRuntimeClasspath
 androidx.window:window:1.5.0=androidRuntimeClasspath
-com.google.guava:failureaccess:1.0.2=androidCompileClasspath,androidRuntimeClasspath
-com.google.guava:guava:33.3.1-android=androidCompileClasspath,androidRuntimeClasspath
+com.google.guava:failureaccess:1.0.3=androidCompileClasspath,androidRuntimeClasspath
+com.google.guava:guava:33.7.2-android=androidCompileClasspath,androidRuntimeClasspath
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava=androidCompileClasspath,androidRuntimeClasspath
 junit:junit:4.13.2=jvmTestCompileClasspath,jvmTestRuntimeClasspath
 org.hamcrest:hamcrest-core:1.3=jvmTestCompileClasspath,jvmTestRuntimeClasspath
@@ -279,5 +280,6 @@ org.jetbrains.skiko:skiko-iossimulatorarm64:0.9.37.4=iosSimulatorArm64CompileKli
 org.jetbrains.skiko:skiko:0.9.37.4=iosArm64CompileKlibraries,iosSimulatorArm64CompileKlibraries,jvmCompileClasspath,jvmTestCompileClasspath,jvmTestRuntimeClasspath
 org.jetbrains:annotations:13.0=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinCompilerPluginClasspathAndroidMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathJvmTest
 org.jetbrains:annotations:23.0.0=androidCompileClasspath,androidRuntimeClasspath,jvmCompileClasspath,jvmTestCompileClasspath,jvmTestRuntimeClasspath
-org.jspecify:jspecify:1.0.0=androidCompileClasspath,androidRuntimeClasspath,jvmCompileClasspath,jvmTestCompileClasspath,jvmTestRuntimeClasspath
+org.jspecify:jspecify:1.0.0=jvmCompileClasspath,jvmTestCompileClasspath,jvmTestRuntimeClasspath
+org.jspecify:jspecify:1.0.1=androidCompileClasspath,androidRuntimeClasspath
 empty=androidApis,iosSimulatorArm64DebugFrameworkExport,kotlinScriptDefExtensions,lintPublish,testKotlinScriptDefExtensions
