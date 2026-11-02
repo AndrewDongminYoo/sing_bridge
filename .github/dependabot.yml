@@ -47,6 +47,14 @@ updates:
     # and Kotlin 2.4 needs a regenerated Kotlin Native bundle lock.
     # Both are separate migrations; patch updates stay open.
     ignore:
+      # PR #105: AGP 9.5 adds vulnerable lint/UTP tool dependencies to both locks.
+      # Keep AGP 9.1 until that graph is patched; patch and security updates stay open.
+      - dependency-name: com.android.application
+        update-types:
+          - version-update:semver-minor
+      - dependency-name: com.android.kotlin.multiplatform.library
+        update-types:
+          - version-update:semver-minor
       - dependency-name: org.jetbrains.compose
         update-types:
           - version-update:semver-minor
