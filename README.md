@@ -225,7 +225,19 @@ When changing dependencies, resolve the tested configurations and regenerate the
 
 ```bash
 ./gradlew :shared:jvmTest :androidApp:assembleDebug :androidApp:lintDebug \
+  :androidApp:assembleDebugAndroidTest \
   :shared:linkDebugFrameworkIosSimulatorArm64 --write-locks
+```
+
+AGP 9.1.1 UTP host-tool constraints are scoped to the exact internal configurations in `androidApp/build.gradle.kts`.
+They update Guava JRE, Netty, Bouncy Castle, HttpClient and Commons Lang without replacing the app's Guava Android variant.
+These internal names are not a stable AGP API; recheck the constraint allowlist and lock guard on every AGP update.
+The AndroidX runner and JUnit extension are pinned test-only dependencies for the instrumentation smoke test.
+Resolve all Android configurations with `:androidApp:dependencies --write-locks` after updating UTP constraints, then run:
+
+```bash
+python3 -B -m unittest discover -s tools -p test_verify_utp_security.py
+python3 -B tools/verify_utp_security.py
 ```
 
 Run native build jobs sequentially on memory-constrained machines.
@@ -253,6 +265,11 @@ Linux ARM64 is not supported by this Android setup script.
 
 `.github/workflows/ci.yml` defines checks for pull requests, pushes to `main`, and manual runs.
 The workflow checks shared behavior and Android builds on Linux, builds the unsigned iOS simulator host on macOS, and runs Trunk separately.
+The Linux Android job also boots an isolated API 36 x86_64 emulator and executes `:androidApp:connectedDebugAndroidTest` through the UTP security guard.
+`UtpSmokeTest` reads the installed package, launch-intent metadata and resources without starting an activity or contacting a provider.
+The guard requires a passing, nonzero JUnit result and observes `EmulatorControlPlugin` in the serialized runner configuration during execution.
+The emulator uses JWT-protected gRPC with matching discovery and allowlist metadata; missing authentication, a skipped test and `NO-SOURCE` fail this check.
+Only a sanitized JUnit summary and boolean/count security metadata are uploaded; raw UTP protobufs, emulator authentication files and emulator logs stay private to the ephemeral runner.
 GitHub Actions execution is distinct from the local checks recorded in `docs/notes/2026-09-27-automation.md`.
 
 Trunk runs the linters pinned in `.trunk/trunk.yaml`, covering formatting, spelling (`cspell.config.yaml`), workflow syntax and action pins, shell scripts, Markdown, YAML, Python, TOML, Kotlin, and secret and dependency scanning.

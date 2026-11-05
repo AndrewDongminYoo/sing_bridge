@@ -40,7 +40,7 @@ jobs:
   jvm-and-android:
     name: JVM tests and Android checks
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -74,6 +74,91 @@ jobs:
 
       - name: Test LRCLIB coverage tool
         run: node --test tools/lyrics-coverage/coverage.test.mjs
+
+      - name: Test UTP security guard and selected dependency locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s tools -p test_verify_utp_security.py
+          python3 -B tools/verify_utp_security.py
+
+      - name: Run UTP instrumentation smoke test on an isolated emulator
+        shell: bash
+        env:
+          ANDROID_SERIAL: emulator-5554
+        run: |
+          set -euo pipefail
+          umask 077
+          sdkmanager --install "emulator" "system-images;android-36;google_apis;x86_64"
+          test -c /dev/kvm
+          sudo chown "$(id -u):$(id -g)" /dev/kvm
+          export ANDROID_USER_HOME="$RUNNER_TEMP/utp-android"
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/utp-avd"
+          export XDG_RUNTIME_DIR="$RUNNER_TEMP/utp-runtime"
+          mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME" "$XDG_RUNTIME_DIR"
+          echo no | avdmanager create avd --name utp-security --package "system-images;android-36;google_apis;x86_64" --device pixel_6
+          adb start-server
+          "$ANDROID_HOME/emulator/emulator" -avd utp-security -port 5554 \
+            -grpc 8554 -grpc-use-jwt -no-window -no-audio -no-snapshot \
+            -no-boot-anim -gpu swiftshader_indirect > "$RUNNER_TEMP/utp-emulator-private.log" 2>&1 &
+          emulator_pid=$!
+          observer_pid=""
+          completion="$RUNNER_TEMP/utp-completed"
+          ready="$RUNNER_TEMP/utp-observer-ready"
+          cleanup() {
+            if [[ -n "$observer_pid" ]]; then
+              if [[ ! -e "$completion" ]]; then
+                printf '1\n' > "$completion.pending"
+                mv "$completion.pending" "$completion"
+              fi
+              wait "$observer_pid" > /dev/null 2>&1 || true
+            fi
+            timeout 20s adb -s "$ANDROID_SERIAL" emu kill > /dev/null 2>&1 || true
+            kill "$emulator_pid" > /dev/null 2>&1 || true
+            wait "$emulator_pid" > /dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          booted=false
+          for _ in {1..120}; do
+            kill -0 "$emulator_pid"
+            if [[ "$(timeout 5s adb -s "$ANDROID_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)" == 1 ]]; then
+              booted=true
+              break
+            fi
+            sleep 5
+          done
+          test "$booted" = true
+          python3 -B tools/verify_utp_security.py \
+            --utp-directory "$ANDROID_USER_HOME/utp" \
+            --emulator-discovery "$XDG_RUNTIME_DIR/avd/running" \
+            --serial "$ANDROID_SERIAL" \
+            --summary androidApp/build/reports/utp-security/summary.json \
+            --junit-summary androidApp/build/reports/utp-security/TEST-utp-smoke.xml \
+            --observe-until "$completion" --ready "$ready" &
+          observer_pid=$!
+          for _ in {1..100}; do
+            kill -0 "$observer_pid"
+            if [[ -f "$ready" ]]; then break; fi
+            sleep 0.1
+          done
+          test -f "$ready"
+          gradle_exit=0
+          timeout 18m ./gradlew --no-daemon :androidApp:connectedDebugAndroidTest \
+            -Pandroid.testInstrumentationRunnerArguments.class=io.github.andrewdongminyoo.singbridge.UtpSmokeTest \
+            || gradle_exit=$?
+          printf '%s\n' "$gradle_exit" > "$completion.pending"
+          mv "$completion.pending" "$completion"
+          wait "$observer_pid"
+          test "$gradle_exit" = 0
+
+      - name: Upload sanitized UTP security evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: utp-security-evidence
+          path: androidApp/build/reports/utp-security/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload Android lint reports
         if: ${{ always() }}
@@ -133,7 +218,7 @@ jobs:
           unzip -q "$archive" -d "$RUNNER_TEMP/xcodegen"
           xcodegen_binary="$(find "$RUNNER_TEMP/xcodegen" -type f -path '*/bin/xcodegen' -print -quit)"
           test -n "$xcodegen_binary"
-          echo "$(dirname "$xcodegen_binary")" >> "$GITHUB_PATH"
+          dirname "$xcodegen_binary" >> "$GITHUB_PATH"
           "$xcodegen_binary" --version
 
       - name: Generate and compile the unsigned iOS simulator host
@@ -156,3 +241,6 @@ jobs:
 
       - name: Run Trunk checks
         uses: trunk-io/trunk-action@e1234e67a86010d61ddac8d8ebf4b783e2ffd2fa # v2.0.0
+        with:
+          check-mode: all
+          arguments: --no-fix --jobs=2
