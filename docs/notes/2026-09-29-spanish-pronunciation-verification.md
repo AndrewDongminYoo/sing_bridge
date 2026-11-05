@@ -8,7 +8,7 @@ Issue: #23.
 The server keeps one language list for validation and the JSON schema, and the page keeps one table for re-validation and the displayed names.
 The prompt names `es` as Spanish, gives spelling and word cues so Latin script is not read as English, and gives Spanish-to-Hangul rules that follow Korean loanword spelling (for example `mañana` = 마냐나, `gente` = 헨테, `corazón` = 코라손, `amor` = 아모르).
 Each lyric row with a Spanish phrase shows a visible `스페인어(실험)` label, because touch WebViews show no tooltip; a row the user edited shows `직접 수정` instead.
-Andrew approved widening the target user from Japanese lyrics to foreign-language lyrics with Spanish as an experiment on 2026-09-29, as #23 required.
+Widening the target user from Japanese lyrics to foreign-language lyrics with Spanish as an experiment was approved on 2026-09-29, as #23 required.
 
 ## Checks
 

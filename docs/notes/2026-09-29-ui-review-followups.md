@@ -1,6 +1,6 @@
 # UI review follow-up checks
 
-Follows the [UI review](2026-09-29-ui-review.md), whose remaining gaps Andrew chose to close on 2026-09-29: the iOS status bar strip, Android text size, and an Android emulator check.
+Follows the [UI review](2026-09-29-ui-review.md), whose remaining gaps I chose to close on 2026-09-29: the iOS status bar strip, Android text size, and an Android emulator check.
 
 ## Android text size
 

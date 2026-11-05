@@ -7,10 +7,10 @@ Replaces the message in the [2026-09-27 draft](2026-09-27-lyrics-license-inquiry
 
 Checked on 2026-09-30 by fetching each page.
 
-| Vendor     | Route                                                                                                        | Notes                                                                                                     |
-| ---------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| LyricFind  | `sales@lyricfind.com`, listed "For Sales inquiries" on [the contact page](https://www.lyricfind.com/contact) | Sent by email.                                                                                            |
-| Musixmatch | "Send an enquiry" form on [Let's talk](https://about.musixmatch.com/business/lets-talk)                      | The page lists no email address. Andrew sent to `apisupport@musixmatch.com` instead; see the contact log. |
+| Vendor     | Route                                                                                                        | Notes                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| LyricFind  | `sales@lyricfind.com`, listed "For Sales inquiries" on [the contact page](https://www.lyricfind.com/contact) | Sent by email.                                                                                       |
+| Musixmatch | "Send an enquiry" form on [Let's talk](https://about.musixmatch.com/business/lets-talk)                      | The page lists no email address. I sent to `apisupport@musixmatch.com` instead; see the contact log. |
 
 ## What changed since the 2026-09-27 draft
 
@@ -21,7 +21,7 @@ Checked on 2026-09-30 by fetching each page.
 
 ## Message
 
-Andrew edited the prepared draft before sending; this is the text both vendors received, with the same subject.
+I edited the prepared draft before sending; this is the text both vendors received, with the same subject.
 
 Subject: SingBridge: licensing scope for phonetic lyrics in a song-practice app
 
@@ -57,8 +57,8 @@ SingBridge (independent developer)
 
 ## Contact log
 
-The agent prepared Gmail drafts on 2026-09-30 and sent nothing; Andrew sent both messages from his Gmail account.
-The Musixmatch message went to `apisupport@musixmatch.com` instead of the web form, because Andrew was told that Musixmatch takes API requests at that address.
+The agent prepared Gmail drafts on 2026-09-30 and sent nothing; I sent both messages from my Gmail account.
+The Musixmatch message went to `apisupport@musixmatch.com` instead of the web form, because I was told that Musixmatch takes API requests at that address.
 Send times below are read from the Sent folder.
 
 | Vendor     | Sent (UTC)           | Route                                | Answer                                              |

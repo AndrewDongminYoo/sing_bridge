@@ -11,7 +11,7 @@ Both platforms load the page with the base URL `https://io.github.andrewdongminy
 
 ## Settings
 
-Andrew created a separate tester key in the Google Cloud console on 2026-09-30 and kept it out of Git in `local.properties`:
+I created a separate tester key in the Google Cloud console on 2026-09-30 and kept it out of Git in `local.properties`:
 
 - API restriction: YouTube Data API v3 only.
 - Application restriction: website `https://io.github.andrewdongminyoo.singbridge/*`.
@@ -46,7 +46,7 @@ No app code changed: the page's default referrer policy already sends the origin
 
 ## Quota alert
 
-Andrew added a Cloud Monitoring alert policy on 2026-09-30, read from a console screenshot he shared:
+I added a Cloud Monitoring alert policy on 2026-09-30, read from a console screenshot I shared:
 
 - Metric: quota usage of "YouTube Data API v3 - Search Queries per day" (`youtube.googleapis.com/search_list`).
 - Condition: any time series above 0.8 of the daily limit, retested every minute.

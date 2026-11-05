@@ -13,40 +13,40 @@ Until the vendors answer, LRCLIB access still does not establish commercial righ
 ## Musixmatch
 
 - **2026-09-30T12:02:36Z, reply** from Musixmatch API support (`apisupport@musixmatch.com`): the questions need review by the commercial and legal team before anything is put in writing, and Musixmatch asked for the expected catalog size and target launch markets to route the inquiry.
-- **2026-10-01T00:25:43Z, Andrew's answer:**
+- **2026-10-01T00:25:43Z, my answer:**
   - The initial target market is South Korea, for Korean speakers who cannot read Japanese; Japan and the United States were in the first email for price comparison only.
   - The focus is Japanese songs popular in South Korea, with lyrics retrieved per song on demand when a user searches, not bulk catalog delivery.
   - 30 songs have been used for testing; that is a test sample, not a forecast or a limit, and the 1,000 and 10,000 MAU figures were illustrative scenarios, not forecasts.
-  - He asked how Musixmatch defines catalog size for an on-demand model and what usage estimate the commercial team needs, and asked the team to review the licensing questions of the first email.
+  - I asked how Musixmatch defines catalog size for an on-demand model and what usage estimate the commercial team needs, and asked the team to review the licensing questions of the first email.
 
 ## LyricFind
 
 - **2026-09-30T13:57:27Z, reply** from a LyricFind account executive, sent at 09:57 in UTC-4: a proposal for a 20-minute Google Meet this week or next, to understand the requirements and suggest a licensing plan.
-- **2026-10-01T00:25:49Z, Andrew's answer:**
-  - He accepted the call and asked for a time this week or next between 10:00 and 22:00 KST.
-  - He gave the same market and on-demand retrieval summary as to Musixmatch.
-  - He asked to discuss a plan covering synchronized lyrics, phonetic transliteration, third-party LLM processing, and offline storage, with pricing and minimum fees.
+- **2026-10-01T00:25:49Z, my answer:**
+  - I accepted the call and asked for a time this week or next between 10:00 and 22:00 KST.
+  - I gave the same market and on-demand retrieval summary as to Musixmatch.
+  - I asked to discuss a plan covering synchronized lyrics, phonetic transliteration, third-party LLM processing, and offline storage, with pricing and minimum fees.
 
 ## Update 2026-10-19
 
-Reported by Andrew on 2026-10-19.
+Reported on 2026-10-19.
 A call with LyricFind took place on 2026-10-08, per #17; whether the offer below came on that call or in a later message, and the date of the Musixmatch proposal, were not recorded here.
 
 - **LyricFind:** stated USD 600 per month as the minimum payment for a catalog that excludes the major publishers, among them Universal and Sony; the exact excluded entities need written confirmation.
-  This line first said "up to USD 600"; Andrew corrected it on 2026-10-20.
+  This line first said "up to USD 600"; I corrected it on 2026-10-20.
   LyricFind will research the detailed scope, including AI use, once SingBridge states a workable budget.
 - **Musixmatch:** proposed only a price similar to LyricFind's figure with the major publishers included; no meeting took place.
-- Andrew judges both too expensive for a Japanese-song scope; the [Korean collecting society review](2026-10-19-korea-cmo-licensing-review.md) compares the options.
+- I judge both too expensive for a Japanese-song scope; the [Korean collecting society review](2026-10-19-korea-cmo-licensing-review.md) compares the options.
 
 Neither vendor has yet confirmed in writing the transliteration, AI-processing, or offline-storage scope.
 
 ## LyricFind follow-up 2026-10-20
 
-Andrew emailed the LyricFind account executive at about 2026-10-20T15:07Z (00:07 KST on 2026-10-21), as he reported, with the English 30-song list attached as CSV.
+I emailed the LyricFind account executive at about 2026-10-20T15:07Z (00:07 KST on 2026-10-21), as I reported, with the English 30-song list attached as CSV.
 The CSV holds the songs of `tools/lyrics-coverage/songs-2026-09.json` with title, artist, and Melon J-POP rank, and empty columns for LyricFind to fill: in catalog, publishers, licensable in South Korea at the USD 600 tier, licensable with the majors included, and synchronized lyrics available.
 
 The message restates LyricFind's figure correctly: USD 600 per month is the minimum payment for the catalog without the major publishers.
-Andrew knew the narrower scope and lower budget asked for here fall below that stated minimum, and sent the request anyway so that LyricFind can answer it rather than SingBridge ruling it out.
+I knew the narrower scope and lower budget asked for here fall below that stated minimum, and sent the request anyway so that LyricFind can answer it rather than SingBridge ruling it out.
 
 What the message states:
 
