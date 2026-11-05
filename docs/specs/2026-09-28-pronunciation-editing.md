@@ -2,7 +2,7 @@
 
 ## Approved scope
 
-The operator approved device-local saving, editing, and reuse of generated pronunciation.
+I approved device-local saving, editing, and reuse of generated pronunciation.
 LRC file import or export, translations, and an OSS quality gate are outside this increment.
 An OSS engine remains a future candidate for checking AI output, not merely replacing AI calls.
 This decision supersedes the memory-only persistence constraint in the initial pronunciation prototype specification.

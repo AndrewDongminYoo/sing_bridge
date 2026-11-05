@@ -40,7 +40,7 @@ Both browser sessions and the local HTTP server were closed after checks.
 The real key was replaced with a fixture key in the local QA page after use; no credential was printed.
 A publication-material check rejected a deliberately supplied secret fixture, then passed the scoped diff and new source documents.
 
-## Native builds and operator verification
+## Native builds and verification
 
 `./gradlew --no-daemon :shared:jvmTest :androidApp:assembleDebug :androidApp:lintDebug -Pkotlin.incremental=false` passed after the final source changes.
 The JVM report contains 26 tests with zero failures, errors, or skips.
@@ -50,9 +50,9 @@ Launch returned PID 49902, and a subsequent process check found the app running.
 A later screenshot showed the home screen, so install and process launch are the only native runtime claims from this pass.
 No physical phone was used.
 
-After installation, the operator confirmed that search, playback, and lyric selection work in the iOS app.
+After installation, I confirmed that search, playback, and lyric selection work in the iOS app.
 This confirmation completes the new search flow runtime check independently of browser evidence.
-Direct-link replacement and background return were not included in this latest confirmation; existing controlled coverage and earlier operator checks remain separate evidence.
+Direct-link replacement and background return were not included in this latest confirmation; existing controlled coverage and earlier checks remain separate evidence.
 
 Because AGENTS.md was updated, `codex doctor --summary --ascii --no-color` was run as an advisory diagnostic.
 It reported 1 warning, 0 failures, and 3 notes; the warning concerns local update configuration.

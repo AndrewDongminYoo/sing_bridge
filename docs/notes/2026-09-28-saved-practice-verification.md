@@ -53,13 +53,13 @@ The public LRCLIB `GET /api/get/35923881` endpoint was checked and returned the 
 
 ## Authority and follow-up
 
-The operator approved the earlier timed-scroll screen; that approval does not cover the new save and script-label controls.
+I approved the earlier timed-scroll screen; that approval does not cover the new save and script-label controls.
 Automatic transliteration, phrase-level language identification, lyric-row seeking, and transport/sync-control redesign remain outside this change.
 Oracle retrieval returned `[no precedent found]` for this personal project scope.
 
 ## Candidate UI follow-up
 
-The operator requested simpler Japanese labels and clearer candidate cards after inspecting the saved-practice build.
+I requested simpler Japanese labels and clearer candidate cards after inspecting the saved-practice build.
 The displayed label now combines Kana and Han into Japanese when Kana is present, while Han-only text remains labeled Han and mixed Latin stays visible.
 Percentages were removed from the UI.
 Cards separate the title, artist/album metadata, script/sync badges, duration difference, and a two-line preview.
@@ -84,7 +84,7 @@ This small UI-only follow-up received a local inline review; it did not change s
 
 ## Practice button follow-up
 
-The operator approved the candidate cards and then invoked a design skill after discussing button design.
+I approved the candidate cards and then invoked a design skill after discussing button design.
 The marketing-page skill excludes product interfaces, so this pass used frontend-design within the approved cream/forest-green product UI.
 The contract is `docs/specs/2026-09-28-practice-controls.md`.
 Search, open, and save buttons now use a solid green primary style; navigation uses secondary outlines.
@@ -109,5 +109,5 @@ Clicking the existing 0.5-second-later control enabled the reset action.
 Screenshots are ignored under `build/qa/saved/`: `buttons-discovery.png`, `buttons-practice.png`, `buttons-settings.png`, `buttons-small.png`, and `buttons-landscape.png`.
 The browser session was closed.
 These are controlled browser rendering checks, not a fresh native live-provider playback pass.
-The operator approved the installed button UI before requesting this PR: “훨씬 낫네요. 화면 승인합니다. PR 올려주세요.”
+I approved the installed button UI before requesting this PR: “훨씬 낫네요. 화면 승인합니다. PR 올려주세요.”
 The new button build was installed over the existing DeviceHub app and launched successfully (PID 64027); the physical phone was not used.

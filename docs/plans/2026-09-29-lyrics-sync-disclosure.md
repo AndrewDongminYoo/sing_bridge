@@ -13,4 +13,4 @@ Oracle returned `[no precedent found]`; the prior user observation and current m
 3. Verify expand/collapse, offset persistence, unchanged player commands, keyboard operation, portrait/landscape bounds, and screenshots in a named browser session.
 4. Run the existing Node behavior suite, shared JVM tests, and scoped Trunk checks; assess the small diff inline.
 5. Commit the coherent change, open a PR, and verify both hosted reviews and all native build jobs.
-6. Request operator visual approval with the recorded browser-fixture limit.
+6. Request visual approval with the recorded browser-fixture limit.

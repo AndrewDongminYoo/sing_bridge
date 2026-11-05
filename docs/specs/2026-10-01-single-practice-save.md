@@ -3,7 +3,7 @@
 ## Status and authority
 
 Implemented in the shared page; see [verification and remaining native coverage](../notes/2026-10-01-single-practice-save-verification.md).
-Issue: #76, from the operator's feedback after the #24 Android runs on 2026-10-01.
+Issue: #76, from my feedback after the #24 Android runs on 2026-10-01.
 This spec replaces the save rules in [saved practice](2026-09-28-saved-practice.md) ("Save through an explicit button in lyric settings") and in [pronunciation editing](2026-09-28-pronunciation-editing.md) ("Only the pronunciation save action persists a new layer or edits; ordinary practice saving preserves existing saved layers while updating reference metadata and timing").
 
 ## Behavior before implementation

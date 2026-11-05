@@ -70,7 +70,7 @@ SingBridge is rated on what an end user can use today, not on development builds
 
 ## Product context
 
-The operator confirmed the target user and key metric on 2026-09-29, choosing singing practice over language study and over a personal-tool scope.
+I confirmed the target user and key metric on 2026-09-29, choosing singing practice over language study and over a personal-tool scope.
 No previous project fixed numeric targets, so every threshold below is a new proposal, not a benchmark.
 
 - **Target user:** Korean speakers who cannot read Japanese and want to sing a specific Japanese song correctly, for karaoke or singing along.

@@ -8,11 +8,11 @@ That note stays as the record of its run; this note records what changed afterwa
 
 ## Decision
 
-On 2026-09-30, after the first run, the operator decided:
+On 2026-09-30, after the first run, I decided:
 
 - The Gate A sample condition follows the answers to #17; no separate authorized or original sample set is prepared before then.
 - Before that, the 12 Latin-letter lines of ただ声一つ are regenerated with the #56 fix (PR #61) on the server, and the review is repeated under the protocol, correcting every wrong line.
-- The operator stays the reviewer for now.
+- I stay the reviewer for now.
 
 ## What changed
 
@@ -52,7 +52,7 @@ The extracted library, which contains lyrics, was kept only in a temporary direc
 | 35057582  | 米津玄師 - LADY                             | 35    | 35        | 0      | 9                    | 0                             |
 
 `totals.ko`: 10 songs, 399 lines with text, 399 generated, 0 edited, 399 unedited, 0 phrases without pronunciation, and an unedited ratio of 1.
-This time no known wrong line was left unedited, so the editing deviation of the first run is gone; because the protocol asks for a fluent reviewer and the reviewer's fluency was not assessed, the ratio is the operator's development edit rate, not yet the reviewer edit rate that the protocol defines.
+This time no known wrong line was left unedited, so the editing deviation of the first run is gone; because the protocol asks for a fluent reviewer and the reviewer's fluency was not assessed, the ratio is my development edit rate, not yet the reviewer edit rate that the protocol defines.
 
 ## Gate A status
 
@@ -78,6 +78,6 @@ All requests used `gpt-5.4-mini-2026-03-17` with no cached or reasoning tokens; 
 
 ## Limits
 
-- One reviewer, who is also the operator, reviewed one generation per song; model output varies between calls.
+- One reviewer, who is also me, reviewed one generation per song; model output varies between calls.
 - The reviewer read the 9 other songs in the first run and ただ声一つ in this one, from two generations made on the same day with the same model and prompt; between them only the server's check of the result changed (PR #61).
 - The Latin-letter check detects the wrong script, not wrong readings; other errors rest on the reviewer's reading.

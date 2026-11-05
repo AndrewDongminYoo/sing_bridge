@@ -2,13 +2,13 @@
 
 ## Scope and authority
 
-The operator requested KMP project initialization, Git initialization, and a basic implementation.
-The operator selected product name SingBridge and folder `sing_bridge`.
+I requested KMP project initialization, Git initialization, and a basic implementation.
+I selected product name SingBridge and folder `sing_bridge`.
 The verified repository root is `/Users/dongminyu/Development/01_personal/sing_bridge`.
 This is the main workspace, not a task-created worktree.
 At the end of the initial implementation, the repository had an unborn `main` branch and no remote.
 No commit, push, external account write, or physical-device installation was performed during that implementation.
-The operator subsequently requested semantic commits and publication to a public personal GitHub repository with a description.
+I subsequently requested semantic commits and publication to a public personal GitHub repository with a description.
 
 ## Precedent
 

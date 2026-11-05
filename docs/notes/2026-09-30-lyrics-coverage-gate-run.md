@@ -3,7 +3,7 @@
 <!-- cspell:words Kenshi Yonezu -->
 
 Issue: #19.
-List: `tools/lyrics-coverage/songs-2026-09.json`, approved by the operator by merging PR #49; the [list note](2026-09-29-lyrics-coverage-song-list.md) records how it was chosen.
+List: `tools/lyrics-coverage/songs-2026-09.json`, approved by merging PR #49; the [list note](2026-09-29-lyrics-coverage-song-list.md) records how it was chosen.
 Target: synced LRCLIB lyrics for at least 70% of the curated 30 songs, with false matches counted separately (Gate A in the [competitive brief](2026-09-29-competitive-brief.md)).
 
 ## What was run

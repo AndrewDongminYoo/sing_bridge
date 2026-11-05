@@ -1,6 +1,6 @@
 # Song search implementation plan
 
-The operator approved artist - title search, automatic top-video selection, and a subsequent LRCLIB search while retaining direct links.
+I approved artist - title search, automatic top-video selection, and a subsequent LRCLIB search while retaining direct links.
 The configured local API key successfully returned a Vaundy video through the official API without exposing the key in output.
 Project Oracle retrieval returned `[no precedent found]`.
 
@@ -21,11 +21,11 @@ Do not add cloud deployment, account switching, or service-account authenticatio
 1. Extend controlled shipped-script tests for duration ranking, delayed metadata, timing buttons, screen navigation, and repeat controls.
 2. Keep the implementation in the shared HTML modules; reuse the player and request lifecycle without new dependencies.
 3. Verify actual browser search results, keyboard-free timing adjustment, navigation pause, and repeat enabled/disabled at the end of a real video.
-4. Rebuild sequentially and install the updated iOS host for operator validation of the revised screens.
+4. Rebuild sequentially and install the updated iOS host for validation of the revised screens.
 
 ## Compact practice follow-up
 
 1. Add failing tests for panel pause/close behavior and reading-area scroll reset.
 2. Replace the practice page flow with a bounded responsive grid and move secondary tasks to a modal panel.
 3. Compare old/new rendered layouts, inspect small/landscape/enlarged-text states, and exercise the panel with real browser controls.
-4. Run the shared behavior checks, Android checks, and final iOS build sequentially; install the result for operator verification.
+4. Run the shared behavior checks, Android checks, and final iOS build sequentially; install the result for verification.

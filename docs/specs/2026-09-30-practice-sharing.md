@@ -2,8 +2,8 @@
 
 ## Status and authority
 
-Draft for the operator's approval; merging it approves the behavior and its non-goals, not the start of implementation.
-On 2026-09-30 the operator asked whether a practice that someone aligned (video, lyrics, pronunciation, sync) can be seen by others, and chose to share it as a code in a text message, opened by the recipient, with saving left to the recipient.
+Draft for my approval; merging it approves the behavior and its non-goals, not the start of implementation.
+On 2026-09-30 I asked whether a practice that someone aligned (video, lyrics, pronunciation, sync) can be seen by others, and chose to share it as a code in a text message, opened by the recipient, with saving left to the recipient.
 
 ## Why
 

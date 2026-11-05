@@ -2,8 +2,8 @@
 
 ## Status and authority
 
-The operator requested automatic pronunciation and phrase-level language identification after PR7 merged at `7282d5847f3ebee1f422c19eb4c1f22a44f38596`.
-The operator approved server AI processing with a lightweight model and authorized the provided local credential for this implementation.
+I requested automatic pronunciation and phrase-level language identification after PR7 merged at `7282d5847f3ebee1f422c19eb4c1f22a44f38596`.
+I approved server AI processing with a lightweight model and authorized the provided local credential for this implementation.
 The initial implementation uses a local development server and native debug transports.
 Public deployment, production authentication, and release enablement remain outside this slice.
 Personal project Oracle lookup for pronunciation and language detection returned `[no precedent found]`.
@@ -32,7 +32,7 @@ Existing research recommends separating source reading/G2P from target rendering
 - Display pronunciation as an optional secondary layer; a failure must leave original practice usable.
 - Keep source-language decisions separate from script badges and target locale.
 - Leave same-language phrases unchanged, including Korean parts in a Korean-target K-pop line; convert its English parts phonetically rather than translating their meaning.
-- Mark uncertain readings for review while still giving the most likely pronunciation from the phrase and neighboring lines (including up to two read-only context lines on each side of a batch, #42), because Japanese kanji readings depend on meaning (operator decision in #40, 2026-09-29); keep unsupported phrases as original text, also marked for review.
+- Mark uncertain readings for review while still giving the most likely pronunciation from the phrase and neighboring lines (including up to two read-only context lines on each side of a batch, #42), because Japanese kanji readings depend on meaning (decided in #40, 2026-09-29); keep unsupported phrases as original text, also marked for review.
 - Preserve the approved fixed player/control layout and current-row scrolling.
 
 ## Response boundary
@@ -82,4 +82,4 @@ The original no-lyric-body persistence boundary is superseded by [saved pronunci
 3. Human review evaluates singability independently of structural validation; no fixture pass is reported as full-song quality.
 4. Network cancellation, bounds, timeout, provider refusal, and offline behavior preserve original practice and playback state.
 5. Browser rendering plus sequential Android/iOS builds verify integration; native locale behavior is observed rather than inferred from HTML language.
-6. The operator reviews the new pronunciation display before publication or merge.
+6. I review the new pronunciation display before publication or merge.

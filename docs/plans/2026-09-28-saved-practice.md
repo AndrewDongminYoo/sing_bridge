@@ -13,7 +13,7 @@ Preserve unrelated research notes and the approved scrolling implementation.
 2. Implement bounded script analysis, safe text previews, versioned reference storage, and exact-ID restoration.
 3. Run the page tests and review lifecycle/storage edge cases.
 4. Inspect rendered candidate and saved-list UI with an isolated named browser session, including actual reload.
-5. Run scoped formatting checks and sequential mobile builds; install over the existing DeviceHub build for operator review.
+5. Run scoped formatting checks and sequential mobile builds; install over the existing DeviceHub build for review.
 
 ## Authority and evidence
 

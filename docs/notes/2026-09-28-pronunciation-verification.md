@@ -2,7 +2,7 @@
 
 ## Scope and authority
 
-The operator approved server AI processing with a lightweight model and reuse of the provided credential.
+I approved server AI processing with a lightweight model and reuse of the provided credential.
 The implementation adds a loopback Node server, debug native transports, phrase language results, and an optional pronunciation layer for timed YouTube lyrics.
 It introduces no runtime dependencies.
 It does not deploy a service or enable pronunciation in release builds.
@@ -39,7 +39,7 @@ Model snapshot and rates: [OpenAI mini model documentation](https://developers.o
 Quality remains provisional: the model did not mark the ambiguous 明日 reading for review, and it emitted separate uncertain whitespace segments despite the prompt.
 The UI preserves whitespace without presenting it as an unknown language badge.
 All displayed language labels and pronunciation remain AI estimates; structural validity does not establish sung pronunciation accuracy.
-Japanese long-vowel spelling and English-oriented Korean readability still need operator review.
+Japanese long-vowel spelling and English-oriented Korean readability still need review.
 The instruction-like fixture was treated as source text rather than executed.
 
 ## Automated evidence

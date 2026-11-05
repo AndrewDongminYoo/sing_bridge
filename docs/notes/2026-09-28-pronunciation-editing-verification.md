@@ -2,8 +2,8 @@
 
 ## Scope and authority
 
-The operator approved saving, editing, and reusing pronunciation inside the app and explicitly excluded LRC export for this increment.
-The operator requested TDD coverage against destructive edits, line breaks, and abnormal engine behavior.
+I approved saving, editing, and reusing pronunciation inside the app and explicitly excluded LRC export for this increment.
+I requested TDD coverage against destructive edits, line breaks, and abnormal engine behavior.
 Personal account: AndrewDongminYoo; project: sing_bridge.
 Oracle returned [no precedent found] for pronunciation persistence and lyric editing.
 
@@ -26,7 +26,7 @@ Terminated and relaunched the app, reopened the saved practice, and observed Kor
 The settings status explicitly reported that saved pronunciation was restored.
 Screenshots are in ignored `build/qa/pronunciation-storage-editor.png`, `build/qa/pronunciation-storage-restored.png`, and `build/qa/pronunciation-storage-restored-status.png`.
 Automated HID typing and simulator clipboard input did not reach the native editor reliably, so native keyboard editing is not claimed as verified.
-The installed Debug build remains available for operator testing.
+The installed Debug build remains available for testing.
 
 ## Rendered browser evidence
 
@@ -45,10 +45,10 @@ The regression also checks that an offset save preserves previous pronunciation 
 The complete Node suite passed 89 tests after this repair.
 
 Native keyboard editing remains unverified: the earlier automated input did not reach the editor, and a later Device Hub retry was blocked by the locked Mac before input could be tested.
-The operator deferred that check while working remotely; this is not evidence that Device Hub cannot type or paste.
+I deferred that check while working remotely; this is not evidence that Device Hub cannot type or paste.
 No physical device was used.
 No Android native pass was performed for this change.
 PR #8 is merged; this increment continues on `codex/saved-pronunciation` from `40362bd`.
 The Node suite was rerun on that branch with 88 passes and no failures.
 Hosted checks and code/security review must cover the new PR head.
-Operator review of the editor UI remains pending before merge.
+Review of the editor UI remains pending before merge.

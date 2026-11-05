@@ -39,5 +39,5 @@ The browser session and fixture server were stopped after verification.
 ## Remaining limits
 
 Actual iOS 27.0 WebView touch input, YouTube network seek latency, and native accessibility activation remain unverified in this change.
-The operator previously deferred native interaction testing while the remote Mac was locked; that does not establish a general Device Hub input failure.
+I previously deferred native interaction testing while the remote Mac was locked; that does not establish a general Device Hub input failure.
 Before merging, inspect the rendered result and test tapping versus swiping in the native app when the device is available.

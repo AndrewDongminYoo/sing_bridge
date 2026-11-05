@@ -50,7 +50,7 @@ Actual LRCLIB search and synchronization against a playing video still need an A
 The final debug build was installed over the existing app on the booted DeviceHub iPhone 17 Pro (89E4D493-3048-486A-BCC0-3F3D749B3929).
 The app launch result is recorded in the task state.
 No physical device was used.
-The prior player-only operator approval does not establish approval of this new lyrics screen.
+The prior player-only approval does not establish approval of this new lyrics screen.
 API availability and attribution do not establish commercial lyric rights.
 Codex Doctor, run after project guidance changes, reported one warning, zero failures, and three notes; its warning concerns update configuration.
 Project-scoped Oracle retrieval returned `[no precedent found]`.

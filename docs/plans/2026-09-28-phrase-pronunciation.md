@@ -2,7 +2,7 @@
 
 ## Approved direction
 
-The operator approved server AI processing with a lightweight model and authorized reuse of the local credential.
+I approved server AI processing with a lightweight model and authorized reuse of the local credential.
 Use Node built-ins for a loopback development server, strict phrase validation, and native debug transports.
 Do not deploy a public paid proxy.
 No new runtime dependency is required.
@@ -17,7 +17,7 @@ No new runtime dependency is required.
 5. Connect an optional pronunciation layer to stable lyric row IDs and native preferred locale without changing player timing or saved references.
 6. Add a compact target selector and original/pronunciation control in existing lyric settings; preserve fixed controls and safe text rendering.
 7. Run shipped JavaScript tests, shared JVM tests, scoped Trunk, and sequential Android/iOS checks, then inspect actual native locale selection and playback during conversion.
-8. Present fixture quality and rendered UI for operator review, with external processing and persistence limits stated explicitly.
+8. Present fixture quality and rendered UI for review, with external processing and persistence limits stated explicitly.
 
 ## Likely implementation paths
 
