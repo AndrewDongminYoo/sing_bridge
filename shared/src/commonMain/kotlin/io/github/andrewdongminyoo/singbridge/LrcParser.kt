@@ -35,7 +35,7 @@ fun parseLrc(text: String, durationMs: Long): PracticeTrack {
             "${index + 1}번째 줄의 시간표시를 확인해 주세요. [00:01.50]가사 형식을 지원합니다."
         }
         times.forEach { time ->
-            require(time < durationMs || time == durationMs && lyric.isEmpty()) {
+            require(time < durationMs || (time == durationMs && lyric.isEmpty())) {
                 "${index + 1}번째 줄의 시간이 음원 길이를 벗어납니다."
             }
             entries += time to lyric

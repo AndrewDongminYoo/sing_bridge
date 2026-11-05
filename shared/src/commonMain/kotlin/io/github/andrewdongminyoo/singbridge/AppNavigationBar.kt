@@ -44,6 +44,7 @@ fun AppNavigationBar(selectedIndex: Int, onSelect: (Int) -> Unit) {
                                     drawCircle(ink, 6.5f * unit, Offset(10 * unit, 10 * unit), style = stroke)
                                     drawLine(ink, Offset(15 * unit, 15 * unit), Offset(21 * unit, 21 * unit), 2 * unit)
                                 }
+
                                 1 -> {
                                     drawRoundRect(
                                         ink,
@@ -63,6 +64,7 @@ fun AppNavigationBar(selectedIndex: Int, onSelect: (Int) -> Unit) {
                                     )
                                     drawLine(ink, Offset(12 * unit, 18 * unit), Offset(12 * unit, 22 * unit), 2 * unit)
                                 }
+
                                 else -> listOf(5f, 12f, 19f).forEach { y ->
                                     drawCircle(ink, 1.5f * unit, Offset(4 * unit, y * unit))
                                     drawLine(ink, Offset(9 * unit, y * unit), Offset(22 * unit, y * unit), 2 * unit)
