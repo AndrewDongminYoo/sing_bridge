@@ -5,14 +5,14 @@ Follows the [Korean collecting society review](2026-10-19-korea-cmo-licensing-re
 
 ## Status
 
-Andrew prepared both messages on 2026-10-19; this note records what he reported, not a delivery receipt.
+I prepared both messages on 2026-10-19; this note records what I reported, not a delivery receipt.
 
-| Society | Route                                                                                                  | Sent                                                                                  |
-| ------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| JASRAC  | Email to the publishing section, `shuppan-contact@jasrac.or.jp`, with the 30-song list as CSV          | 2026-10-20 09:00 KST, scheduled send; Andrew confirmed it in the Sent folder that day |
-| NexTone | [Inquiry form](https://www.nex-tone.co.jp/inquiry/), category 「インターネット上での音楽利用について」 | 2026-10-19 23:00 KST, as Andrew reported; the form takes no attachment                |
+| Society | Route                                                                                                  | Sent                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| JASRAC  | Email to the publishing section, `shuppan-contact@jasrac.or.jp`, with the 30-song list as CSV          | 2026-10-20 09:00 KST, scheduled send; I confirmed it in the Sent folder that day |
+| NexTone | [Inquiry form](https://www.nex-tone.co.jp/inquiry/), category 「インターネット上での音楽利用について」 | 2026-10-19 23:00 KST, as I reported; the form takes no attachment                |
 
-As of 2026-10-20 23:57 KST, neither society has replied, as Andrew reported.
+As of 2026-10-20 23:57 KST, neither society has replied, as I reported.
 Record any answers in this note.
 
 ## Why these routes
@@ -49,7 +49,7 @@ Questions, as sent in Japanese and summarized here:
 
 The message cites the JASRAC FAQ items above and KOMCA FAQ item 38 on the publishing reservation, and attaches the 30-song list asking which works JASRAC administers for this use and who licenses the rest.
 Its transliteration example is labeled as a self-written sentence.
-The first draft's example looked like it might be a published lyric, so Andrew replaced it with a clearly original line before the scheduled send.
+The first draft's example looked like it might be a published lyric, so I replaced it with a clearly original line before the scheduled send.
 
 ## NexTone message
 

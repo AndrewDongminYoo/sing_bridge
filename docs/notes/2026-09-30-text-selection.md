@@ -1,6 +1,6 @@
 # Text selection on the YouTube page
 
-Andrew asked on 2026-09-30 that tapping app UI no longer select text, while lyrics may stay selectable.
+I asked on 2026-09-30 that tapping app UI no longer select text, while lyrics may stay selectable.
 
 ## Where selection happened
 

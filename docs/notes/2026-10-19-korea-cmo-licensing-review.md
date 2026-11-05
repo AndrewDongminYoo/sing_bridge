@@ -97,7 +97,7 @@ I reported the following on 2026-10-19; see the [replies note](2026-10-01-lyrics
 
 I judge both too expensive for this scope: both are priced for broad catalog coverage, while the target is a narrow set of Japanese songs popular in Korea.
 At the LyricFind minimum, that is at least USD 7,200 per year before any AI scope is priced.
-On 2026-10-20 Andrew told LyricFind in writing that the budget in the first months after launch will be well below USD 600 per month, and asked for a smaller, usage-based, or ramped option despite the stated minimum ([follow-up](2026-10-01-lyrics-license-replies.md#lyricfind-follow-up-2026-10-20)).
+On 2026-10-20 I told LyricFind in writing that the budget in the first months after launch will be well below USD 600 per month, and asked for a smaller, usage-based, or ramped option despite the stated minimum ([follow-up](2026-10-01-lyrics-license-replies.md#lyricfind-follow-up-2026-10-20)).
 
 ## Options
 

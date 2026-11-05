@@ -8,7 +8,7 @@ Since #40, the prompt asks for a pronunciation for every supported phrase outsid
 When the model returns such a phrase with a null or blank pronunciation, the server normalizes it to `pronunciation: null` with `needsReview: true`, and the page shows its source with the `음차 확인 필요` label.
 In the #41 paid rerun this happened for 0 of 190 segments.
 
-On 2026-09-29, Andrew chose to keep this behavior and to count these phrases in the edit-rate report (#21), and to decide on a server retry later from that count.
+On 2026-09-29, I chose to keep this behavior and to count these phrases in the edit-rate report (#21), and to decide on a server retry later from that count.
 Rejecting the batch stays out, because it would bring back the #29 failures.
 
 ## Change
