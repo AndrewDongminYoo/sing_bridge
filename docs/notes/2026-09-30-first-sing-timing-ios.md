@@ -18,8 +18,8 @@ The iOS simulator does not meet the target: the three completed runs have a medi
 | King Gnu - 白日              | 1:22   | Completed.                                                                                    |
 | あいみょん - マリーゴールド  | 1:31   | Completed.                                                                                    |
 
-The operator decided not to repeat the 踊り子 run.
-The operator did not record which step took the most time in each run.
+Dongmin Yu decided not to repeat the 踊り子 run.
+Dongmin Yu did not record which step took the most time in each run.
 
 ## Setup
 
@@ -27,7 +27,7 @@ The operator did not record which step took the most time in each run.
 - **Device:** iPhone 18 Pro simulator, iOS 27.0, freshly installed, so no practice or pronunciation was saved; the device's languages are `en-KR`, then `ko-KR`.
 - **App:** Debug build of `main` at `a361b5c`, built for the simulator as the README shows.
 - **Server:** the development pronunciation server from the same commit, with `gpt-5.4-mini-2026-03-17`.
-- **Operator:** Andrew, viewing the simulator in Xcode 27's DeviceHub, with a stopwatch.
+- **User:** Andrew, viewing the simulator in Xcode 27's DeviceHub, with a stopwatch.
 - **Search input:** each `<artist> - <title>` was pasted in Japanese from the Mac.
   Paste from the Mac had stopped working after a load spike on the machine, and it worked again after the simulator was rebooted.
 - **Machine load during the runs:** not recorded.
@@ -61,5 +61,5 @@ The log names songs only by page run; the songs above follow the order of the ru
 ## Limits
 
 - A simulator on the development Mac, not a physical iPhone: a physical iPhone cannot generate pronunciation until the hosted path (#50 to #52) exists.
-- One operator, one run per song, and no per-step times.
+- One user, one run per song, and no per-step times.
 - The Android runs are recorded separately.

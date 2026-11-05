@@ -22,5 +22,5 @@ Invalid captures exit 2 without echoing the supplied source text.
 ## Boundaries
 
 No paid calls, automatic capture, new dependencies, production server changes, prompt changes, UI changes, or saved-edit changes.
-Reports contain supplied text and remain local unless the operator explicitly shares them.
+Reports contain supplied text and remain local unless the user explicitly shares them.
 Tests use original synthetic responses and the real installed dictionary; they establish adapter behavior rather than model accuracy.

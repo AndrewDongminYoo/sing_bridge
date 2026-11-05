@@ -60,18 +60,18 @@ Those attempts did not verify actual iOS video loading or playback.
 These were automation blockers; neither worker exit 0 nor a successful app launch proves media playback.
 No physical device was used and no unrelated process was terminated.
 
-The operator then requested another installation and launch.
+Dongmin Yu then requested another installation and launch.
 The final build was installed over the existing app and launched on the iPhone 17 Pro virtual device; the home screen was captured in `build/qa/youtube/operator-launch.png`.
 The app and device were left running for manual inspection.
-The operator subsequently confirmed that YouTube loading and video playback both work.
-This is operator-reported runtime evidence, separate from the automated checks above.
-The operator's accompanying screenshot shows a rendered video, the playing status, a 0:54 / 4:05 time display, and enabled five-second seek buttons.
+Dongmin Yu subsequently confirmed that YouTube loading and video playback both work.
+This is runtime evidence reported by Dongmin Yu, separate from the automated checks above.
+Dongmin Yu's accompanying screenshot shows a rendered video, the playing status, a 0:54 / 4:05 time display, and enabled five-second seek buttons.
 The screenshot establishes the displayed state; it does not by itself prove seek or background behavior.
-The operator subsequently confirmed five-second seeking and background/return behavior as well.
-iOS loading, playback, seeking, and background/return checks therefore have operator-reported passing evidence.
+Dongmin Yu subsequently confirmed five-second seeking and background/return behavior as well.
+iOS loading, playback, seeking, and background/return checks therefore have passing evidence reported by Dongmin Yu.
 Unavailable-video recovery on iOS remains unconfirmed.
 
-The operator clarified that this Mac's updated environment integrates the former Simulator application into DeviceHub.
+Dongmin Yu clarified that this Mac's updated environment integrates the former Simulator application into DeviceHub.
 The installed DeviceHub application was found and opened at `/Applications/Xcode.app/Contents/Applications/DeviceHub.app`.
 Use DeviceHub for the graphical device window in this environment; `simctl` remains available for the native commands used here.
 

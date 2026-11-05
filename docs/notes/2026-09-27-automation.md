@@ -5,11 +5,11 @@
 This note records the initial automation setup and its follow-up checks.
 For current versions and hook behavior, use `.trunk/trunk.yaml`, `gradle/wrapper/gradle-wrapper.properties`, `setup.sh`, and the [project workflow](../../AGENTS.md#workflow).
 
-The operator requested separate lower-model workers for CI, Trunk, and hosted container setup, each using an applicable skill.
+Dongmin Yu requested separate lower-model workers for CI, Trunk, and hosted container setup, each using an applicable skill.
 Three Terra workers own `.github/workflows/`, `.trunk/`, and `setup.sh` respectively.
 The root agent owns documentation and integration verification in the main workspace.
 The initial setup task did not publish commits or trigger hosted CI.
-The operator subsequently requested publication through `pr-loop`; PR checks and review results are recorded in that PR and Git-local loop state.
+Dongmin Yu subsequently requested publication through `pr-loop`; PR checks and review results are recorded in that PR and Git-local loop state.
 
 ## Skills
 

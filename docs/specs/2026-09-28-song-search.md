@@ -2,7 +2,7 @@
 
 ## Approved experience
 
-The operator requested a song-search input that accepts artist - title, opens the most relevant YouTube video, and then searches LRCLIB with the same artist and title.
+Dongmin Yu requested a song-search input that accepts artist - title, opens the most relevant YouTube video, and then searches LRCLIB with the same artist and title.
 Keep the existing direct YouTube link/ID input and manual lyric search available.
 Video discovery does not authorize audio extraction or bypassing the official visible player.
 
@@ -28,7 +28,7 @@ Preserve the existing lyric timeout, size bounds, cancellation, and rate-limit h
 
 ## Credential integration
 
-The operator supplied YOUTUBE_API_KEY through ignored local.properties.
+Dongmin Yu supplied YOUTUBE_API_KEY through ignored local.properties.
 An official search probe returned HTTP 200 and the top Vaundy video without printing credentials.
 Generate a common Kotlin value under shared/build at build time, using an empty value when the local setting is absent.
 Do not commit the key or generated output, and do not use the supplied service-account credential.
@@ -51,7 +51,7 @@ Checked 2026-09-28: [YouTube search.list](https://developers.google.com/youtube/
 
 ## Approved practice refinements
 
-The operator requested duration-based lyric ranking, easier timing controls, separate discovery/practice screens, and single-song repeat by default.
+Dongmin Yu requested duration-based lyric ranking, easier timing controls, separate discovery/practice screens, and single-song repeat by default.
 Keep artist/title search and direct links on discovery; opening a candidate enters practice with the visible official player and lyrics.
 Returning to discovery pauses playback, and returning to practice does not autoplay.
 Returning to existing practice cancels an unfinished new song search.
@@ -74,7 +74,7 @@ The [loop parameter](https://developers.google.com/youtube/player_parameters#loo
 
 ## Approved compact practice layout
 
-The operator approved the UI review proposal to keep the video, active lyrics, and primary controls together without long page scrolling.
+Dongmin Yu approved the UI review proposal to keep the video, active lyrics, and primary controls together without long page scrolling.
 Keep the existing colors, official player, discovery screen, and request/playback contracts.
 Use a viewport-sized practice grid: compact title/back bar, visible player, playback metadata, flexible lyric reading area, and bottom transport/timing controls.
 Keep the player at least 200 pixels tall and wide in the tested layouts.

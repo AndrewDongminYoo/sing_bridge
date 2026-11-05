@@ -5,7 +5,7 @@ Follows the [review-flag rerun](2026-09-29-pronunciation-review-flags.md), where
 
 ## Decision
 
-On 2026-09-29 the operator decided that, because Japanese kanji readings depend on meaning, the model should give its most likely pronunciation for an uncertain Japanese phrase and flag it for review, instead of returning none.
+On 2026-09-29 Dongmin Yu decided that, because Japanese kanji readings depend on meaning, the model should give its most likely pronunciation for an uncertain Japanese phrase and flag it for review, instead of returning none.
 Since #39, the server and the page keep a flagged pronunciation and show the row with a `발음 확인 필요` label.
 
 ## Change

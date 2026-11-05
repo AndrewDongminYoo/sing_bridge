@@ -2,7 +2,7 @@
 
 ## Approved direction
 
-The operator requested Apple Music-like lyric scrolling synchronized with playback after approving the compact practice layout.
+Dongmin Yu requested Apple Music-like lyric scrolling synchronized with playback after approving the compact practice layout.
 Keep the KMP shared WebView and visible official YouTube player; do not migrate this surface to SwiftUI.
 The supplied SwiftUI patterns guide informs stable row identity, local state ownership, and anchored scrolling.
 Personal project Oracle retrieval returned `[no precedent found]`.
@@ -28,4 +28,4 @@ Preserve safe text rendering, bounded requests, replacement recovery, video visi
 
 1. Shipped-script tests fail before the change for stable list identity, boundary scrolling, manual suspension/resume, seek/loop changes, and reduced motion; existing search/recovery tests remain passing.
 2. Rendered browser checks observe intermediate scroll positions and final row alignment using synthetic original lyrics, including small and landscape viewports, a long row, and reduced motion.
-3. Provide a motion recording rather than screenshots alone, and build the native iOS host for operator verification.
+3. Provide a motion recording rather than screenshots alone, and build the native iOS host for verification by Dongmin Yu.

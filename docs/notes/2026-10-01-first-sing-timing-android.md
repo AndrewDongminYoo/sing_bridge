@@ -16,22 +16,22 @@ The Android emulator does not meet the target: all five runs reached the first p
 | King Gnu - 白日              | 1:09 | Completed.                                                                                      |
 | あいみょん - マリーゴールド  | 1:20 | Timed to the first pronounced line, but the third pronunciation batch failed; see Observations. |
 
-The operator did not record which step took the most time in each run.
+Dongmin Yu did not record which step took the most time in each run.
 
 ## Setup
 
 - **Date:** 2026-10-01, from about 11:24 to 11:32 KST, from the page-load times in the usage log's request IDs and the log's last write.
 - **Device:** Android emulator AVD `Pixel_10`, Android 17, device locale `en-US`.
 - **App:** the debug build that the #66 session installed over the existing app on 2026-09-30 at 22:15 KST: `main` with the native share bridges, which do not change search, lyrics, or pronunciation.
-  The operator was asked to delete any saved practice for these songs before the runs; this note does not verify that none remained.
+  Dongmin Yu was asked to delete any saved practice for these songs before the runs; this note does not verify that none remained.
 - **Server:** the development pronunciation server from `main`, reached through `adb reverse tcp:18773 tcp:18773`, with `gpt-5.4-mini-2026-03-17`.
-- **Operator:** Andrew, with a stopwatch; each `<artist> - <title>` was pasted in Japanese.
+- **User:** Andrew, with a stopwatch; each `<artist> - <title>` was pasted in Japanese.
 - **Machine load:** the 15-minute load average was 8.0 at 11:37 KST, just after the runs; the 10-core Mac also ran the two iOS simulators and other sessions.
 
 ## Observations
 
 - **Pronunciation language:** on the `en-US` device the page starts **읽을 언어** as English, so every run needed a change to 한국어 before **음차 만들기**.
-  The operator asked to keep that choice as a user setting instead of deriving it from the device language each time.
+  Dongmin Yu asked to keep that choice as a user setting instead of deriving it from the device language each time.
 - **Age restriction:** the 夜に駆ける search played without the age-restriction warning that stopped the iOS run.
   Repeating the app's search request from the Mac at 11:37 KST still returned the age-restricted music video `x8VYWazR5mE` first, so why the emulator got a different first result is not known.
 - **Failed batch:** for マリーゴールド (47 lines), the usage log has three requests: two succeeded, and the third (`ok: false`) was billed (941 input and 855 output tokens) but rejected.
@@ -59,4 +59,4 @@ The log names songs only by page run; the songs above follow the order of the ru
 ## Limits
 
 - An emulator on the development Mac, not a physical Android device; no Android device was connected.
-- One operator, one run per song, and no per-step times.
+- One user, one run per song, and no per-step times.

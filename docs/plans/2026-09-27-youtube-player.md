@@ -1,6 +1,6 @@
 # YouTube player implementation plan
 
-Approved direction: operator selected official YouTube embedding and requested continuing implementation after PR2/3.
+Approved direction: Dongmin Yu selected official YouTube embedding and requested continuing implementation after PR2/3.
 
 1. Test shared page URL validation and player state using Node built-ins; observe failure before implementation.
 2. Implement the shared HTML page with explicit visibility/lifecycle pauses and native host origin.

@@ -3,7 +3,7 @@
 ## Status
 
 Approved next scope after merged PR #9.
-The operator selected this proposal with "해당 범위로 먼저 진행합시다."
+Dongmin Yu selected this proposal with "해당 범위로 먼저 진행합시다."
 Implementation continues under the existing PR workflow authority.
 Personal-project Oracle returned `[no precedent found]` for lyric seeking and pronunciation quality.
 

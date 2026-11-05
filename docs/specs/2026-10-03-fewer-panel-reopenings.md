@@ -3,12 +3,12 @@
 ## Status and authority
 
 Implemented in the shared page; see [verification](../notes/2026-10-03-fewer-panel-reopenings-verification.md) for Android runtime evidence and the remaining iOS simulator check.
-Issue: #86, from the operator's feedback on the #24 runs on 2026-10-03.
+Issue: #86, from Dongmin Yu's feedback on the #24 runs on 2026-10-03.
 The dialog rule in [song search](2026-09-28-song-search.md) ("Pause before opening it, block playback while it is open, and do not autoplay when it closes") is unchanged and applies to every opening below.
 
 ## Behavior before implementation
 
-The operator named generating pronunciation as the slowest step and two dialog reopenings as explicit delays:
+Dongmin Yu named generating pronunciation as the slowest step and two dialog reopenings as explicit delays:
 
 - After a song search, `openVideo` in `YouTubeEmbed.kt` opens the video and starts the LRCLIB search on its own, but the candidates appear only inside the closed lyric settings dialog, so the user has to tap **가사 선택** to see them.
 - Choosing a lyric record runs `chooseLyrics` in `YouTubeLyrics.kt`, which closes the dialog, so the user has to open **가사·설정** again to tap **음차 만들기**.
