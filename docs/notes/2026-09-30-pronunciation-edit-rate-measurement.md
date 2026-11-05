@@ -8,7 +8,7 @@ Protocol: "Measure the reviewer edit rate" in `tools/pronunciation-quality/READM
 
 ## Setup
 
-- **Reviewer:** Dongmin Yu, who chose to act as the reviewer on 2026-09-30; this measurement did not assess the fluency that Gate A asks of the reviewer.
+- **Reviewer:** me, who chose to act as the reviewer on 2026-09-30; this measurement did not assess the fluency that Gate A asks of the reviewer.
 - **Songs:** the first 10 songs of the approved list (`tools/lyrics-coverage/songs-2026-09.json`, PR #49) by chart rank whose synced match was not flagged as false in the [coverage gate run](2026-09-30-lyrics-coverage-gate-run.md).
 - **App:** the SingBridge build already installed on the iOS Debug simulator (iPhone 17 Pro, iOS 27.0), which the session that installed it reported as the PR #48 build (`55fba29`); `git log 55fba29..3241345` shows no change under `shared`, `iosApp`, `androidApp`, or `server`, and `3241345` ran the pronunciation server.
 - **Flow:** the reviewer searched each song, chose the listed LRCLIB record, generated Korean-target (`ko`) pronunciation in the app, read every line, and saved with **음차 저장**.
@@ -78,6 +78,6 @@ The 411 lines sent include the 12 lines of the failed batch, so 399 lines were g
 
 ## Limits
 
-- One reviewer, who is also Dongmin Yu, reviewed one generation per song; model output varies between calls.
+- One reviewer, who is also me, reviewed one generation per song; model output varies between calls.
 - The 10 songs are the highest-ranked eligible ones on one chart, so the result may differ for other songs.
 - The Latin-letter check detects the wrong script, not wrong readings; other errors rest on the reviewer's reading.

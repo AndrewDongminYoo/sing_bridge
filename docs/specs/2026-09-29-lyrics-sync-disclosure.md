@@ -2,7 +2,7 @@
 
 ## Contract
 
-Separate playback seeking from lyric timing adjustments, following Dongmin Yu's deferred request about confusing adjacent controls.
+Separate playback seeking from lyric timing adjustments, following my deferred request about confusing adjacent controls.
 Keep five-second transport controls visible by default and collapse the lyric timing controls behind an explicit Korean summary.
 Reset the disclosure when starting a new video, while an invalid link preserves the current practice.
 In portrait viewports at most 599 pixels wide and 620 pixels high, expanded calibration temporarily replaces transport controls and omits the explanatory paragraph to preserve lyric space.
@@ -20,4 +20,4 @@ Expand, adjust, collapse, and reopen using real browser interactions; verify the
 Existing shipped-script tests must still pass.
 Keep the official player's viewport and remaining lyric area visible without page scrolling.
 Browser fixtures establish rendered behavior and app commands, not real provider playback or native WebView integration.
-Visual approval by Dongmin Yu remains required before merge.
+Visual approval remains required before merge.

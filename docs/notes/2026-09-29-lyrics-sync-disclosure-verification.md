@@ -35,7 +35,7 @@ Oracle returned `[no precedent found]` for sync controls and lyric calibration.
 The browser fixture verifies layout and commands sent by the app, not real YouTube media playback or native WebView integration.
 No new simulator build was installed in this pass; the device retains the merged navigation build.
 Hosted native build results belong to the PR checks.
-Visual approval by Dongmin Yu is pending for this change.
+Visual approval is pending for this change.
 
 ## Hosted review repairs
 

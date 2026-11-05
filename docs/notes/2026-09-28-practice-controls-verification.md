@@ -2,7 +2,7 @@
 
 ## Approved changes
 
-Dongmin Yu requested lyric candidates ranked by video duration, easier offset adjustment, separate song-search and playback screens, and single-song repeat by default.
+I requested lyric candidates ranked by video duration, easier offset adjustment, separate song-search and playback screens, and single-song repeat by default.
 The implementation reuses the existing shared HTML and official player without dependencies or extra Data API calls.
 Personal project Oracle retrieval for lyric timing and duration matching returned `[no precedent found]`; no unrelated precedent was applied.
 
@@ -52,5 +52,5 @@ Scoped Trunk and `git diff --check` passed.
 A local structured review checked hidden-player pause rules, asynchronous search cancellation, provider-text rendering, duration reordering, and timing boundaries.
 No outstanding finding remained in those paths.
 
-The revised native screens and repeat toggle still require interaction by Dongmin Yu after installation; the previous confirmation by Dongmin Yu covered the earlier search/playback/lyric-selection build.
+The revised native screens and repeat toggle still require interaction after installation; the previous confirmation covered the earlier search/playback/lyric-selection build.
 Browser runtime evidence is separate from native runtime evidence.

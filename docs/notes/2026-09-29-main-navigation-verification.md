@@ -27,7 +27,7 @@ Root visual inspection confirmed that the Home controls, YouTube input page, and
 - `build/qa/navigation-youtube.png`
 - `build/qa/navigation-my-songs.png`
 
-The screenshots are ignored local artifacts and do not replace visual approval by Dongmin Yu.
+The screenshots are ignored local artifacts and do not replace visual approval.
 The unsigned Debug iOS host built successfully and was installed over the existing app without uninstalling it.
 A second bounded QA pass used the running app without building, installing, or relaunching it.
 It selected the third Home lyric, played and paused at the nonzero end position `0:28 / 0:28`, then switched Home → YouTube → Home.

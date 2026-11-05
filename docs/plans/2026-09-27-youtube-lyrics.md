@@ -1,7 +1,7 @@
 # YouTube lyrics implementation plan
 
 Base: merged PR4 at `3a06f4b` in the existing workspace.
-Direction: continue Dongmin Yu's YouTube/LRCLIB product discussion with explicit candidate selection and video timing adjustment.
+Direction: continue my YouTube/LRCLIB product discussion with explicit candidate selection and video timing adjustment.
 
 1. Extend the shipped-page test harness with network and DOM boundaries; observe the missing-search failure.
 2. Add the lyrics module and page integration, covering request lifecycle, untrusted provider data, timestamp parsing, and actual-player-time rendering.

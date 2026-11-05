@@ -20,6 +20,6 @@ Native runtime verification remains separate from browser evidence and depends o
 
 ## Sources
 
-Dongmin Yu approved the linked plan in this conversation.
+I approved the linked plan in this conversation.
 The official [YouTube IFrame API](https://developers.google.com/youtube/iframe_api_reference#seekTo) describes `seekTo` and `playVideo`; this feature does not claim sample-accurate seeking.
 Personal project Oracle returned `[no precedent found]`.

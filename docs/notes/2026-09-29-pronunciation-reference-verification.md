@@ -39,7 +39,7 @@ Personal project Oracle returned `[no precedent found]`; the bounded experiment 
 
 ## UI adjustment
 
-Repeated AI/language text was removed from generated lyric rows at Dongmin Yu's request.
+Repeated AI/language text was removed from generated lyric rows at my request.
 Language remains in phrase metadata and accessibility labels; uncertain phrases retain their underline.
 Settings explain AI processing and the meaning of underlines, and explicit user edits still show their edited marker.
 

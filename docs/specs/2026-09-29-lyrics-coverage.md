@@ -20,7 +20,7 @@ Tests use fixture responses and run in CI; they make no network requests.
 
 ## Non-goals
 
-- Choosing the curated 30-song list: Dongmin Yu approves it.
+- Choosing the curated 30-song list: I approve it.
 - Judging false matches automatically: a person confirms the top candidate.
 - Running the app's LRC parser or changing app behavior.
 

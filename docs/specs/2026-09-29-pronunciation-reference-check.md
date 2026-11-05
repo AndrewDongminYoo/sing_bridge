@@ -2,7 +2,7 @@
 
 ## Scope
 
-Implement the [Japanese reading comparison plan](../plans/2026-09-28-pronunciation-reference-check.md), approved by Dongmin Yu, as a separate Node tool.
+Implement the approved [Japanese reading comparison plan](../plans/2026-09-28-pronunciation-reference-check.md) as a separate Node tool.
 The existing server validator checks response structure; the new tool provides independent dictionary candidates for developer inspection.
 No result is an automatic judgment of sung pronunciation or final Hangul quality.
 Original fixtures and synthetic readings keep evaluation offline and avoid paid AI calls.
@@ -22,7 +22,7 @@ Original fixtures and synthetic readings keep evaluation offline and avoid paid 
 
 ## Additional UI scope
 
-Dongmin Yu requested removal of repeated AI/language labels beneath each lyric during this implementation.
+I requested removal of repeated AI/language labels beneath each lyric during this implementation.
 Preserve language metadata and per-phrase accessible labels, uncertain-reading underlines, and the user-edited marker.
 Explain AI generation and uncertain underlines in lyric settings.
 No storage or response schema changes are needed.

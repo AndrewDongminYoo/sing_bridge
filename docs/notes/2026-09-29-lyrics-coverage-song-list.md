@@ -4,7 +4,7 @@
 
 Issue: #19.
 The list is `tools/lyrics-coverage/songs-2026-09.json`; this note records how it was chosen, so the list is not repeated here.
-It is a candidate for Dongmin Yu's approval: the Gate A lyric-availability run in the [competitive brief](2026-09-29-competitive-brief.md) uses it only after approval, and Dongmin Yu may replace any entry.
+It is a candidate for my approval: the Gate A lyric-availability run in the [competitive brief](2026-09-29-competitive-brief.md) uses it only after approval, and I may replace any entry.
 
 ## Sources
 
@@ -13,7 +13,7 @@ It is a candidate for Dongmin Yu's approval: the Gate A lyric-availability run i
 - **Names and durations:** the iTunes Search API for the Japan store (`https://itunes.apple.com/search?country=jp&entity=song`), queried on 2026-09-29 with the charted artist and title.
   The chart shows romanized titles, while LRCLIB records use the original names, so the list uses the store's artist and title.
 - **Video durations:** the YouTube Data API with the app's search parameters (`YouTubeSearch.kt`: relevance order, embeddable, syndicated, one result) and the query a user types, `<artist> - <title>`, then `videos.list` for the duration, on 2026-09-29.
-  The 30 searches and lookups used about 3,030 units of Dongmin Yu's daily YouTube quota and no paid API.
+  The 30 searches and lookups used about 3,030 units of my daily YouTube quota and no paid API.
 
 Only metadata was read; no lyric text was requested or stored.
 
@@ -39,7 +39,7 @@ The next eligible song, kept as a reserve, is KANA-BOON - シルエット (rank 
 The two lengths differ by more than the tool's 2-second match window for 21 of the 30 songs, mostly because music videos run longer than the track.
 
 For most songs the first video is the artist's or label's official upload.
-Two are not the original recording, and Dongmin Yu should decide whether to keep them as measured or replace the entry:
+Two are not the original recording, and I should decide whether to keep them as measured or replace the entry:
 
 - W / X / Y (rank 31): the first video is a fan-made lyric translation video of a collaboration version, 189 seconds against 279 in the store.
 - うたたね (rank 39): the first video is a live recording, 205 seconds against 181 in the store.

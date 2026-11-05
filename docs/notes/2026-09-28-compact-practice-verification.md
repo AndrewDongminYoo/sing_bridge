@@ -2,7 +2,7 @@
 
 ## Approved direction and scope
 
-Dongmin Yu approved implementing the review proposal: keep the visible video, active lyrics, and primary controls together without long page scrolling.
+I approved implementing the review proposal: keep the visible video, active lyrics, and primary controls together without long page scrolling.
 Changes are limited to the shared HTML modules, shipped-script tests, and related documentation.
 The Flutter-specific review skill was used only to establish the earlier review boundary; this implementation is KMP/WebView work explicitly authorized afterward.
 No dependency, backend, native navigation API, or credential contract changed.
@@ -79,6 +79,6 @@ The live-data overflow finding was repaired before the final build.
 
 The checks above establish browser rendering and exercised browser interactions.
 Native iOS keyboard insets, VoiceOver, Android TalkBack, and device-specific text scaling were not exercised in this pass.
-Dongmin Yu approved the installed iOS layout on 2026-09-28 and requested publication of the PR.
+I approved the installed iOS layout on 2026-09-28 and requested publication of the PR.
 The supplied 10:46:35 AM iPhone 17 Pro screenshot shows real video playback, active lyrics, enabled single-song repeat, a 5.5-second timing adjustment, and all primary controls in the visible screen.
 This confirms the reviewed native visual result; it does not expand the accessibility or keyboard checks listed above.

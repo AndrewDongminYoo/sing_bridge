@@ -2,7 +2,7 @@
 
 ## Direction and scope
 
-Dongmin Yu requested continued implementation after approving and merging PR 11.
+I requested continued implementation after approving and merging PR 11.
 Continue the approved diagnostic direction by making existing server responses directly assessable offline, before any production gate.
 The previous measurement recommends real authorized samples and human review; this adapter prepares that input path without making paid requests.
 Oracle retrieval for reading validation and response evaluation returned `[no precedent found]`.
@@ -15,7 +15,7 @@ Oracle retrieval for reading validation and response evaluation returned `[no pr
 4. Add report-only response mode to `evaluate.mjs`, preserving the existing fixture baseline path and metrics.
 5. Verify valid 480-segment server batches, rejection above server bounds, source tampering, line reordering, and no echoed private input on errors.
 6. Run the complete offline tool suite and existing server/page suite, scoped Trunk checks, and one structured local review.
-7. Commit and open a PR through the continuing PR loop; verify current-head Code Review, Security Review, and CI before requesting merge by Dongmin Yu.
+7. Commit and open a PR through the continuing PR loop; verify current-head Code Review, Security Review, and CI before requesting merge.
 
 ## Success checks
 

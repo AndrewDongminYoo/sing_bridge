@@ -2,7 +2,7 @@
 
 ## Contract and provenance
 
-Dongmin Yu selected local audio and LRC import, then approved restoring the last imported song after relaunch.
+I selected local audio and LRC import, then approved restoring the last imported song after relaunch.
 Implementation uses the existing workspace, native document pickers, private audio copies, and the existing playback adapters.
 No new dependency, commercial lyric source, physical-device write, or background playback was introduced.
 Personal project Oracle searches for local audio and LRC import returned `[no precedent found]`; no source path was available.

@@ -3,8 +3,8 @@
 ## Status and authority
 
 Issue: #16.
-This spec is a draft for Dongmin Yu's approval; merging it approves the path and its non-goals, not the start of implementation.
-On 2026-09-29 Dongmin Yu chose an authenticated hosted service over on-device processing and over keeping AI output developer-only, and chose Firebase Cloud Functions with Firebase App Check.
+This spec is a draft for my approval; merging it approves the path and its non-goals, not the start of implementation.
+On 2026-09-29 I chose an authenticated hosted service over on-device processing and over keeping AI output developer-only, and chose Firebase Cloud Functions with Firebase App Check.
 The hosting platform and the authentication method are new decisions: an Oracle lookup for earlier personal-project precedent on either returned `[no precedent found]`.
 
 Implementation starts only when both of these hold:
@@ -22,7 +22,7 @@ The README requires "a separately approved authenticated HTTPS service and lyric
 
 One HTTPS function receives the existing request contract, calls OpenAI with the server-held key, and returns the existing result contract.
 
-- **Host:** Cloud Functions for Firebase (2nd gen, Node.js), in a Firebase project owned by Dongmin Yu's personal account.
+- **Host:** Cloud Functions for Firebase (2nd gen, Node.js), in a Firebase project owned by my personal account.
   Cloud Functions are "Not applicable" on the Spark plan in the [Firebase pricing page](https://firebase.google.com/pricing) (accessed 2026-09-29), so the project needs the Blaze plan.
 - **Code reuse:** the function imports `validateRequest`, `validateResult`, `generatePronunciation`, and the prompt from `server/pronunciation.mjs` unchanged, so the hosted and development paths share one contract and one test suite.
   The development server stays for local work.
@@ -95,12 +95,12 @@ These rules are necessary but do not by themselves settle the rights question; #
 
 Filed when this spec merges, each blocked by #17 and #21:
 
-1. Firebase project, Blaze plan, App Check registration for both apps, and a dedicated OpenAI project, with its spend-limit behavior confirmed in the console (setup owned by Dongmin Yu).
+1. Firebase project, Blaze plan, App Check registration for both apps, and a dedicated OpenAI project, with its spend-limit behavior confirmed in the console (setup I own).
 2. The Cloud Function that reuses `server/pronunciation.mjs`, with App Check verification that rejects consumed tokens, transactional Firestore quotas, a platform-level limit for requests rejected at the cap, a deadline inside the bridges' 50-second cutoff, cancellation on disconnect, usage logging without text, and tests with fake App Check (including a replayed token) and fake provider responses (including a cancelled request).
 3. Native bridges: App Check limited-use tokens, the installation ID, and an HTTPS endpoint in release builds, with the loopback path kept for debug builds.
 4. A dated note measuring the added latency against #24 and the cost per song on the hosted path.
 
 ## Acceptance of this spec
 
-- Dongmin Yu approves this path and its non-goals by merging.
+- I approve this path and its non-goals by merging.
 - The four follow-up issues exist and name #17 and #21 as blockers.

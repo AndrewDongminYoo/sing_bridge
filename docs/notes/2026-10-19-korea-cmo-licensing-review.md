@@ -6,7 +6,7 @@ This is decision support from public sources, not a legal opinion or a record of
 
 ## Scope change under review
 
-On 2026-10-19 Dongmin Yu proposed narrowing the target to Korean speakers who want to sing Japanese songs, released in South Korea only.
+On 2026-10-19 I proposed narrowing the target to Korean speakers who want to sing Japanese songs, released in South Korea only.
 The question was whether the LRCLIB-based code can ship under that scope, and, if not, whether agreements with KOMCA and KOSCAP are the right path.
 
 ## Verdict
@@ -61,7 +61,7 @@ Under the narrowed scope, KOSCAP is needed only for NexTone repertoire; Korean s
 
 ## Who licenses what on the society route
 
-Dongmin Yu set this working split on 2026-10-19; each row still needs the society's written confirmation.
+I set this working split on 2026-10-19; each row still needs the society's written confirmation.
 
 | Use                                 | Licensor                                                                       | Open question                                                                                    |
 | ----------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
@@ -72,7 +72,7 @@ Dongmin Yu set this working split on 2026-10-19; each row still needs the societ
 
 ### Preferred target: JASRAC and NexTone only
 
-Dongmin Yu's preferred outcome is to close display rights with JASRAC and NexTone alone.
+My preferred outcome is to close display rights with JASRAC and NexTone alone.
 It holds only if all of these are confirmed in writing:
 
 1. JASRAC licenses lyric display in Korea directly for its works, because the use falls under the publishing reservation in KOMCA FAQ item 38.
@@ -89,13 +89,13 @@ Collecting societies in Japan, as in Korea, do not normally administer adaptatio
 
 ## Commercial vendor status
 
-Dongmin Yu reported the following on 2026-10-19; see the [replies note](2026-10-01-lyrics-license-replies.md#update-2026-10-19) for the record.
+I reported the following on 2026-10-19; see the [replies note](2026-10-01-lyrics-license-replies.md#update-2026-10-19) for the record.
 
 - **LyricFind:** stated USD 600 per month as the minimum payment for a catalog that excludes the major publishers, among them Universal and Sony.
   It will research the detailed scope, including AI use, once SingBridge states a workable budget.
 - **Musixmatch:** proposed only a price similar to LyricFind's figure with the major publishers included; no meeting took place.
 
-Dongmin Yu judges both too expensive for this scope: both are priced for broad catalog coverage, while the target is a narrow set of Japanese songs popular in Korea.
+I judge both too expensive for this scope: both are priced for broad catalog coverage, while the target is a narrow set of Japanese songs popular in Korea.
 At the LyricFind minimum, that is at least USD 7,200 per year before any AI scope is priced.
 On 2026-10-20 Andrew told LyricFind in writing that the budget in the first months after launch will be well below USD 600 per month, and asked for a smaller, usage-based, or ramped option despite the stated minimum ([follow-up](2026-10-01-lyrics-license-replies.md#lyricfind-follow-up-2026-10-20)).
 
@@ -110,7 +110,7 @@ On 2026-10-20 Andrew told LyricFind in writing that the budget in the first mont
 
 ## LyricFind as a bundle against the society route
 
-On 2026-10-20 Dongmin Yu reframed the LyricFind minimum.
+On 2026-10-20 I reframed the LyricFind minimum.
 On the society route, display rights split across KOMCA, JASRAC, and KOSCAP or NexTone, as the [split above](#who-licenses-what-on-the-society-route) shows, and transliteration can need consent per work from its right holders.
 So the USD 600 monthly minimum is worth judging as the cost of one contract that bundles these pieces, not only as a catalog price.
 

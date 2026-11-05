@@ -23,6 +23,6 @@ Android Back returns to Home from another tab before exiting the root activity.
 - Home, YouTube, and import controls remain above the tab bar and keyboard.
 - Existing search, lyric selection, timing, saved pronunciation, and local import contracts remain unchanged.
 - Verify shared visibility behavior with TDD, both native builds, and iOS 27.0 tab interaction and screenshots.
-- Visual approval by Dongmin Yu is required before merge.
+- Visual approval is required before merge.
 
 The [search-first navigation](2026-09-30-search-first-navigation.md) spec supersedes the tab order, names, initial selection, and Android Back target above.

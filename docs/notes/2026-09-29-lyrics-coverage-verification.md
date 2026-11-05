@@ -37,4 +37,4 @@ The report file contained no `syncedLyrics` or `plainLyrics` field; it was kept 
 
 ## Remaining
 
-The Gate A run needs the 30-song list approved by Dongmin Yu with a duration for each song, followed by a person confirming each `synced` match.
+The Gate A run needs the approved 30-song list with a duration for each song, followed by a person confirming each `synced` match.

@@ -2,7 +2,7 @@
 
 ## Scope and implementation
 
-Dongmin Yu requested playback-synchronized scrolling after approving the compact practice screen.
+I requested playback-synchronized scrolling after approving the compact practice screen.
 The native host remains SwiftUI plus WKWebView, with lyric presentation in the shared Kotlin HTML templates.
 The supplied SwiftUI patterns references informed stable row identity, narrow local state, and anchored scrolling rather than a framework migration.
 Project Oracle retrieval returned `[no precedent found]`.
@@ -53,4 +53,4 @@ Scoped Trunk and `git diff --check` passed.
 Local review checked stable row identity, unchanged provider-text rendering, bounds, scroll-only effects, manual follow state, and existing recovery contracts.
 
 The motion checks establish browser behavior with controlled playback, not real YouTube scheduling, native touch gestures, VoiceOver, TalkBack, or Dynamic Type.
-Dongmin Yu subsequently approved the native scrolling screen: “화면 승인합니다.”
+I subsequently approved the native scrolling screen: “화면 승인합니다.”

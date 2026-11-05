@@ -2,8 +2,8 @@
 
 ## Status
 
-Approved on 2026-09-29 with Dongmin Yu's instruction to proceed.
-Dongmin Yu previously requested an OSS engine as a quality reference for AI pronunciation.
+Approved on 2026-09-29 with my instruction to proceed.
+I previously requested an OSS engine as a quality reference for AI pronunciation.
 The first implementation is an offline Japanese reading comparison tool; production gating remains a separate decision based on its results.
 Personal project Oracle searches for reading validation and pronunciation quality returned `[no precedent found]`.
 
@@ -50,7 +50,7 @@ No mobile build is required for this tool-only slice; it does not alter shipped 
 
 ## Additional UI request
 
-During implementation, Dongmin Yu separately requested removing the repeated AI and language label below every lyric.
+During implementation, I separately requested removing the repeated AI and language label below every lyric.
 Apply that small change in `YouTubePronunciation.kt` with a separate commit, preserving phrase language data, accessible phrase labels, review underlines, and the explicit user-edited marker.
 Keep AI disclosure and the underline explanation in lyric settings.
 Verify the shared-page tests and rendered pronunciation rows; hosted CI also compiles the mobile hosts.

@@ -2,7 +2,7 @@
 
 ## Odoriko
 
-`odoriko-practice.json` records the practice setup requested by Dongmin Yu: search for `Vaundy - Odoriko`, choose the selected lyric record, and delay lyrics by 5.5 seconds.
+`odoriko-practice.json` records the practice setup I requested: search for `Vaundy - Odoriko`, choose the selected lyric record, and delay lyrics by 5.5 seconds.
 It contains public video and lyric identifiers, a display title, and an offset; it contains no lyric body, audio, generated pronunciation, or credentials.
 
 The recorded video is `7HgJIAUtICU` and the lyric record is LRCLIB `35923881`.

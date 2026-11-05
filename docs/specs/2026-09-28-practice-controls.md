@@ -29,4 +29,4 @@ The current practice grid and candidate cards already have explicit approval and
 1. Existing `node --test tools/test-youtube.mjs` verifies that control handlers retain their behavior.
 2. Render discovery, practice, and lyric settings in an isolated browser at the specified sizes; inspect role hierarchy, group captions, clipping, focus, and touch heights.
 3. Check shared Kotlin compilation/tests, scoped Trunk, and the iOS host build sequentially.
-4. Install over the existing DeviceHub app for visual review by Dongmin Yu.
+4. Install over the existing DeviceHub app for visual review.
