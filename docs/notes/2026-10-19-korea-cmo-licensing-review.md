@@ -82,6 +82,8 @@ It holds only if all of these are confirmed in writing:
 
 Condition 1 may not hold: for publishing a songbook of JASRAC works abroad, JASRAC's FAQ says few foreign societies handle print rights, so permission comes from the right holders, though JASRAC can license some cases ([JASRAC FAQ, international network](https://secure.okbiz.jp/faq-jasrac/category/show/229?site_domain=jp), accessed 2026-10-19).
 If lyric display is treated the same way, JASRAC works would need their publishers rather than JASRAC.
+
+Update 2026-11-08: JASRAC answered on 2026-10-30 that condition 1 does not hold; see the [JASRAC reply](2026-10-19-japan-society-inquiry.md#jasrac-reply-2026-10-30). NexTone has not replied.
 The [JASRAC and NexTone inquiry](2026-10-19-japan-society-inquiry.md) asks both points.
 
 Even then, transliteration consent stays per work with the right holders, outside both societies.
