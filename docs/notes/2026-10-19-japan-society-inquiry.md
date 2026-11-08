@@ -15,6 +15,34 @@ I prepared both messages on 2026-10-19; this note records what I reported, not a
 As of 2026-10-20 23:57 KST, neither society has replied, as I reported.
 Record any answers in this note.
 
+JASRAC answered on 2026-10-30; see [JASRAC reply](#jasrac-reply-2026-10-30).
+As of 2026-11-08, NexTone has not replied.
+
+## JASRAC reply (2026-10-30)
+
+The JASRAC Net Media Section (ネットメディア課) answered by email on 2026-10-30 17:59 JST, with `network@jasrac.or.jp` in copy.
+On 2026-10-23 the section wrote that the publishing section had forwarded the inquiry to it and that an internal check would take time.
+Summary of the answers, by the question numbers of the [JASRAC message](#jasrac-message):
+
+- **Questions 1, 2, 4, 5 (who licenses, use category, on-device saving, text source):** JASRAC does not hold the rights for publishing outside Japan. For distributing lyrics of JASRAC works in Korea, ask each work's music publisher (OP) how the use is handled. JASRAC gave no separate answer on the use category, on-device saving, or text-source conditions.
+- **Question 3 (Hangul transliteration and OpenAI processing):** the use may count as translation or adaptation (翻訳・翻案等), so confirm it with each work's music publisher together with the display use.
+- **Questions 1 and 6 (finding publishers):** use [J-WID](http://www2.jasrac.or.jp/eJwid/); for works that JASRAC does not administer or has not registered, use the [NexTone work search](https://search.nex-tone.co.jp/terms?0) or the [Music Rights Information Search Navi](https://www.minc.or.jp/minc/search). Contacts of major publishers are on [JASRAC's publisher list](https://www.jasrac.or.jp/information/25/publisher-list.html); JASRAC does not look up publisher contacts, so find any publisher missing from that list yourself.
+- **Song list:** as a one-time exception, JASRAC added the JASRAC work code and the publisher registered in J-WID to the 30-song file and shared it through a password-protected download that expires on 2026-11-30. It notes that JASRAC does not hold some rights for some of the songs, and the file does not mark which.
+
+I downloaded the file and sent a thank-you reply on 2026-11-08, saying that I will contact each publisher.
+All 30 rows carry a work code and a publisher; the society and Korean sub-publisher columns are still empty.
+By publisher group, 13 of the 30 songs list a major publisher: 7 Sony Music Publishing (including its divisions), 5 Universal Music Publishing, and 1 Warner Music Japan.
+
+The file and any per-song publisher table built from it stay outside this repository, because it reproduces J-WID records and the J-WID terms prohibit reproducing database contents (see [Song list](#song-list)).
+The download link and password stay in the email.
+
+### What this changes
+
+- The JASRAC half of the preferred target in the [Korean collecting society review](2026-10-19-korea-cmo-licensing-review.md) does not hold: JASRAC does not license display of its works in Korea and sends these questions to each work's publisher. The NexTone half is still open.
+- JASRAC did not say that the publisher is the licensor; a publisher may still point to its Korean sub-publisher or to KOMCA. The publisher is the next party to ask about display, transliteration, and AI processing.
+- For JASRAC works, the society route therefore becomes a set of negotiations per publisher. That changes the bundle-against-split comparison that #95 depends on. The 13 songs from major publishers may also be the ones that LyricFind's quoted plan excludes; whether the exclusion covers the Japanese affiliates is one of the open questions to LyricFind.
+- Next: group the 30 songs by publisher outside the repository, and contact each publisher, starting from JASRAC's publisher list.
+
 ## Why these routes
 
 - JASRAC licenses uses in Japan in principle and leaves uses abroad to each country's society ([JASRAC FAQ 243](https://secure.okbiz.jp/faq-jasrac/faq/show/243?category_id=205&site_domain=jp)).
