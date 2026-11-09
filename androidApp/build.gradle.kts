@@ -66,7 +66,7 @@ val utpNettyModules = listOf(
 )
 configurations.configureEach {
     if (name in utpGuavaConfigurations) {
-        project.dependencies.constraints.add(name, "com.google.guava:guava:33.7.2-jre")
+        project.dependencies.constraints.add(name, "com.google.guava:guava:33.8.0-jre")
     }
     if (name in utpNettyConfigurations) {
         utpNettyModules.forEach { module ->
@@ -77,7 +77,7 @@ configurations.configureEach {
         listOf("bcpkix-jdk18on", "bcprov-jdk18on", "bcutil-jdk18on").forEach { module ->
             project.dependencies.constraints.add(name, "org.bouncycastle:$module:1.85")
         }
-        project.dependencies.constraints.add(name, "org.apache.httpcomponents:httpclient:4.5.13")
-        project.dependencies.constraints.add(name, "org.apache.commons:commons-lang3:3.18.0")
+        project.dependencies.constraints.add(name, "org.apache.httpcomponents:httpclient:4.5.14")
+        project.dependencies.constraints.add(name, "org.apache.commons:commons-lang3:3.21.0")
     }
 }
