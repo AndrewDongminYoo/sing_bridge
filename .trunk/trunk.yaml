@@ -43,7 +43,7 @@ lint:
     - bandit@1.9.4
     - black@26.10.1
     - checkov@3.4.3
-    - cspell@10.4.0
+    - cspell@10.4.1
     - git-diff-check
     - isort@9.0.2
     - ktlint@1.8.0
@@ -52,7 +52,7 @@ lint:
     - oxipng@10.2.1
     - pinact@4.1.1!
     - prettier@3.9.10
-    - ruff@0.17.3
+    - ruff@0.17.4
     - shellcheck@0.11.0
     - shfmt@3.14.1
     - taplo@0.10.0
