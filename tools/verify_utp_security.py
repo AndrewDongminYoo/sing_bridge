@@ -77,26 +77,26 @@ def verify_lock(text):
 
     expected = {}
     for config in GUAVA_CONFIGS:
-        expected[(PREFIX + config, "com.google.guava:guava")] = "33.7.2-jre"
+        expected[(PREFIX + config, "com.google.guava:guava")] = "33.8.0-jre"
     for config in ["core", "android-test-plugin-host-emulator-control"]:
         for module in NETTY_MODULES:
             expected[(PREFIX + config, "io.netty:netty-" + module)] = "4.1.137.Final"
     listener = PREFIX + "android-test-plugin-result-listener-gradle"
     for module in ["bcpkix-jdk18on", "bcprov-jdk18on", "bcutil-jdk18on"]:
         expected[(listener, "org.bouncycastle:" + module)] = "1.85"
-    expected[(listener, "org.apache.httpcomponents:httpclient")] = "4.5.13"
-    expected[(listener, "org.apache.commons:commons-lang3")] = "3.18.0"
+    expected[(listener, "org.apache.httpcomponents:httpclient")] = "4.5.14"
+    expected[(listener, "org.apache.commons:commons-lang3")] = "3.21.0"
     for key, version in expected.items():
         if selected.get(key) != version:
             raise ValueError(f"Unsafe or missing selection: {key}: expected {version}")
     for config in APP_CONFIGS:
-        if selected.get((config, "com.google.guava:guava")) != "33.7.2-android":
+        if selected.get((config, "com.google.guava:guava")) != "33.8.0-android":
             raise ValueError(f"App Guava Android variant missing: {config}")
     for (config, module), version in selected.items():
         if (
             module == "com.google.guava:guava"
             and not config.startswith(PREFIX)
-            and version != "33.7.2-android"
+            and version != "33.8.0-android"
         ):
             raise ValueError(f"App Guava variant changed: {config}")
     return len(expected)

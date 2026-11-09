@@ -87,7 +87,7 @@ def baseline_lock():
         [
             f"org.apache.httpcomponents:httpclient:4.5.6={listener}",
             f"org.apache.commons:commons-lang3:3.16.0={listener}",
-            f"com.google.guava:guava:33.7.2-android={APP_CONFIGS}",
+            f"com.google.guava:guava:33.8.0-android={APP_CONFIGS}",
         ]
     )
     return "\n".join(rows) + "\n"
@@ -96,13 +96,13 @@ def baseline_lock():
 def repaired_lock():
     text = baseline_lock()
     for old, new in [
-        ("32.0.1-jre", "33.7.2-jre"),
-        ("33.3.1-jre", "33.7.2-jre"),
+        ("32.0.1-jre", "33.8.0-jre"),
+        ("33.3.1-jre", "33.8.0-jre"),
         ("4.1.93.Final", "4.1.137.Final"),
         ("4.1.110.Final", "4.1.137.Final"),
         (":1.79=", ":1.85="),
-        (":4.5.6=", ":4.5.13="),
-        (":3.16.0=", ":3.18.0="),
+        (":4.5.6=", ":4.5.14="),
+        (":3.16.0=", ":3.21.0="),
     ]:
         text = text.replace(old, new)
     return text
@@ -128,7 +128,11 @@ class LockGateTest(unittest.TestCase):
 
     def test_jre_variant_cannot_leak_into_app(self):
         with self.assertRaises(ValueError):
-            guard.verify_lock(repaired_lock().replace("33.7.2-android", "33.7.2-jre"))
+            guard.verify_lock(repaired_lock().replace("33.8.0-android", "33.8.0-jre"))
+
+    def test_android_variant_cannot_replace_host_jre(self):
+        with self.assertRaises(ValueError):
+            guard.verify_lock(repaired_lock().replace("33.8.0-jre", "33.8.0-android"))
 
     def test_missing_app_runtime_configuration_is_rejected(self):
         with self.assertRaises(ValueError):

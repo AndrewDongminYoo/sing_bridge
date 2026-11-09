@@ -66,7 +66,7 @@ val utpNettyModules = listOf(
 )
 configurations.configureEach {
     if (name in utpGuavaConfigurations) {
-        project.dependencies.constraints.add(name, "com.google.guava:guava:33.8.0-android")
+        project.dependencies.constraints.add(name, "com.google.guava:guava:33.8.0-jre")
     }
     if (name in utpNettyConfigurations) {
         utpNettyModules.forEach { module ->
