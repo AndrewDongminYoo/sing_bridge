@@ -17,6 +17,7 @@ Record any answers in this note.
 
 JASRAC answered on 2026-10-30; see [JASRAC reply](#jasrac-reply-2026-10-30).
 As of 2026-11-08, NexTone has not replied.
+Sony Music Publishing and Universal Music Publishing answered on 2026-11-10 and 2026-11-12; see [Publisher replies](#publisher-replies-2026-11-10-and-2026-11-12).
 
 ## JASRAC reply (2026-10-30)
 
@@ -42,6 +43,23 @@ The download link and password stay in the email.
 - JASRAC did not say that the publisher is the licensor; a publisher may still point to its Korean sub-publisher or to KOMCA. The publisher is the next party to ask about display, transliteration, and AI processing.
 - For JASRAC works, the society route therefore becomes a set of negotiations per publisher. That changes the bundle-against-split comparison that #95 depends on. The 13 songs from major publishers may also be the ones that LyricFind's quoted plan excludes; whether the exclusion covers the Japanese affiliates is one of the open questions to LyricFind.
 - Next: group the 30 songs by publisher outside the repository, and contact each publisher, starting from JASRAC's publisher list.
+
+## Publisher replies (2026-11-10 and 2026-11-12)
+
+On 2026-11-08 I sent the first two publisher inquiries as a pilot, adapted from the [JASRAC message](#jasrac-message) with JASRAC's referral and that publisher's songs: Sony Music Publishing (Japan) through its inquiry form, for 6 songs, and Universal Music Publishing (Japan) by email, for 5 songs, sent 2026-11-09 09:00 KST.
+The other publishers wait for these answers.
+
+- **Sony Music Publishing (Japan), 2026-11-10:** inquiries about using its works outside Japan go to the local Sony Music Publishing office. Because I live in Korea and the app is distributed in Korea, the contact is Sony Music Publishing Korea, and the reply named one person there.
+- **Universal Music Publishing (Japan), 2026-11-12:** asked me to contact a named person at its Korean office.
+
+Neither reply answered the questions themselves.
+Contact names and addresses stay in the emails.
+
+### What the replies change
+
+- For the 11 songs of these two publishers, the next party is the publisher's Korean office, not the Japanese publisher. This is the case that the 2026-11-08 pilot was meant to detect before writing to the other publishers.
+- The messages to the Korean offices go in Korean and ask the same questions, plus whether the Korean office can license these works itself or needs the Japanese publisher's approval per work.
+- Whether the smaller Japanese publishers also route to a Korean sub-publisher is still unknown.
 
 ## Why these routes
 
