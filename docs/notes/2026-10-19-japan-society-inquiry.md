@@ -18,6 +18,7 @@ Record any answers in this note.
 JASRAC answered on 2026-10-30; see [JASRAC reply](#jasrac-reply-2026-10-30).
 As of 2026-11-08, NexTone has not replied.
 Sony Music Publishing and Universal Music Publishing answered on 2026-11-10 and 2026-11-12; see [Publisher replies](#publisher-replies-2026-11-10-and-2026-11-12).
+B ZONE refused on 2026-11-13; see [Second round](#second-round-2026-11-13).
 
 ## JASRAC reply (2026-10-30)
 
@@ -60,6 +61,29 @@ Contact names and addresses stay in the emails.
 - For the 11 songs of these two publishers, the next party is the publisher's Korean office, not the Japanese publisher. This is the case that the 2026-11-08 pilot was meant to detect before writing to the other publishers.
 - The messages to the Korean offices go in Korean and ask the same questions, plus whether the Korean office can license these works itself or needs the Japanese publisher's approval per work.
 - Whether the smaller Japanese publishers also route to a Korean sub-publisher is still unknown.
+
+## Second round (2026-11-13)
+
+After both pilots pointed to Korean offices, I wrote to the Korean offices and to the other publishers without waiting further.
+On 2026-11-13 KST:
+
+- **Email, scheduled for 09:00 KST:** the Korean offices of Sony Music Publishing and Universal Music Publishing (in Korean), and Columbia Songs, Sun Music Publishing, and ENS (in Japanese). All five left on time.
+- **Inquiry forms:** Warner Music Japan, Lévie PLUS, Stardust (SDR), Fuji Pacific Music, and B ZONE.
+
+So 10 of the 16 publishers now have the inquiry.
+The other 6 have no route that I can use from Korea yet: their forms require a Japanese phone number or address, or they take inquiries only by phone, fax, a downloaded application format, or through the JASRAC information desk.
+The NexTone follow-up is separate.
+
+### Replies
+
+- **B ZONE, 2026-11-13, 2 songs:** refused. Its rights department wrote that it cannot license lyric display in the app or Hangul transliteration, and gave no reason and no other contact.
+- **Warner Music Japan, 2026-11-13, 1 song:** its customer service centre did not answer the questions and asked me to apply again through its content-use application form, writing the questions in the form's free-text field.
+- **Sony Music Publishing Korea:** as of 2026-11-13 19:00 KST the email was not delivered yet; Sony's mail relay reported it as deferred and still retrying.
+
+### What the refusal changes
+
+- This is the first refusal. The 2 B ZONE songs cannot be offered with displayed lyrics or transliteration under a license from their publisher, so they leave the licensed song set unless another rights holder for Korea is found.
+- A publisher can refuse outright, so the licensed song set will likely be smaller than the 30 target songs. The plan comparison in #95 must count songs that are actually licensable, not all 30.
 
 ## Why these routes
 
