@@ -85,7 +85,7 @@ def verify_lock(text):
     for module in ["bcpkix-jdk18on", "bcprov-jdk18on", "bcutil-jdk18on"]:
         expected[(listener, "org.bouncycastle:" + module)] = "1.85"
     expected[(listener, "org.apache.httpcomponents:httpclient")] = "4.5.14"
-    expected[(listener, "org.apache.commons:commons-lang3")] = "3.21.0"
+    expected[(listener, "org.apache.commons:commons-lang3")] = "3.22.0"
     for key, version in expected.items():
         if selected.get(key) != version:
             raise ValueError(f"Unsafe or missing selection: {key}: expected {version}")

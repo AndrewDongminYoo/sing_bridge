@@ -78,6 +78,6 @@ configurations.configureEach {
             project.dependencies.constraints.add(name, "org.bouncycastle:$module:1.85")
         }
         project.dependencies.constraints.add(name, "org.apache.httpcomponents:httpclient:4.5.14")
-        project.dependencies.constraints.add(name, "org.apache.commons:commons-lang3:3.21.0")
+        project.dependencies.constraints.add(name, "org.apache.commons:commons-lang3:3.22.0")
     }
 }
