@@ -19,6 +19,7 @@ JASRAC answered on 2026-10-30; see [JASRAC reply](#jasrac-reply-2026-10-30).
 As of 2026-11-08, NexTone has not replied.
 Sony Music Publishing and Universal Music Publishing answered on 2026-11-10 and 2026-11-12; see [Publisher replies](#publisher-replies-2026-11-10-and-2026-11-12).
 B ZONE refused on 2026-11-13; see [Second round](#second-round-2026-11-13).
+Warner Chappell Music Korea proposed license terms for one song on 2026-11-27, and two more publishers refused; see [Replies to the second round](#replies-to-the-second-round-2026-11-16-to-2026-11-27).
 
 ## JASRAC reply (2026-10-30)
 
@@ -84,6 +85,42 @@ The NexTone follow-up is separate.
 
 - This is the first refusal. The 2 B ZONE songs cannot be offered with displayed lyrics or transliteration under a license from their publisher, so they leave the licensed song set unless another rights holder for Korea is found.
 - A publisher can refuse outright, so the licensed song set will likely be smaller than the 30 target songs. The plan comparison in #95 must count songs that are actually licensable, not all 30.
+
+## Replies to the second round (2026-11-16 to 2026-11-27)
+
+Contact names, addresses, and the per-song publisher mapping stay in the emails, as above.
+
+### Refusals
+
+- **Fuji Pacific Music, 2026-11-16, 2 songs:** refused paid commercial distribution of both songs, citing the wishes of the artists and their management. The reply did not address non-commercial use.
+- **Stardust (SDR), 2026-11-17, 2 songs:** asked me not to use the songs in the app, with no reason and no other contact.
+
+With B ZONE, three publishers have refused 6 songs in total.
+
+### Referral to a Korean sub-publisher
+
+- **Columbia Songs, 2026-11-16, 1 song:** use in Korea goes through its Korean sub-publisher, Universal Music Publishing Korea. After a correction later that day, the named contact was the same person who has the 5-song inquiry from 2026-11-13.
+- I sent the inquiry for this song to Universal Music Publishing Korea on 2026-11-16. On 2026-11-19 it confirmed the request and said it will update me once the song is approved. It has not answered the 5-song inquiry yet.
+
+### Warner Chappell Music Korea, 1 song
+
+- After the customer service reply on 2026-11-13, I applied through Warner Music Japan's content-use form the same day; the form registered the application twice with the same content.
+- **2026-11-16:** Warner Music Japan's legal department replied that Warner Chappell Music Korea, the publisher in charge of Korea, would contact me.
+- **2026-11-19 to 2026-11-20:** Warner Chappell Music Korea first read the request as a YouTube promotion with rewritten lyrics. I corrected that, and it then asked for detailed license terms. I narrowed the request for this song: no AI processing of the lyrics, no offline saving, and a Hangul transliteration that I write by hand.
+- **2026-11-23:** a hand-written transliteration still needs explicit approval from the Japanese rights holders (publisher and lyricist). Warner Chappell Music Korea will request original lyrics with the Hangul line beneath (option 1) and, as a fallback, review original lyrics only (option 2). I sent two UI samples built from example sentences, not from the song.
+- **2026-11-27:** it proposed concrete terms for a one-year, Korea-only pilot before launch: synced display with the official YouTube embed only, option 1 or option 2, no AI input, no offline storage by users, and copyright, writer, and publisher credits on the lyric screen. The fee is a flat amount up to a cap of monthly active users, with a revenue or usage based royalty above the cap. The amounts stay out of this repository because the email is confidential.
+- The same day I agreed to proceed and asked that the user cap count only users who display this song, that the term start at app launch, and how the royalty is pro-rated, who supplies the lyric text, what credit wording to use, and how payment works. The Japanese publisher's final approval is still pending.
+
+### No reply yet
+
+As of 2026-11-27: Sony Music Publishing Korea (Sony's mail relay reported a delivery delay on 2026-11-13 and sent no failure notice after its retry window), Sun Music Publishing, ENS, and Lévie PLUS.
+
+### What the second-round replies change
+
+- The Korean offices of the major publishers are the route that produces answers. Inquiries for 13 of the 30 songs now sit with three of them (one Sony song went to NexTone instead, and the Columbia song joined Universal), and one has offered terms.
+- The Hangul transliteration is a separate approval per song, even when it is written by hand. The app must be able to show original lyrics only for a song whose transliteration is not approved.
+- A licensed song comes with product conditions: no AI pronunciation, no on-device saving, and rights credits on the lyric screen. The app needs per-song license conditions before any licensed song ships; that change follows the usual issue and spec route.
+- The licensed song set is now at most 24 of 30, and the plan comparison in #95 still has to count only songs with an actual license.
 
 ## Why these routes
 
